@@ -27,11 +27,15 @@ class MacroEnvironment:
 class MAConfig:
     """M&A engine configuration."""
 
-    annual_acquisitions: int = 1  # 1-2 deals/year
-    target_ev_ebitda: float = 4.0  # 3.0-8.0x
+    # Phase-based: overridden by MAEngine.PHASE_MA_PARAMS
+    annual_acquisitions: int = 2  # default; actual is phase-dependent
+    target_ev_ebitda: float = 4.5  # standard discipline ceiling
     pmi_ebitda_improvement: float = 0.30  # +30% over 3 years
     max_leverage: float = 3.0  # Net Debt/EBITDA per deal
     group_max_leverage: float = 2.5  # Group-level
+    # Strategic exception: allow revenue-based valuation for high-growth targets
+    strategic_growth_threshold: float = 0.50  # 50%+ revenue growth
+    strategic_max_pct_of_ev: float = 0.15  # max 15% of group EV per deal
 
 
 @dataclass

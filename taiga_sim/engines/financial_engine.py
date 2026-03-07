@@ -1,8 +1,20 @@
-"""Financial simulation engine: P/L, B/S, CF for group and subsidiaries."""
+"""Financial simulation engine: P/L, B/S, CF for group and subsidiaries.
+
+Organic growth is modeled per-company using product lifecycle theory:
+  Introduction -> Growth -> Maturity -> Decline
+Each stage has distinct growth rates, margin profiles, and capex needs.
+Group financials are Sum-of-the-Parts of all operating companies.
+
+EV/EBITDA multiple is dynamic, driven by:
+  - Group scale (larger = higher multiple)
+  - Growth rate (faster growing = premium)
+  - Brand strength (builds over time with consistent execution)
+  - Portfolio diversification (conglomerate premium vs discount)
+"""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import math
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -15,11 +27,78 @@ from taiga_sim.models.financial import (
     HoldingProfitLoss,
     ProfitLoss,
 )
-from taiga_sim.models.organization import Company
+from taiga_sim.models.organization import Company, CompanyType
+
+
+# Product lifecycle growth profiles (annual rates)
+LIFECYCLE_PROFILES = {
+    #                  growth_rate, gross_margin, opex_ratio, capex_ratio, duration_years
+    "introduction": (0.40, 0.35, 0.35, 0.08, 3),   # high growth, low margin, high burn
+    "growth":       (0.25, 0.42, 0.28, 0.06, 5),   # strong growth, improving margins
+    "maturity":     (0.04, 0.45, 0.22, 0.035, 15),  # stable, high margins, cash cow
+    "decline":      (-0.03, 0.38, 0.25, 0.02, 10),  # shrinking, margin compression
+}
+
+# Company type modifiers on lifecycle
+COMPANY_TYPE_MODIFIERS = {
+    CompanyType.PRODUCT:    {"growth_boost": 0.0,  "margin_boost": 0.02, "maturity_years": 18},
+    CompanyType.EXPERIENCE: {"growth_boost": 0.10, "margin_boost": -0.03, "maturity_years": 8},
+    CompanyType.STRATEGY:   {"growth_boost": 0.05, "margin_boost": 0.05, "maturity_years": 12},
+    CompanyType.VENTURE:    {"growth_boost": 0.20, "margin_boost": -0.05, "maturity_years": 6},
+    CompanyType.TERRA:      {"growth_boost": -0.02, "margin_boost": 0.03, "maturity_years": 25},
+}
 
 
 class FinancialEngine:
     """Computes quarterly financials for each company and the consolidated group."""
+
+    def advance_lifecycle(self, company: Company) -> None:
+        """Advance a company's product lifecycle stage based on age."""
+        company.lifecycle_age += 1
+        stage = company.lifecycle_stage
+        mod = COMPANY_TYPE_MODIFIERS.get(company.company_type, {})
+        maturity_extension = mod.get("maturity_years", 12)
+
+        # Transition rules
+        profile = LIFECYCLE_PROFILES[stage]
+        base_duration = profile[4]
+
+        if stage == "introduction" and company.lifecycle_age > base_duration:
+            company.lifecycle_stage = "growth"
+            company.lifecycle_age = 0
+        elif stage == "growth" and company.lifecycle_age > base_duration:
+            company.lifecycle_stage = "maturity"
+            company.lifecycle_age = 0
+        elif stage == "maturity" and company.lifecycle_age > maturity_extension:
+            company.lifecycle_stage = "decline"
+            company.lifecycle_age = 0
+
+    def get_company_growth_rate(self, company: Company, state: SimulationState) -> float:
+        """Calculate annual organic growth rate based on lifecycle + macro."""
+        stage = company.lifecycle_stage
+        base_growth, _, _, _, _ = LIFECYCLE_PROFILES[stage]
+        mod = COMPANY_TYPE_MODIFIERS.get(company.company_type, {})
+        growth_boost = mod.get("growth_boost", 0.0)
+
+        # For strategic acquisitions in growth phase, use their inherent rate
+        # (decaying over time as hypergrowth normalizes)
+        if company.revenue_growth_rate > base_growth + growth_boost:
+            # Decay high growth rates toward lifecycle baseline over ~5 years
+            decay = 0.80  # 20% annual decay toward baseline
+            company.revenue_growth_rate = (
+                base_growth + growth_boost
+                + (company.revenue_growth_rate - base_growth - growth_boost) * decay
+            )
+            effective_growth = company.revenue_growth_rate
+        else:
+            effective_growth = base_growth + growth_boost
+
+        # Macro overlay
+        macro_adj = state.macro.gdp_growth_rate - 0.015  # deviation from baseline
+        if state.macro.is_shock_active:
+            macro_adj = -0.08  # severe contraction during crisis
+
+        return effective_growth + macro_adj
 
     def simulate_company_quarter(
         self,
@@ -29,30 +108,32 @@ class FinancialEngine:
         """Simulate one quarter of financials for a single operating company."""
         year = state.year
         quarter = state.quarter
-        config = state.config
 
-        # Organic growth (quarterly = annual / 4)
-        macro_growth = state.macro.gdp_growth_rate
-        organic_growth_annual = 0.04  # default 3-5%
-        if state.macro.is_shock_active:
-            organic_growth_annual = -0.05
-        quarterly_growth = (1 + organic_growth_annual + macro_growth) ** 0.25 - 1
+        # Get lifecycle-based growth rate
+        annual_growth = self.get_company_growth_rate(company, state)
+        quarterly_growth = (1 + annual_growth) ** 0.25 - 1
 
         # Revenue
         new_revenue = company.revenue * (1 + quarterly_growth)
 
-        # P/L
-        gross_margin = 1.0 - 0.55  # ~45% gross margin typical
-        cogs = new_revenue * 0.55
-        depreciation_rate = 0.065  # 6.5% of revenue
+        # Get lifecycle-based cost structure
+        stage = company.lifecycle_stage
+        _, base_gross_margin, base_opex_ratio, capex_ratio, _ = LIFECYCLE_PROFILES[stage]
+        mod = COMPANY_TYPE_MODIFIERS.get(company.company_type, {})
+        margin_boost = mod.get("margin_boost", 0.0)
+
+        gross_margin = base_gross_margin + margin_boost
+        cogs = new_revenue * (1 - gross_margin)
+
+        # Opex split
+        opex_ratio = base_opex_ratio
+        personnel_pct = opex_ratio * 0.60
+        sga_pct = opex_ratio * 0.40
+
+        depreciation_rate = 0.065 if stage != "decline" else 0.04
         depreciation = new_revenue * depreciation_rate
-        personnel_pct = 0.15
-        sga_pct = 0.10
         personnel = new_revenue * personnel_pct
         sga = new_revenue * sga_pct
-
-        interest_rate_quarterly = state.macro.interest_rate / 4
-        interest = 0.0  # computed from B/S debt below
 
         pl = ProfitLoss(
             revenue=new_revenue,
@@ -60,7 +141,7 @@ class FinancialEngine:
             sga=sga,
             personnel_cost=personnel,
             depreciation=depreciation,
-            interest_expense=interest,
+            interest_expense=0.0,
             tax_rate=0.30,
         )
 
@@ -71,26 +152,21 @@ class FinancialEngine:
             pl.operating_income / new_revenue if new_revenue > 0 else 0
         )
 
-        # Simplified B/S
-        working_capital_ratio = 0.175  # 17.5% of revenue
-        capex_maintenance_ratio = 0.035  # 3.5% of revenue
-
+        # B/S
         bs = BalanceSheet(
-            cash=0,  # will be computed in consolidation
-            accounts_receivable=new_revenue * 0.15,  # ~15% AR
+            cash=0,
+            accounts_receivable=new_revenue * 0.15,
             inventory=new_revenue * 0.10,
-            ppe=company.acquisition_price * 0.3,  # simplified
+            ppe=company.acquisition_price * 0.3,
             goodwill=company.acquisition_price * 0.5,
         )
 
         # CF
-        wc_change = 0.0  # simplified for now
-        capex = -new_revenue * capex_maintenance_ratio
-
+        capex = -new_revenue * capex_ratio
         cf = CashFlow(
             net_income=pl.net_income,
             depreciation=depreciation,
-            working_capital_change=wc_change,
+            working_capital_change=0.0,
             capex_maintenance=capex,
         )
 
@@ -107,16 +183,13 @@ class FinancialEngine:
         config = state.config
         holding = state.holding
 
-        # Income from subsidiaries
         total_sub_net_income = sum(r.pl.net_income for r in subsidiary_results)
         total_sub_ebitda = sum(r.pl.ebitda for r in subsidiary_results)
         total_sub_revenue = sum(r.pl.revenue for r in subsidiary_results)
 
-        # Holding company income
-        dividend_income = max(0, total_sub_net_income * 0.70)  # 70% payout ratio
-        mgmt_fee = total_sub_revenue * 0.02  # 2% management fee
+        dividend_income = max(0, total_sub_net_income * 0.70)
+        mgmt_fee = total_sub_revenue * 0.02
 
-        # Holding costs scale down over time
         phase = state.current_phase
         if phase and phase.phase <= 1:
             cost_ratio = 0.60
@@ -129,7 +202,6 @@ class FinancialEngine:
         hq_personnel = total_income * cost_ratio * 0.60
         hq_admin = total_income * cost_ratio * 0.40
 
-        # Contributions (from operating income, simplified)
         operating_income_estimate = total_income - hq_personnel - hq_admin
 
         group_fcf = sum(r.cf.fcf for r in subsidiary_results)
@@ -139,12 +211,11 @@ class FinancialEngine:
 
         keshiki_contribution = max(0, operating_income_estimate * config.compensation.keshiki_reserve_rate)
 
-        # Profit sharing pool (only when EV increases above high-water mark)
         profit_sharing = 0.0
         ev = self.compute_enterprise_value(state, total_sub_ebitda)
         if ev > holding.historical_high_ev:
             ev_increase = ev - holding.historical_high_ev
-            profit_sharing = ev_increase * config.compensation.profit_sharing_rate / 4  # quarterly
+            profit_sharing = ev_increase * config.compensation.profit_sharing_rate / 4
 
         return HoldingProfitLoss(
             dividend_income=dividend_income,
@@ -161,26 +232,70 @@ class FinancialEngine:
         state: SimulationState,
         total_ebitda: float,
     ) -> float:
-        """Compute enterprise value using EBITDA × multiple."""
-        year = state.year
-        # EV/EBITDA multiple increases with maturity
-        if year <= 1:
-            multiple = 4.0
-        elif year <= 3:
-            multiple = 5.0
-        elif year <= 5:
-            multiple = 6.0
-        elif year <= 7:
-            multiple = 7.0
-        elif year <= 10:
-            multiple = 8.0
-        elif year <= 15:
-            multiple = 9.0
-        else:
-            multiple = 10.0
+        """Compute enterprise value using dynamic EBITDA multiple.
 
-        annualized_ebitda = total_ebitda * 4  # quarterly to annual
-        return max(0, annualized_ebitda * multiple)
+        Multiple is driven by:
+        1. Base: starts at 4x, scales with maturity
+        2. Growth premium: faster-growing groups get higher multiples
+        3. Brand premium: builds over time with consistent execution
+        4. Scale premium: larger groups command higher multiples
+        5. Diversification: well-diversified portfolio avoids conglomerate discount
+        """
+        year = state.year
+        holding = state.holding
+        annualized_ebitda = total_ebitda * 4
+
+        if annualized_ebitda <= 0:
+            return max(0, holding.enterprise_value * 0.95)  # drift down if no earnings
+
+        # 1. Base multiple (time-based foundation)
+        if year <= 3:
+            base = 4.0 + year * 0.3
+        elif year <= 10:
+            base = 5.0 + (year - 3) * 0.4
+        elif year <= 20:
+            base = 8.0 + (year - 10) * 0.3
+        else:
+            base = 11.0 + (year - 20) * 0.2
+
+        # 2. Growth premium: revenue CAGR over last 3 years
+        growth_premium = 0.0
+        if len(state.annual_revenue_history) >= 3:
+            rev_now = state.annual_revenue_history[-1]
+            rev_3y = state.annual_revenue_history[-3]
+            if rev_3y > 0 and rev_now > rev_3y:
+                cagr_3y = (rev_now / rev_3y) ** (1/3) - 1
+                if cagr_3y > 0.15:
+                    growth_premium = min(4.0, cagr_3y * 10)  # up to +4x
+
+        # 3. Brand premium: builds with years of consistent positive growth
+        consecutive_growth_years = 0
+        for i in range(1, len(state.annual_revenue_history)):
+            if state.annual_revenue_history[i] > state.annual_revenue_history[i-1]:
+                consecutive_growth_years += 1
+            else:
+                consecutive_growth_years = 0
+        brand_premium = min(3.0, consecutive_growth_years * 0.15)
+
+        # 4. Scale premium: larger EBITDA -> modestly higher multiple
+        ebitda_oku = annualized_ebitda / 1_0000_0000
+        scale_premium = 0.0
+        if ebitda_oku > 100:
+            scale_premium = min(2.0, math.log10(ebitda_oku / 100) * 1.5)
+
+        # 5. Diversification adjustment
+        n_types = len(set(c.company_type for c in holding.companies))
+        if n_types >= 4:
+            diversification = 0.5  # well-diversified premium
+        elif n_types >= 2:
+            diversification = 0.0  # neutral
+        else:
+            diversification = -0.5  # concentrated discount
+
+        multiple = base + growth_premium + brand_premium + scale_premium + diversification
+        multiple = max(4.0, min(25.0, multiple))  # cap at 25x
+
+        return annualized_ebitda * multiple
 
     def consolidate(
         self,
@@ -192,15 +307,12 @@ class FinancialEngine:
         total_revenue = sum(r.pl.revenue for r in subsidiary_results)
         total_ebitda = sum(r.pl.ebitda for r in subsidiary_results)
         total_net_income = sum(r.pl.net_income for r in subsidiary_results)
-        total_fcf = sum(r.cf.fcf for r in subsidiary_results)
 
-        # Update state
         ev = self.compute_enterprise_value(state, total_ebitda)
         state.holding.enterprise_value = ev
         if ev > state.holding.historical_high_ev:
             state.holding.historical_high_ev = ev
 
-        # Update reserves
         state.holding.keshiki_reserve += holding_pl.keshiki_reserve_contribution
         state.holding.profit_sharing_pool += holding_pl.profit_sharing_contribution
         if holding_pl.foundation_contribution > 0:

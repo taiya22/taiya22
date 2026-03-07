@@ -173,6 +173,11 @@ class Company:
     # PMI tracking
     pmi_phase: int = 0  # 0=pre-PMI, 1=0-6mo, 2=6-18mo, 3=18-36mo, 4=completed
 
+    # Product lifecycle
+    lifecycle_stage: str = "maturity"  # introduction / growth / maturity / decline
+    lifecycle_age: int = 0  # years since acquisition (or lifecycle reset)
+    revenue_growth_rate: float = 0.05  # current annual organic growth rate
+
 
 @dataclass
 class HoldingCompany:

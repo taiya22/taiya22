@@ -103,15 +103,16 @@ class SimulationRunner:
         if year > 0:
             crisis_event = self.crisis.check_for_shock(state)
 
-        # 2. M&A pipeline (annual)
+        # 2. M&A pipeline (annual, phase-based limits)
         ma_count = 0
         if year >= 1:
+            _, max_acq, _ = self.ma._phase_params(phase.phase if phase else 1)
             targets = self.ma.generate_pipeline(state)
             for target in targets:
                 if self.ma.evaluate_target(target, state):
                     self.ma.execute_acquisition(target, state)
                     ma_count += 1
-                    if ma_count >= self.config.ma.annual_acquisitions:
+                    if ma_count >= max_acq:
                         break
 
         # 3. Hiring and turnover
@@ -135,6 +136,11 @@ class SimulationRunner:
             for company in state.holding.companies:
                 quarters_since = (year - company.acquired_year) * 4 + q
                 self.ma.advance_pmi(company, quarters_since)
+
+            # Product lifecycle advancement (once per year, in Q1)
+            if q == 1:
+                for company in state.holding.companies:
+                    self.financial.advance_lifecycle(company)
 
             # Financial simulation per company
             sub_results = []
