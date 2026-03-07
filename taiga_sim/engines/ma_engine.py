@@ -98,16 +98,16 @@ class AcquisitionTarget:
         return base
 
 
-# Phase-based M&A parameters
+# Phase-based M&A parameters (calibrated to match requirements targets)
 PHASE_MA_PARAMS = {
     # phase: (pipeline_size, max_acquisitions, deal_success_rate_modifier)
     0: (0, 0, 0),
-    1: (8, 2, 1.0),
-    2: (12, 3, 1.0),
-    3: (20, 4, 1.0),
-    4: (25, 5, 1.0),
-    5: (20, 4, 1.0),
-    6: (15, 3, 1.0),
+    1: (5, 2, 1.0),    # survival: small bolt-ons
+    2: (6, 2, 1.0),    # takeoff: building foundation
+    3: (6, 2, 1.0),    # expansion: selective larger deals
+    4: (6, 1, 1.0),    # dominance: quality over quantity
+    5: (6, 1, 1.0),    # IPO: fewer but transformative
+    6: (6, 1, 1.0),    # global: very selective large-scale
 }
 
 
@@ -252,7 +252,7 @@ class MAEngine:
     def _gen_early_stage(self, state, count) -> list[AcquisitionTarget]:
         targets = []
         for i in range(count):
-            revenue = self.rng.uniform(5_0000_0000, 25_0000_0000)
+            revenue = self.rng.uniform(3_0000_0000, 15_0000_0000)
             ebitda_margin = self.rng.uniform(0.08, 0.20)
             targets.append(AcquisitionTarget(
                 name=f"Target_{state.year}_{i+1}",
@@ -266,53 +266,55 @@ class MAEngine:
         return targets
 
     def _gen_mid_stage(self, state, count) -> list[AcquisitionTarget]:
+        """Phase 3-4: mid-size diversified targets."""
+        targets = []
+        types = list(CompanyType)
+        for i in range(count):
+            is_strategic = self.rng.random() < 0.10
+            if is_strategic:
+                targets.append(self._gen_strategic_target(state, i, "mid"))
+            else:
+                revenue = self.rng.uniform(15_0000_0000, 80_0000_0000)
+                ebitda_margin = self.rng.uniform(0.10, 0.20)
+                targets.append(AcquisitionTarget(
+                    name=f"Target_{state.year}_{i+1}",
+                    company_type=self.rng.choice(types),
+                    revenue=revenue,
+                    ebitda=revenue * ebitda_margin,
+                    asking_ev_ebitda=self.rng.uniform(3.5, 6.5),
+                    headcount=self.rng.randint(50, 500),
+                    revenue_growth_rate=self.rng.uniform(0.02, 0.10),
+                ))
+        return targets
+
+    def _gen_late_stage(self, state, count) -> list[AcquisitionTarget]:
+        """Phase 5-6: larger but disciplined targets."""
         targets = []
         types = list(CompanyType)
         for i in range(count):
             is_strategic = self.rng.random() < 0.12
             if is_strategic:
-                targets.append(self._gen_strategic_target(state, i, "mid"))
+                targets.append(self._gen_strategic_target(state, i, "large"))
             else:
-                revenue = self.rng.uniform(30_0000_0000, 500_0000_0000)
+                revenue = self.rng.uniform(50_0000_0000, 500_0000_0000)
                 ebitda_margin = self.rng.uniform(0.10, 0.22)
                 targets.append(AcquisitionTarget(
                     name=f"Target_{state.year}_{i+1}",
                     company_type=self.rng.choice(types),
                     revenue=revenue,
                     ebitda=revenue * ebitda_margin,
-                    asking_ev_ebitda=self.rng.uniform(3.5, 7.0),
-                    headcount=self.rng.randint(80, 1200),
-                    revenue_growth_rate=self.rng.uniform(0.02, 0.15),
-                ))
-        return targets
-
-    def _gen_late_stage(self, state, count) -> list[AcquisitionTarget]:
-        targets = []
-        types = list(CompanyType)
-        for i in range(count):
-            is_strategic = self.rng.random() < 0.15
-            if is_strategic:
-                targets.append(self._gen_strategic_target(state, i, "large"))
-            else:
-                revenue = self.rng.uniform(200_0000_0000, 5000_0000_0000)
-                ebitda_margin = self.rng.uniform(0.12, 0.25)
-                targets.append(AcquisitionTarget(
-                    name=f"Target_{state.year}_{i+1}",
-                    company_type=self.rng.choice(types),
-                    revenue=revenue,
-                    ebitda=revenue * ebitda_margin,
-                    asking_ev_ebitda=self.rng.uniform(4.0, 8.0),
-                    headcount=self.rng.randint(300, 5000),
-                    revenue_growth_rate=self.rng.uniform(0.03, 0.12),
+                    asking_ev_ebitda=self.rng.uniform(4.0, 7.5),
+                    headcount=self.rng.randint(100, 2000),
+                    revenue_growth_rate=self.rng.uniform(0.02, 0.08),
                 ))
         return targets
 
     def _gen_strategic_target(self, state, idx, scale) -> AcquisitionTarget:
         """Instagram / Manus AI type: hypergrowth + moat."""
         if scale == "mid":
-            revenue = self.rng.uniform(5_0000_0000, 100_0000_0000)
+            revenue = self.rng.uniform(3_0000_0000, 50_0000_0000)
         else:
-            revenue = self.rng.uniform(50_0000_0000, 1000_0000_0000)
+            revenue = self.rng.uniform(20_0000_0000, 300_0000_0000)
 
         growth_rate = self.rng.uniform(0.50, 2.50)
         ebitda_margin = self.rng.uniform(-0.10, 0.10)

@@ -1,4 +1,12 @@
-"""Crisis engine: macro shocks, 5 resilience mechanisms."""
+"""Crisis engine: macro shocks, 5 resilience mechanisms.
+
+Macro shock model based on historical data:
+- Reinhart & Rogoff (2009): major financial crises every ~10-15 years
+- Average recession: revenue -10 to -25%, EBITDA -20 to -40%
+- Recovery time: 2-4 years typically
+- Deterministic shocks at ~Year 8-12 and ~Year 20-24 (Lehman/COVID-like)
+  plus random smaller shocks
+"""
 
 from __future__ import annotations
 
@@ -19,6 +27,7 @@ class CrisisEvent:
     ev_decline_pct: float
     duration_quarters: int
     mechanisms_triggered: list[str]
+    crisis_type: str = "random"  # "lehman", "covid", "sector", "random"
 
 
 class CrisisEngine:
@@ -26,18 +35,71 @@ class CrisisEngine:
 
     def __init__(self, rng: random.Random | None = None):
         self.rng = rng or random.Random()
+        self._major_shock_years: set[int] = set()  # track which years had major shocks
 
     def check_for_shock(self, state: SimulationState) -> CrisisEvent | None:
-        """Roll for a macro-economic shock at the start of each year."""
+        """Roll for macro-economic shock.
+
+        Two layers:
+        1. Structural shocks: high probability around Year 8-12, Year 20-24
+           (modeling the statistical inevitability of major recessions)
+        2. Random shocks: base probability each year (mild to moderate)
+        """
         if state.macro.is_shock_active:
-            return None  # already in crisis
+            return None
 
-        if self.rng.random() >= state.macro.shock_probability:
-            return None  # no shock this year
+        year = state.year
 
-        # Generate shock parameters
-        decline = self.rng.uniform(0.15, 0.50)  # 15-50% EV decline
-        duration = self.rng.randint(4, 12)  # 1-3 years
+        # Layer 1: Structural major shocks (Lehman/COVID-like)
+        # High probability in certain windows, near-guaranteed over 30 years
+        major_shock = self._check_structural_shock(year)
+        if major_shock:
+            return self._create_event(state, major_shock)
+
+        # Layer 2: Random shocks (sector-specific, policy errors, etc.)
+        # Base probability: ~5-8% per year for mild-to-moderate shocks
+        if self.rng.random() < state.macro.shock_probability:
+            return self._create_event(state, "random")
+
+        return None
+
+    def _check_structural_shock(self, year: int) -> str | None:
+        """Check for structural (near-inevitable) major shocks.
+
+        Historical pattern: major crises roughly every 10-15 years
+        - 1997 Asian crisis, 2001 dot-com, 2008 Lehman, 2020 COVID
+        """
+        # First major shock window: Year 8-12
+        if 8 <= year <= 12 and "major_1" not in self._major_shock_years:
+            prob = {8: 0.15, 9: 0.25, 10: 0.35, 11: 0.30, 12: 0.20}.get(year, 0.10)
+            if self.rng.random() < prob:
+                self._major_shock_years.add("major_1")
+                return "lehman"
+
+        # Second major shock window: Year 20-25
+        if 20 <= year <= 25 and "major_2" not in self._major_shock_years:
+            prob = {20: 0.10, 21: 0.20, 22: 0.30, 23: 0.25, 24: 0.15, 25: 0.10}.get(year, 0.10)
+            if self.rng.random() < prob:
+                self._major_shock_years.add("major_2")
+                return "covid"
+
+        return None
+
+    def _create_event(self, state: SimulationState, crisis_type: str) -> CrisisEvent:
+        """Create a crisis event based on type."""
+        # Severity by type (Reinhart & Rogoff 2009 data)
+        if crisis_type == "lehman":
+            decline = self.rng.uniform(0.30, 0.50)  # severe: Lehman was ~50%
+            duration = self.rng.randint(6, 10)  # 1.5-2.5 years
+        elif crisis_type == "covid":
+            decline = self.rng.uniform(0.20, 0.40)  # sharp but shorter
+            duration = self.rng.randint(4, 8)  # 1-2 years
+        elif crisis_type == "sector":
+            decline = self.rng.uniform(0.10, 0.25)  # sector-specific
+            duration = self.rng.randint(3, 6)
+        else:  # random
+            decline = self.rng.uniform(0.08, 0.25)  # mild to moderate
+            duration = self.rng.randint(2, 6)
 
         event = CrisisEvent(
             year=state.year,
@@ -45,6 +107,7 @@ class CrisisEngine:
             ev_decline_pct=decline,
             duration_quarters=duration,
             mechanisms_triggered=[],
+            crisis_type=crisis_type,
         )
 
         # Apply shock
@@ -55,7 +118,14 @@ class CrisisEngine:
         shock_ev = pre_shock_ev * (1 - decline)
         state.holding.enterprise_value = shock_ev
 
-        # Determine which mechanisms trigger
+        # Also hit company revenues/EBITDA directly
+        for company in state.holding.companies:
+            rev_hit = decline * self.rng.uniform(0.3, 0.7)  # partial revenue impact
+            ebitda_hit = decline * self.rng.uniform(0.5, 1.0)  # EBITDA hit harder
+            company.revenue *= (1 - rev_hit)
+            company.ebitda *= (1 - ebitda_hit)
+
+        # Mechanism triggers
         decline_from_high = 1 - (shock_ev / state.holding.historical_high_ev)
 
         if decline_from_high >= 0.20:
@@ -69,6 +139,7 @@ class CrisisEngine:
         state.crisis_events.append({
             "year": event.year,
             "quarter": event.quarter,
+            "type": crisis_type,
             "decline_pct": event.ev_decline_pct,
             "duration_quarters": event.duration_quarters,
             "mechanisms": event.mechanisms_triggered,
@@ -81,55 +152,36 @@ class CrisisEngine:
         results = {}
         holding = state.holding
 
-        # Mechanism 1: HWM Reset
         if "hwm_reset" in event.mechanisms_triggered:
-            new_hwm = state.holding.enterprise_value * 1.10  # current + 10%
+            new_hwm = state.holding.enterprise_value * 1.10
             holding.historical_high_ev = new_hwm
-            results["hwm_reset"] = {
-                "new_hwm": new_hwm,
-                "requires": "経営会議全員一致 + 外部評価委員会認定",
-            }
+            results["hwm_reset"] = {"new_hwm": new_hwm}
 
-        # Mechanism 2: Crisis profit sharing
         if "crisis_profit_sharing" in event.mechanisms_triggered:
-            # Special pool linked to cash yield
             group_fcf = sum(c.fcf for c in holding.companies) * 4
             if group_fcf > 0 and holding.enterprise_value > 0:
-                cash_yield = group_fcf / holding.enterprise_value
-                crisis_pool = group_fcf * 0.10  # 10% of FCF as crisis bonus
-                results["crisis_profit_sharing"] = {"pool": crisis_pool, "cash_yield": cash_yield}
+                crisis_pool = group_fcf * 0.10
+                results["crisis_profit_sharing"] = {"pool": crisis_pool}
 
-        # Mechanism 3: Special investment window
         if "special_investment_window" in event.mechanisms_triggered:
             results["special_investment_window"] = {
-                "status": "open",
                 "ev_at_window": holding.enterprise_value,
-                "discount_to_hwm_pct": (1 - holding.enterprise_value / holding.historical_high_ev) * 100,
             }
 
-        # Mechanism 4: Keshiki reserve deployment
         if holding.keshiki_reserve > 0:
             monthly_burn = sum(m.base_salary for m in holding.members) / 12
             months_covered = holding.keshiki_reserve / monthly_burn if monthly_burn > 0 else 0
             results["keshiki_reserve"] = {
-                "balance": holding.keshiki_reserve,
                 "months_covered": months_covered,
-                "salary_reduction": months_covered < 12,  # reduce to 80% if <12 months
             }
-
             if months_covered < 12:
-                # Auto-convert salary reduction to B-class shares
                 for member in holding.members:
                     if not member.is_founder:
-                        reduction = member.base_salary * 0.20 / 12  # 20% monthly reduction
-                        member.self_investment += reduction  # converted to B-class shares
+                        reduction = member.base_salary * 0.20 / 12
+                        member.self_investment += reduction
 
-        # Mechanism 5: Crisis evaluation
         if "crisis_evaluation" in event.mechanisms_triggered:
-            results["crisis_evaluation"] = {
-                "top_axis": "景色を守る（Scene Protection）",
-                "special_bonus": True,
-            }
+            results["crisis_evaluation"] = {"top_axis": "Scene Protection"}
 
         return results
 

@@ -53,13 +53,23 @@ class KPIEngine:
         ltv_positive = company.ltv_growth_rate >= 0
         cas_stable = company.competitive_advantage_score >= 12.5  # threshold
 
-        # Green: all good
+        # Green: all KPIs good AND not recently flagged by business volatility
         if roic_above_wacc and ltv_positive and cas_stable:
-            company.signal = "green"
-            company.consecutive_wacc_miss_years = 0
-            company.yellow_since_year = None
-            company.red_since_year = None
-            return "green"
+            # Only upgrade to green if not recently set to yellow/red by volatility
+            # (give 1-year grace period before clearing signals)
+            if company.signal == "green":
+                company.consecutive_wacc_miss_years = 0
+                return "green"
+            elif company.signal == "yellow":
+                # KPIs recovered - clear yellow
+                company.signal = "green"
+                company.consecutive_wacc_miss_years = 0
+                company.yellow_since_year = None
+                return "green"
+            elif company.signal == "red":
+                # Red companies need sustained KPI recovery to clear
+                # Don't auto-clear red - that requires divestiture review
+                return company.signal
 
         # Check for macro shock freeze
         if state.macro.is_shock_active:

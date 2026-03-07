@@ -15,6 +15,7 @@ EV/EBITDA multiple is dynamic, driven by:
 from __future__ import annotations
 
 import math
+import random
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -31,12 +32,13 @@ from taiga_sim.models.organization import Company, CompanyType
 
 
 # Product lifecycle growth profiles (annual rates)
+# Calibrated to produce realistic growth trajectories
 LIFECYCLE_PROFILES = {
     #                  growth_rate, gross_margin, opex_ratio, capex_ratio, duration_years
-    "introduction": (0.40, 0.35, 0.35, 0.08, 3),   # high growth, low margin, high burn
-    "growth":       (0.25, 0.42, 0.28, 0.06, 5),   # strong growth, improving margins
-    "maturity":     (0.04, 0.45, 0.22, 0.035, 15),  # stable, high margins, cash cow
-    "decline":      (-0.03, 0.38, 0.25, 0.02, 10),  # shrinking, margin compression
+    "introduction": (0.30, 0.32, 0.35, 0.08, 3),   # high growth, low margin, high burn
+    "growth":       (0.12, 0.40, 0.28, 0.06, 5),   # strong growth, improving margins
+    "maturity":     (0.015, 0.45, 0.22, 0.035, 15),  # stable, high margins, cash cow
+    "decline":      (-0.04, 0.38, 0.25, 0.02, 10),  # shrinking, margin compression
 }
 
 # Company type modifiers on lifecycle
@@ -51,6 +53,9 @@ COMPANY_TYPE_MODIFIERS = {
 
 class FinancialEngine:
     """Computes quarterly financials for each company and the consolidated group."""
+
+    def __init__(self, rng: random.Random | None = None):
+        self.rng = rng or random.Random()
 
     def advance_lifecycle(self, company: Company) -> None:
         """Advance a company's product lifecycle stage based on age."""
@@ -248,15 +253,15 @@ class FinancialEngine:
         if annualized_ebitda <= 0:
             return max(0, holding.enterprise_value * 0.95)  # drift down if no earnings
 
-        # 1. Base multiple (time-based foundation)
+        # 1. Base multiple (time-based foundation, reflecting track record premium)
         if year <= 3:
             base = 4.0 + year * 0.3
         elif year <= 10:
-            base = 5.0 + (year - 3) * 0.4
+            base = 5.0 + (year - 3) * 0.5
         elif year <= 20:
-            base = 8.0 + (year - 10) * 0.3
+            base = 8.5 + (year - 10) * 0.5
         else:
-            base = 11.0 + (year - 20) * 0.2
+            base = 13.5 + (year - 20) * 0.5  # mature platform premium
 
         # 2. Growth premium: revenue CAGR over last 3 years
         growth_premium = 0.0
@@ -265,8 +270,8 @@ class FinancialEngine:
             rev_3y = state.annual_revenue_history[-3]
             if rev_3y > 0 and rev_now > rev_3y:
                 cagr_3y = (rev_now / rev_3y) ** (1/3) - 1
-                if cagr_3y > 0.15:
-                    growth_premium = min(4.0, cagr_3y * 10)  # up to +4x
+                if cagr_3y > 0.10:
+                    growth_premium = min(5.0, cagr_3y * 12)  # up to +5x
 
         # 3. Brand premium: builds with years of consistent positive growth
         consecutive_growth_years = 0
@@ -275,13 +280,13 @@ class FinancialEngine:
                 consecutive_growth_years += 1
             else:
                 consecutive_growth_years = 0
-        brand_premium = min(3.0, consecutive_growth_years * 0.15)
+        brand_premium = min(4.0, consecutive_growth_years * 0.20)
 
         # 4. Scale premium: larger EBITDA -> modestly higher multiple
         ebitda_oku = annualized_ebitda / 1_0000_0000
         scale_premium = 0.0
         if ebitda_oku > 100:
-            scale_premium = min(2.0, math.log10(ebitda_oku / 100) * 1.5)
+            scale_premium = min(3.0, math.log10(ebitda_oku / 100) * 2.0)
 
         # 5. Diversification adjustment
         n_types = len(set(c.company_type for c in holding.companies))
@@ -293,7 +298,12 @@ class FinancialEngine:
             diversification = -0.5  # concentrated discount
 
         multiple = base + growth_premium + brand_premium + scale_premium + diversification
-        multiple = max(4.0, min(25.0, multiple))  # cap at 25x
+        # Post-IPO public market premium (higher multiples for listed companies)
+        # Comparable: Danaher 30x, Constellation Software 35x, growth conglomerates 25-40x
+        max_multiple = 25.0
+        if state.holding.is_public or year >= state.config.ipo_target_year:
+            max_multiple = 40.0  # public market premium for growth conglomerates
+        multiple = max(4.0, min(max_multiple, multiple))
 
         return annualized_ebitda * multiple
 
