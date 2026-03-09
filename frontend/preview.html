@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taiga Capital — PE Investment AI Platform</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#fafafa;--fg:#111;--surface:#fff;--surface2:#f5f5f5;
+--border:#e5e5e5;--border-lt:#f0f0f0;--muted:#737373;--muted-lt:#a3a3a3;
+--accent:#2563eb;--accent-lt:#3b82f6;--accent-sub:#eff6ff;--accent-mut:#dbeafe;
+--success:#16a34a;--success-sub:#f0fdf4;
+--warn:#d97706;--warn-sub:#fffbeb;
+--danger:#dc2626;--danger-sub:#fef2f2;
+}
+body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+
+/* Sidebar */
+.sidebar{position:fixed;left:0;top:0;width:240px;height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:40}
+.sidebar-logo{display:flex;align-items:center;gap:12px;height:64px;padding:0 16px;border-bottom:1px solid var(--border)}
+.logo-icon{width:36px;height:36px;background:var(--accent);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.logo-text{display:flex;flex-direction:column}
+.logo-text span:first-child{font-size:14px;font-weight:600;letter-spacing:-0.02em}
+.logo-text span:last-child{font-size:9px;font-weight:500;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase}
+.sidebar-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:2px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s}
+.nav-item:hover{background:var(--surface2);color:var(--fg)}
+.nav-item.active{background:var(--accent-sub);color:var(--accent)}
+.nav-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* Main */
+.main{margin-left:240px;min-height:100vh}
+
+/* Header */
+.header{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 24px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.8);backdrop-filter:blur(8px)}
+.header h1{font-size:18px;font-weight:600}
+.header-actions{display:flex;align-items:center;gap:12px}
+.search-box{height:36px;width:256px;border:1px solid var(--border);border-radius:8px;padding:0 12px 0 36px;font-size:13px;background:var(--surface2);outline:none;transition:border .15s}
+.search-box:focus{border-color:var(--accent)}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted-lt);width:16px;height:16px}
+.ai-badge{display:flex;align-items:center;gap:6px;border:1px solid rgba(37,99,235,.2);background:var(--accent-sub);padding:6px 12px;border-radius:8px;font-size:11px;font-weight:500;color:var(--accent);cursor:pointer}
+.ai-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;position:relative}
+.ai-dot::before{content:'';position:absolute;inset:-2px;background:var(--accent);border-radius:50%;opacity:.5;animation:ping 1.5s infinite}
+@keyframes ping{0%{transform:scale(1);opacity:.5}100%{transform:scale(2);opacity:0}}
+.notif-btn{position:relative;width:36px;height:36px;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:none;color:var(--muted)}
+.notif-badge{position:absolute;top:-2px;right:-2px;width:16px;height:16px;background:var(--accent);color:#fff;font-size:9px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.avatar{width:36px;height:36px;background:var(--fg);color:var(--surface);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+
+/* Content */
+.content{padding:24px}
+.content > *+*{margin-top:24px}
+
+/* KPI Grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.kpi-card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:20px;transition:box-shadow .15s}
+.kpi-card:hover{box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.kpi-label{font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.kpi-value{font-size:24px;font-weight:700;margin-top:8px}
+.kpi-change{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px}
+.kpi-change.up{color:var(--success)}
+.kpi-change.down{color:var(--danger)}
+.kpi-change span:last-child{color:var(--muted-lt)}
+
+/* Charts row */
+.charts-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.chart-card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:20px}
+.chart-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.chart-sub{font-size:11px;color:var(--muted);margin-bottom:16px}
+.chart-placeholder{height:220px;display:flex;align-items:center;justify-content:center;background:var(--surface2);border-radius:8px;position:relative;overflow:hidden}
+
+/* Bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:180px;padding:0 12px}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.bar{width:100%;border-radius:4px 4px 0 0;transition:height .3s}
+.bar-label{font-size:9px;color:var(--muted);text-align:center;white-space:nowrap}
+
+/* Donut */
+.donut-wrap{display:flex;align-items:center;justify-content:center;gap:24px}
+.donut{width:160px;height:160px;border-radius:50%;position:relative}
+.donut-legend{display:flex;flex-direction:column;gap:6px}
+.donut-leg-item{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+.donut-leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* Line chart placeholder */
+.line-chart-area{height:180px;position:relative;display:flex;align-items:flex-end}
+.line-path{position:absolute;inset:0}
+
+/* Section header */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.section-link{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;color:var(--accent)}
+
+/* Insights grid */
+.insights-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.insight-card{border-radius:12px;background:var(--surface);padding:20px;transition:box-shadow .15s}
+.insight-card:hover{box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.insight-card.risk{border:1px solid rgba(220,38,38,.2)}
+.insight-card.opportunity{border:1px solid rgba(22,163,74,.2)}
+.insight-card.alert{border:1px solid rgba(217,119,6,.2)}
+.insight-card.recommendation{border:1px solid rgba(37,99,235,.2)}
+.insight-header{display:flex;align-items:start;gap:12px}
+.insight-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.insight-icon.risk{background:var(--danger-sub);color:var(--danger)}
+.insight-icon.opportunity{background:var(--success-sub);color:var(--success)}
+.insight-icon.alert{background:var(--warn-sub);color:var(--warn)}
+.insight-icon.recommendation{background:var(--accent-sub);color:var(--accent)}
+.insight-badge{display:inline-flex;padding:2px 8px;border-radius:99px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.insight-badge.risk{background:var(--danger-sub);color:var(--danger)}
+.insight-badge.opportunity{background:var(--success-sub);color:var(--success)}
+.insight-badge.alert{background:var(--warn-sub);color:var(--warn)}
+.insight-badge.recommendation{background:var(--accent-sub);color:var(--accent)}
+.insight-conf{font-size:9px;color:var(--muted-lt);margin-left:8px}
+.insight-title{font-size:13px;font-weight:600;margin-top:6px}
+.insight-desc{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.6}
+.insight-meta{margin-top:12px;font-size:9px;color:var(--muted-lt);display:flex;gap:8px}
+
+/* Table */
+.table-wrap{border:1px solid var(--border);background:var(--surface);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{border-bottom:1px solid var(--border);background:var(--surface2)}
+th{padding:12px 16px;text-align:left;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+td{padding:12px 16px;border-bottom:1px solid var(--border-lt)}
+tr:hover td{background:rgba(245,245,245,.5)}
+.stage-badge{display:inline-flex;padding:2px 10px;border-radius:99px;font-size:9px;font-weight:600;background:var(--accent-sub);color:var(--accent)}
+.score-bar{display:flex;align-items:center;gap:8px}
+.score-track{width:64px;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.score-fill{height:100%;background:var(--accent);border-radius:3px}
+.score-val{font-size:11px;font-weight:500}
+
+/* Tabs (for pages) */
+.page-tabs{display:none}
+.page-content{display:none}
+.page-content.active{display:block}
+
+/* Pipeline */
+.pipeline-summary{display:flex;gap:24px;margin-bottom:24px}
+.pipeline-stat{font-size:13px}
+.pipeline-stat .label{color:var(--muted)}
+.pipeline-stat .value{font-weight:600;margin-left:4px}
+.pipeline-stat .value.accent{color:var(--accent)}
+.kanban{display:flex;gap:16px;overflow-x:auto;padding-bottom:16px}
+.kanban-col{min-width:280px;max-width:300px;flex-shrink:0}
+.kanban-col-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:0 4px}
+.kanban-col-dot{width:8px;height:8px;border-radius:50%}
+.kanban-col-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.kanban-col-count{width:20px;height:20px;background:var(--surface2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--muted)}
+.kanban-cards{display:flex;flex-direction:column;gap:12px}
+.deal-card{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:16px;cursor:pointer;transition:box-shadow .15s}
+.deal-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.deal-card-head{display:flex;justify-content:space-between;align-items:start;margin-bottom:6px}
+.deal-card-name{font-size:13px;font-weight:600}
+.deal-card-score{display:flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:9px;font-weight:700}
+.deal-card-score.high{background:var(--success-sub);color:var(--success)}
+.deal-card-score.mid{background:var(--accent-sub);color:var(--accent)}
+.deal-card-score.low{background:var(--warn-sub);color:var(--warn)}
+.deal-card-sector{font-size:10px;color:var(--muted);margin-bottom:12px}
+.deal-card-metrics{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.deal-metric{display:flex;justify-content:space-between;font-size:10px}
+.deal-metric .lbl{color:var(--muted)}
+.deal-metric .val{font-weight:500}
+.deal-flags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.deal-flag{display:inline-flex;align-items:center;gap:2px;padding:2px 6px;background:var(--surface2);border-radius:4px;font-size:9px;color:var(--muted)}
+.deal-card-footer{display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border-lt);font-size:9px;color:var(--muted-lt)}
+
+/* Portfolio */
+.port-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.port-stat{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px}
+.port-stat-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.port-stat-value{font-size:20px;font-weight:700;margin-top:4px}
+.port-stat-value.success{color:var(--success)}
+.port-stat-value.accent{color:var(--accent)}
+.port-stat-value.danger{color:var(--danger)}
+.port-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.port-card{border-radius:12px;background:var(--surface);padding:20px;transition:box-shadow .15s}
+.port-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.port-card.on-track{border:1px solid rgba(22,163,74,.2)}
+.port-card.watch{border:1px solid rgba(217,119,6,.2)}
+.port-card.at-risk{border:1px solid rgba(220,38,38,.2)}
+.port-card-head{display:flex;justify-content:space-between;align-items:start;margin-bottom:16px}
+.port-card-name{font-size:13px;font-weight:600}
+.port-card-info{font-size:10px;color:var(--muted);margin-top:4px;display:flex;gap:12px}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;font-size:9px;font-weight:600}
+.status-badge.on-track{background:var(--success-sub);color:var(--success)}
+.status-badge.watch{background:var(--warn-sub);color:var(--warn)}
+.status-badge.at-risk{background:var(--danger-sub);color:var(--danger)}
+.port-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.port-metric-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.port-metric-value{font-size:13px;font-weight:600;margin-top:2px}
+.port-sparklines{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+.sparkline-box{background:var(--surface2);border-radius:8px;padding:12px}
+.sparkline-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.spark-bar-row{display:flex;align-items:flex-end;gap:3px;height:36px}
+.spark-bar{flex:1;background:var(--accent);border-radius:2px 2px 0 0;transition:height .3s}
+.spark-bar.up{background:var(--success)}
+.spark-bar.down{background:var(--danger)}
+.port-alerts{display:flex;flex-direction:column;gap:6px}
+.port-alert{display:flex;align-items:start;gap:8px;padding:8px 12px;background:var(--danger-sub);border-radius:8px;font-size:10px;color:var(--danger);line-height:1.5}
+.port-alert-icon{flex-shrink:0;margin-top:2px}
+
+/* AI Page */
+.ai-layout{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.chat-box{border:1px solid var(--border);background:var(--surface);border-radius:12px;display:flex;flex-direction:column;height:480px}
+.chat-header{display:flex;align-items:center;gap:8px;padding:12px 20px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600}
+.chat-header .dot{width:8px;height:8px;background:var(--success);border-radius:50%}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+.chat-msg{max-width:80%;padding:12px 16px;border-radius:12px;font-size:13px;line-height:1.6}
+.chat-msg.ai{background:var(--surface2);align-self:flex-start}
+.chat-msg.user{background:var(--accent);color:#fff;align-self:flex-end}
+.chat-actions{display:flex;gap:8px;padding:8px 20px;overflow-x:auto}
+.chat-action-btn{display:flex;align-items:center;gap:4px;padding:6px 12px;border:1px solid var(--border);border-radius:8px;font-size:10px;font-weight:500;color:var(--muted);background:none;cursor:pointer;white-space:nowrap}
+.chat-action-btn:hover{background:var(--surface2);color:var(--fg)}
+.chat-input-wrap{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border)}
+.chat-input{flex:1;padding:10px 16px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--surface2);outline:none}
+.chat-input:focus{border-color:var(--accent)}
+.chat-send{width:40px;height:40px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.dd-tracker{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:20px}
+.dd-tracker h3{font-size:13px;font-weight:600;margin-bottom:4px}
+.dd-tracker .sub{font-size:11px;color:var(--muted);margin-bottom:16px}
+.dd-items{display:flex;flex-direction:column;gap:12px}
+.dd-item{display:flex;align-items:center;gap:12px}
+.dd-item-icon{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px}
+.dd-item-icon.done{background:var(--success-sub);color:var(--success)}
+.dd-item-icon.prog{background:var(--accent-sub);color:var(--accent)}
+.dd-item-icon.pend{border:2px solid var(--border)}
+.dd-item-body{flex:1}
+.dd-item-head{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
+.dd-item-name{font-weight:500}
+.dd-item-pct{color:var(--muted);font-size:9px}
+.dd-progress{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.dd-progress-fill{height:100%;border-radius:3px;transition:width .3s}
+.dd-progress-fill.done{background:var(--success)}
+.dd-progress-fill.prog{background:var(--accent)}
+.dd-progress-fill.pend{background:var(--border)}
+
+/* Filters */
+.filter-bar{display:flex;gap:4px}
+.filter-btn{padding:6px 12px;border-radius:8px;font-size:10px;font-weight:500;border:none;cursor:pointer;background:var(--surface2);color:var(--muted)}
+.filter-btn.active{background:var(--accent);color:#fff}
+
+/* LP Page */
+.lp-banner{border:1px solid rgba(37,99,235,.2);background:var(--accent-sub);border-radius:12px;padding:20px;display:flex;justify-content:space-between;align-items:start}
+.lp-banner-left{display:flex;gap:12px}
+.lp-banner-icon{width:40px;height:40px;background:var(--accent);color:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.lp-banner h3{font-size:13px;font-weight:600}
+.lp-banner p{font-size:11px;color:var(--muted);margin-top:4px;max-width:480px}
+.lp-banner-btn{padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.lp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.lp-stat{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px}
+.lp-stat-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.lp-stat-value{font-size:20px;font-weight:700}
+.lp-stat-value.green{color:var(--success)}
+.lp-bottom{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.lp-table-card{border:1px solid var(--border);background:var(--surface);border-radius:12px;overflow:hidden}
+.lp-table-head{padding:16px 20px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.report-status{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:99px;font-size:9px;font-weight:600}
+.report-status.draft{background:var(--surface2);color:var(--muted)}
+.report-status.review{background:var(--warn-sub);color:var(--warn)}
+.report-status.sent{background:var(--success-sub);color:var(--success)}
+.lp-investors{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:20px}
+.lp-investors h3{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.lp-inv-list{display:flex;flex-direction:column;gap:8px}
+.lp-inv-item{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:var(--surface2);border-radius:8px}
+.lp-inv-name{font-size:11px;font-weight:500}
+.lp-inv-type{font-size:9px;color:var(--muted)}
+.lp-inv-amt{font-size:11px;font-weight:600}
+.lp-inv-total{display:flex;justify-content:space-between;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:11px}
+</style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">T</div>
+    <div class="logo-text">
+      <span>Taiga Capital</span>
+      <span>AI Platform</span>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <div class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('pipeline')">
+      <div class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+      </div>
+      Deal Pipeline
+    </div>
+    <div class="nav-item" onclick="showPage('portfolio')">
+      <div class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      </div>
+      Portfolio
+    </div>
+    <div class="nav-item" onclick="showPage('ai')">
+      <div class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4c0 2 2 3 2 6H14c0-3 2-4 2-6a4 4 0 0 0-4-4z"/><line x1="10" y1="16" x2="14" y2="16"/><line x1="10" y1="19" x2="14" y2="19"/><path d="M11 22h2"/></svg>
+      </div>
+      AI Insights
+    </div>
+    <div class="nav-item" onclick="showPage('lp')">
+      <div class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      LP Reporting
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<!-- ==================== DASHBOARD ==================== -->
+<div id="page-dashboard" class="page-content active">
+  <div class="header">
+    <h1>Dashboard</h1>
+    <div class="header-actions">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-box" placeholder="Search deals, companies...">
+      </div>
+      <div class="ai-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>
+        AI Active
+        <div class="ai-dot"></div>
+      </div>
+      <button class="notif-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-badge">5</span>
+      </button>
+      <div class="avatar">TK</div>
+    </div>
+  </div>
+  <div class="content">
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-label">AUM</div><div class="kpi-value">&yen;248.5B</div><div class="kpi-change up"><span>&#9650; +12.3%</span><span>vs prev quarter</span></div></div>
+      <div class="kpi-card"><div class="kpi-label">Active Deals</div><div class="kpi-value">23</div><div class="kpi-change up"><span>&#9650; +4.5%</span><span>vs prev quarter</span></div></div>
+      <div class="kpi-card"><div class="kpi-label">Portfolio IRR</div><div class="kpi-value">18.7%</div><div class="kpi-change up"><span>&#9650; +2.1%</span><span>vs prev quarter</span></div></div>
+      <div class="kpi-card"><div class="kpi-label">Fund III TVPI</div><div class="kpi-value">1.62x</div><div class="kpi-change up"><span>&#9650; +0.08%</span><span>vs prev quarter</span></div></div>
+      <div class="kpi-card"><div class="kpi-label">AI Insights Today</div><div class="kpi-value">47</div><div class="kpi-change up"><span>&#9650; +15.0%</span><span>vs prev quarter</span></div></div>
+      <div class="kpi-card"><div class="kpi-label">DD in Progress</div><div class="kpi-value">5</div><div class="kpi-change down"><span>&#9660; -1.0%</span><span>vs prev quarter</span></div></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Pipeline by Stage</div>
+        <div class="chart-sub">Active deals across stages</div>
+        <div class="bar-chart">
+          <div class="bar-col"><div class="bar" style="height:40%;background:rgba(37,99,235,.25)"></div><div class="bar-label">Sourcing</div></div>
+          <div class="bar-col"><div class="bar" style="height:40%;background:rgba(37,99,235,.40)"></div><div class="bar-label">Screen</div></div>
+          <div class="bar-col"><div class="bar" style="height:40%;background:rgba(37,99,235,.55)"></div><div class="bar-label">DD</div></div>
+          <div class="bar-col"><div class="bar" style="height:20%;background:rgba(37,99,235,.70)"></div><div class="bar-label">Valuation</div></div>
+          <div class="bar-col"><div class="bar" style="height:20%;background:rgba(37,99,235,.85)"></div><div class="bar-label">IC</div></div>
+          <div class="bar-col"><div class="bar" style="height:20%;background:var(--accent)"></div><div class="bar-label">Execution</div></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Fund TVPI Performance</div>
+        <div class="chart-sub">Quarterly TVPI trajectory</div>
+        <div class="chart-placeholder">
+          <svg width="100%" height="180" viewBox="0 0 400 180" preserveAspectRatio="none">
+            <polyline points="10,160 50,148 100,130 150,108 200,96 250,85 300,72 350,58 390,52" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+            <polyline points="10,70 50,55 100,44 150,38 200,32 250,28 300,22 350,18 390,14" fill="none" stroke="#111" stroke-width="2"/>
+            <polyline points="10,170 50,166 100,162 150,158 200,154 250,150 300,146 350,142 390,138" fill="none" stroke="#a3a3a3" stroke-width="1.5" stroke-dasharray="4 4"/>
+          </svg>
+          <div style="position:absolute;bottom:8px;display:flex;gap:16px;font-size:10px;color:var(--muted)">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:2px;background:#2563eb;display:inline-block"></span>Fund III</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:2px;background:#111;display:inline-block"></span>Fund II</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:2px;background:#a3a3a3;display:inline-block;border-top:1px dashed #a3a3a3"></span>Benchmark</span>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Sector Allocation</div>
+        <div class="chart-sub">Current portfolio by sector</div>
+        <div class="donut-wrap">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#2563eb" stroke-width="24" stroke-dasharray="105.5 271.4" stroke-dashoffset="-0" transform="rotate(-90 80 80)"/>
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#6366f1" stroke-width="24" stroke-dasharray="82.9 293.9" stroke-dashoffset="-105.5" transform="rotate(-90 80 80)"/>
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#404040" stroke-width="24" stroke-dasharray="75.4 301.4" stroke-dashoffset="-188.4" transform="rotate(-90 80 80)"/>
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#737373" stroke-width="24" stroke-dasharray="56.5 320.3" stroke-dashoffset="-263.9" transform="rotate(-90 80 80)"/>
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#a3a3a3" stroke-width="24" stroke-dasharray="37.7 339.2" stroke-dashoffset="-320.4" transform="rotate(-90 80 80)"/>
+            <circle cx="80" cy="80" r="48" fill="var(--surface)"/>
+          </svg>
+          <div class="donut-legend">
+            <div class="donut-leg-item"><div class="donut-leg-dot" style="background:#2563eb"></div>Technology 28%</div>
+            <div class="donut-leg-item"><div class="donut-leg-dot" style="background:#6366f1"></div>Healthcare 22%</div>
+            <div class="donut-leg-item"><div class="donut-leg-dot" style="background:#404040"></div>Industrial 20%</div>
+            <div class="donut-leg-item"><div class="donut-leg-dot" style="background:#737373"></div>Logistics 15%</div>
+            <div class="donut-leg-item"><div class="donut-leg-dot" style="background:#a3a3a3"></div>Chemicals 10%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Insights -->
+    <div>
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>
+          Latest AI Insights
+        </div>
+        <a class="section-link" href="#" onclick="showPage('ai');return false">View All &rarr;</a>
+      </div>
+      <div class="insights-grid">
+        <div class="insight-card risk">
+          <div class="insight-header">
+            <div class="insight-icon risk">&#9888;</div>
+            <div>
+              <div><span class="insight-badge risk">Risk</span><span class="insight-conf">Confidence: 89%</span></div>
+              <div class="insight-title">Covenant Breach Risk &mdash; Kanto Chemical</div>
+              <div class="insight-desc">Net Debt/EBITDA ratio projected to reach 5.2x by Q2 2026. Recommend initiating lender discussion for covenant waiver or amendment.</div>
+              <div class="insight-meta"><span>Financial Monitoring Agent</span><span>&middot;</span><span>2026-03-09 08:15</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="insight-card opportunity">
+          <div class="insight-header">
+            <div class="insight-icon opportunity">&#8599;</div>
+            <div>
+              <div><span class="insight-badge opportunity">Opportunity</span><span class="insight-conf">Confidence: 76%</span></div>
+              <div class="insight-title">Cross-sell Synergy: Atlas &times; Premier Logistics</div>
+              <div class="insight-desc">12 common customers identified. Bundled service offering could generate estimated &yen;340M incremental revenue.</div>
+              <div class="insight-meta"><span>Portfolio Synergy Agent</span><span>&middot;</span><span>2026-03-09 07:30</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="insight-card alert">
+          <div class="insight-header">
+            <div class="insight-icon alert">&#128276;</div>
+            <div>
+              <div><span class="insight-badge alert">Alert</span><span class="insight-conf">Confidence: 82%</span></div>
+              <div class="insight-title">Regulatory Change &mdash; Healthcare Sector</div>
+              <div class="insight-desc">MHLW announced revised medical device approval process effective April 2026. Horizon Medical may benefit from expedited pathway.</div>
+              <div class="insight-meta"><span>Market Intelligence Agent</span><span>&middot;</span><span>2026-03-09 06:45</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="insight-card recommendation">
+          <div class="insight-header">
+            <div class="insight-icon recommendation">&#128161;</div>
+            <div>
+              <div><span class="insight-badge recommendation">Recommendation</span><span class="insight-conf">Confidence: 71%</span></div>
+              <div class="insight-title">Optimal Exit Window &mdash; Digital Frontier</div>
+              <div class="insight-desc">SaaS sector M&A multiples at 24-month high (avg 12.3x EV/Revenue). Recommend initiating exit preparation.</div>
+              <div class="insight-meta"><span>Exit Optimization Agent</span><span>&middot;</span><span>2026-03-08 22:00</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Deals Table -->
+    <div>
+      <div class="section-header">
+        <div class="section-title">Recent Deal Activity</div>
+        <a class="section-link" href="#" onclick="showPage('pipeline');return false">View Pipeline &rarr;</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Company</th><th>Sector</th><th>Stage</th><th>AI Score</th><th>EV</th><th>Updated</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:500">Nexus Precision Manufacturing</td><td style="font-size:11px;color:var(--muted)">Industrial / Manufacturing</td><td><span class="stage-badge">Due Diligence</span></td><td><div class="score-bar"><div class="score-track"><div class="score-fill" style="width:87%"></div></div><span class="score-val">87</span></div></td><td style="font-size:12px;font-weight:500">&yen;12.5B</td><td style="font-size:12px;color:var(--muted)">2026-03-08</td></tr>
+            <tr><td style="font-weight:500">CloudBridge Solutions</td><td style="font-size:11px;color:var(--muted)">Technology / SaaS</td><td><span class="stage-badge">Valuation</span></td><td><div class="score-bar"><div class="score-track"><div class="score-fill" style="width:92%"></div></div><span class="score-val">92</span></div></td><td style="font-size:12px;font-weight:500">&yen;8.2B</td><td style="font-size:12px;color:var(--muted)">2026-03-07</td></tr>
+            <tr><td style="font-weight:500">Sakura Healthcare Group</td><td style="font-size:11px;color:var(--muted)">Healthcare</td><td><span class="stage-badge">Screening</span></td><td><div class="score-bar"><div class="score-track"><div class="score-fill" style="width:74%"></div></div><span class="score-val">74</span></div></td><td style="font-size:12px;font-weight:500">&yen;18.0B</td><td style="font-size:12px;color:var(--muted)">2026-03-09</td></tr>
+            <tr><td style="font-weight:500">GreenLogix Corp</td><td style="font-size:11px;color:var(--muted)">Logistics / Supply Chain</td><td><span class="stage-badge">Sourcing</span></td><td><div class="score-bar"><div class="score-track"><div class="score-fill" style="width:68%"></div></div><span class="score-val">68</span></div></td><td style="font-size:12px;font-weight:500">&yen;6.8B</td><td style="font-size:12px;color:var(--muted)">2026-03-09</td></tr>
+            <tr><td style="font-weight:500">Tokyo Food Technologies</td><td style="font-size:11px;color:var(--muted)">Food & Beverage</td><td><span class="stage-badge">Investment Committee</span></td><td><div class="score-bar"><div class="score-track"><div class="score-fill" style="width:81%"></div></div><span class="score-val">81</span></div></td><td style="font-size:12px;font-weight:500">&yen;15.3B</td><td style="font-size:12px;color:var(--muted)">2026-03-06</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ==================== PIPELINE ==================== -->
+<div id="page-pipeline" class="page-content">
+  <div class="header"><h1>Deal Pipeline</h1>
+    <div class="header-actions">
+      <div class="ai-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI Active<div class="ai-dot"></div></div>
+      <div class="avatar">TK</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="pipeline-summary">
+      <div class="pipeline-stat"><span class="label">Total Deals:</span><span class="value">10</span></div>
+      <div class="pipeline-stat"><span class="label">Total Pipeline EV:</span><span class="value">&yen;115.9B</span></div>
+      <div class="pipeline-stat"><span class="label">Avg AI Score:</span><span class="value accent">80</span></div>
+    </div>
+    <div class="kanban">
+      <!-- Sourcing -->
+      <div class="kanban-col">
+        <div class="kanban-col-header"><div class="kanban-col-dot" style="background:var(--muted-lt)"></div><div class="kanban-col-title">Sourcing</div><div class="kanban-col-count">2</div></div>
+        <div class="kanban-cards">
+          <div class="deal-card">
+            <div class="deal-card-head"><div class="deal-card-name">GreenLogix Corp</div><div class="deal-card-score mid">&#9733; 68</div></div>
+            <div class="deal-card-sector">Logistics / Supply Chain</div>
+            <div class="deal-card-metrics"><div class="deal-metric"><span class="lbl">EV</span><span class="val">&yen;6.8B</span></div><div class="deal-metric"><span class="lbl">EBITDA</span><span class="val">&yen;0.9B</span></div><div class="deal-metric"><span class="lbl">Multiple</span><span class="val">7.6x</span></div></div>
+            <div class="deal-flags"><span class="deal-flag">EV Transition</span><span class="deal-flag">Customer Concentration Risk</span></div>
+            <div class="deal-card-footer"><span>Ito</span><span>2026-03-09</span></div>
+          </div>
+          <div class="deal-card">
+            <div class="deal-card-head"><div class="deal-card-name">Matic Robotics</div><div class="deal-card-score mid">&#9733; 79</div></div>
+            <div class="deal-card-sector">Technology / Robotics</div>
+            <div class="deal-card-metrics"><div class="deal-metric"><span class="lbl">EV</span><span class="val">&yen;4.5B</span></div><div class="deal-metric"><span class="lbl">EBITDA</span><span class="val">&yen;0.6B</span></div><div class="deal-metric"><span class="lbl">Multiple</span><span class="val">7.5x</span></div></div>
+            <div class="deal-flags"><span class="deal-flag">Labor Shortage Theme</span></div>
+            <div class="deal-card-footer"><span>Yamamoto</span><span>2026-03-08</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Screening -->
+      <div class="kanban-col">
+        <div class="kanban-col-header"><div class="kanban-col-dot" style="background:var(--muted)"></div><div class="kanban-col-title">Screening</div><div class="kanban-col-count">2</div></div>
+        <div class="kanban-cards">
+          <div class="deal-card">
+            <div class="deal-card-head"><div class="deal-card-name">Sakura Healthcare Group</div><div class="deal-card-score mid">&#9733; 74</div></div>
+            <div class="deal-card-sector">Healthcare</div>
+            <div class="deal-card-metrics"><div class="deal-metric"><span class="lbl">EV</span><span class="val">&yen;18.0B</span></div><div class="deal-metric"><span class="lbl">EBITDA</span><span class="val">&yen;2.5B</span></div><div class="deal-metric"><span class="lbl">Multiple</span><span class="val">7.2x</span></div></div>
+            <div class="deal-flags"><span class="deal-flag">Aging Population Tailwind</span></div>
+            <div class="deal-card-footer"><span>Suzuki</span><span>2026-03-09</span></div>
+          </div>
+          <div class="deal-card">
+            <div class="deal-card-head"><div class="deal-card-name">Pacific Building Materials</div><div class="deal-card-score low">&#9733; 63</div></div>
+            <div class="deal-card-sector">Construction</div>
+            <div class="deal-card-metrics"><div class="deal-metric"><span class="lbl">EV</span><span class="val">&yen;9.1B</span></div><div class="deal-metric"><span class="lbl">EBITDA</span><span class="val">&yen;1.3B</span></div><div class="deal-metric"><span class="lbl">Multiple</span><span class="val">7.0x</span></div></div>
+            <div class="deal-flags"><span class="deal-flag">Cyclical Risk</span><span class="deal-flag">Strong Asset Base</span></div>
+            <div class="deal-card-footer"><span>Suzuki</span><span>2026-03-05</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- DD -->
+      <div class="kanban-col">
+        <div class="kanban-col-header"><div class="kanban-col-dot" style="background:var(--accent)"></div><div class="kanban-col-title">Due Diligence</div><div class="kanban-col-count">2</div></div>
+        <div class="kanban-cards">
+          <div class="deal-card">
+            <div class="deal-card-head"><div class="deal-card-name">Nexus Precision Mfg</div><div class="deal-card-score high">&#9733; 87</div></div>
+            <div class="deal-card-sector">Industrial / Manufacturing</div>
+            <div class="deal-card-metrics"><div class="deal-metric"><span class="lbl">EV</span><span class="val">&yen;12.5B</span></div><div class="deal-metric"><span class="lbl">EBITDA</span><span class="val">&yen;1.8B</span></div><div class="deal-metric"><span class="lbl">Multiple</span><span class="val">6.9x</span></div></div>
+            <div class="deal-flags"><span class="deal-flag">Owner Age 68</span><span class="deal-flag">Niche Top Share</span></div>
+            <div class="deal-card-footer"><span>Tanaka</span><span>2026-03-08</span></div>
+          </div>
+          <div class="deal-card">
+            <div class="deal-card-head"><div class="deal-card-name">Wellness Connect</div><div class="deal-card-score mid">&#9733; 76</div></div>
+            <div class="deal-card-sector">Healthcare / Digital</div>
+            <div class="deal-card-metrics"><div class="deal-metric"><span class="lbl">EV</span><span class="val">&yen;5.5B</span></div><div class="deal-metric"><span class="lbl">EBITDA</span><span class="val">&yen;0.7B</span></div><div class="deal-metric"><span class="lbl">Multiple</span><span class="val">7.9x</span></div></div>
+            <div class="deal-flags"><span class="deal-flag">Regulatory Pending</span></div>
+            <div class="deal-card-footer"><span>Ito</span><span>2026-03-08</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Valuation -->
+      <div class="kanban-col">
+        <div class="kanban-col-header"><div class="kanban-col-dot" style="background:var(--accent-lt)"></div><div class="kanban-col-title">Valuation</div><div class="kanban-col-count">1</div></div>
+        <div class="kanban-cards">
+          <div class="deal-card">
+            <div class="deal-card-head"><div class="deal-card-name">CloudBridge Solutions</div><div class="deal-card-score high">&#9733; 92</div></div>
+            <div class="deal-card-sector">Technology / SaaS</div>
+            <div class="deal-card-metrics"><div class="deal-metric"><span class="lbl">EV</span><span class="val">&yen;8.2B</span></div><div class="deal-metric"><span class="lbl">EBITDA</span><span class="val">&yen;1.2B</span></div><div class="deal-metric"><span class="lbl">Multiple</span><span class="val">6.8x</span></div></div>
+            <div class="deal-flags"><span class="deal-flag">High Growth</span><span class="deal-flag">Recurring Revenue 85%</span></div>
+            <div class="deal-card-footer"><span>Yamamoto</span><span>2026-03-07</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- IC -->
+      <div class="kanban-col">
+        <div class="kanban-col-header"><div class="kanban-col-dot" style="background:var(--fg)"></div><div class="kanban-col-title">Investment Committee</div><div class="kanban-col-count">1</div></div>
+        <div class="kanban-cards">
+          <div class="deal-card">
+            <div class="deal-card-head"><div class="deal-card-name">Tokyo Food Technologies</div><div class="deal-card-score mid">&#9733; 81</div></div>
+            <div class="deal-card-sector">Food & Beverage</div>
+            <div class="deal-card-metrics"><div class="deal-metric"><span class="lbl">EV</span><span class="val">&yen;15.3B</span></div><div class="deal-metric"><span class="lbl">EBITDA</span><span class="val">&yen;2.1B</span></div><div class="deal-metric"><span class="lbl">Multiple</span><span class="val">7.3x</span></div></div>
+            <div class="deal-flags"><span class="deal-flag">Export Growth Potential</span></div>
+            <div class="deal-card-footer"><span>Tanaka</span><span>2026-03-06</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Execution -->
+      <div class="kanban-col">
+        <div class="kanban-col-header"><div class="kanban-col-dot" style="background:var(--success)"></div><div class="kanban-col-title">Execution</div><div class="kanban-col-count">1</div></div>
+        <div class="kanban-cards">
+          <div class="deal-card">
+            <div class="deal-card-head"><div class="deal-card-name">Aether Semiconductors</div><div class="deal-card-score high">&#9733; 90</div></div>
+            <div class="deal-card-sector">Technology / Semiconductor</div>
+            <div class="deal-card-metrics"><div class="deal-metric"><span class="lbl">EV</span><span class="val">&yen;22.0B</span></div><div class="deal-metric"><span class="lbl">EBITDA</span><span class="val">&yen;3.8B</span></div><div class="deal-metric"><span class="lbl">Multiple</span><span class="val">5.8x</span></div></div>
+            <div class="deal-flags"><span class="deal-flag">SPA Signed</span><span class="deal-flag">Closing Q2</span></div>
+            <div class="deal-card-footer"><span>Tanaka</span><span>2026-03-04</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Closed -->
+      <div class="kanban-col">
+        <div class="kanban-col-header"><div class="kanban-col-dot" style="background:var(--fg)"></div><div class="kanban-col-title">Closed</div><div class="kanban-col-count">1</div></div>
+        <div class="kanban-cards">
+          <div class="deal-card" style="opacity:.7">
+            <div class="deal-card-head"><div class="deal-card-name">Atlas Industrial Services</div><div class="deal-card-score high">&#9733; 85</div></div>
+            <div class="deal-card-sector">Industrial Services</div>
+            <div class="deal-card-metrics"><div class="deal-metric"><span class="lbl">EV</span><span class="val">&yen;14.0B</span></div><div class="deal-metric"><span class="lbl">EBITDA</span><span class="val">&yen;2.0B</span></div><div class="deal-metric"><span class="lbl">Multiple</span><span class="val">7.0x</span></div></div>
+            <div class="deal-flags"><span class="deal-flag">Fund III Portfolio</span></div>
+            <div class="deal-card-footer"><span>Tanaka</span><span>2026-02-28</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ==================== PORTFOLIO ==================== -->
+<div id="page-portfolio" class="page-content">
+  <div class="header"><h1>Portfolio Monitoring</h1>
+    <div class="header-actions"><div class="ai-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI Active<div class="ai-dot"></div></div><div class="avatar">TK</div></div>
+  </div>
+  <div class="content">
+    <div class="port-summary">
+      <div class="port-stat"><div class="port-stat-label">Companies</div><div class="port-stat-value">5</div></div>
+      <div class="port-stat"><div class="port-stat-label">Total Invested</div><div class="port-stat-value">&yen;31.7B</div></div>
+      <div class="port-stat"><div class="port-stat-label">Current Value</div><div class="port-stat-value success">&yen;46.3B</div></div>
+      <div class="port-stat"><div class="port-stat-label">Avg MOIC</div><div class="port-stat-value accent">1.55x</div></div>
+      <div class="port-stat"><div class="port-stat-label">Active Alerts</div><div class="port-stat-value danger">5</div></div>
+    </div>
+    <div class="port-grid">
+      <!-- Atlas -->
+      <div class="port-card on-track">
+        <div class="port-card-head">
+          <div><div class="port-card-name">Atlas Industrial Services</div><div class="port-card-info"><span>Industrial Services</span><span>2024-06</span></div></div>
+          <span class="status-badge on-track">&#10003; On Track</span>
+        </div>
+        <div class="port-metrics">
+          <div><div class="port-metric-label">Invested</div><div class="port-metric-value">&yen;5.2B</div></div>
+          <div><div class="port-metric-label">Current</div><div class="port-metric-value">&yen;8.9B</div></div>
+          <div><div class="port-metric-label">MOIC</div><div class="port-metric-value" style="color:var(--success)">&#9650; 1.71x</div></div>
+          <div><div class="port-metric-label">IRR</div><div class="port-metric-value" style="color:var(--success)">28.5%</div></div>
+        </div>
+        <div class="port-sparklines">
+          <div class="sparkline-box"><div class="sparkline-label">Revenue Trend</div><div class="spark-bar-row"><div class="spark-bar up" style="height:60%"></div><div class="spark-bar up" style="height:68%"></div><div class="spark-bar up" style="height:76%"></div><div class="spark-bar up" style="height:84%"></div><div class="spark-bar up" style="height:92%"></div><div class="spark-bar up" style="height:100%"></div></div></div>
+          <div class="sparkline-box"><div class="sparkline-label">EBITDA Trend</div><div class="spark-bar-row"><div class="spark-bar" style="height:55%;background:var(--accent)"></div><div class="spark-bar" style="height:64%;background:var(--accent)"></div><div class="spark-bar" style="height:72%;background:var(--accent)"></div><div class="spark-bar" style="height:80%;background:var(--accent)"></div><div class="spark-bar" style="height:90%;background:var(--accent)"></div><div class="spark-bar" style="height:100%;background:var(--accent)"></div></div></div>
+        </div>
+      </div>
+      <!-- Horizon Medical -->
+      <div class="port-card watch">
+        <div class="port-card-head">
+          <div><div class="port-card-name">Horizon Medical Devices</div><div class="port-card-info"><span>Healthcare</span><span>2023-09</span></div></div>
+          <span class="status-badge watch">&#9673; Watch</span>
+        </div>
+        <div class="port-metrics">
+          <div><div class="port-metric-label">Invested</div><div class="port-metric-value">&yen;7.8B</div></div>
+          <div><div class="port-metric-label">Current</div><div class="port-metric-value">&yen;11.2B</div></div>
+          <div><div class="port-metric-label">MOIC</div><div class="port-metric-value" style="color:var(--success)">&#9650; 1.44x</div></div>
+          <div><div class="port-metric-label">IRR</div><div class="port-metric-value" style="color:var(--success)">16.2%</div></div>
+        </div>
+        <div class="port-sparklines">
+          <div class="sparkline-box"><div class="sparkline-label">Revenue Trend</div><div class="spark-bar-row"><div class="spark-bar up" style="height:80%"></div><div class="spark-bar up" style="height:85%"></div><div class="spark-bar up" style="height:90%"></div><div class="spark-bar down" style="height:82%"></div><div class="spark-bar up" style="height:88%"></div><div class="spark-bar up" style="height:95%"></div></div></div>
+          <div class="sparkline-box"><div class="sparkline-label">EBITDA Trend</div><div class="spark-bar-row"><div class="spark-bar" style="height:80%;background:var(--accent)"></div><div class="spark-bar" style="height:85%;background:var(--accent)"></div><div class="spark-bar" style="height:92%;background:var(--accent)"></div><div class="spark-bar" style="height:78%;background:var(--danger)"></div><div class="spark-bar" style="height:85%;background:var(--accent)"></div><div class="spark-bar" style="height:95%;background:var(--accent)"></div></div></div>
+        </div>
+        <div class="port-alerts">
+          <div class="port-alert"><span class="port-alert-icon">&#9888;</span>Revenue dip detected in Q3 2025</div>
+          <div class="port-alert"><span class="port-alert-icon">&#9888;</span>Key customer contract renewal pending</div>
+        </div>
+      </div>
+      <!-- Digital Frontier -->
+      <div class="port-card on-track">
+        <div class="port-card-head">
+          <div><div class="port-card-name">Digital Frontier Inc.</div><div class="port-card-info"><span>Technology / SaaS</span><span>2024-01</span></div></div>
+          <span class="status-badge on-track">&#10003; On Track</span>
+        </div>
+        <div class="port-metrics">
+          <div><div class="port-metric-label">Invested</div><div class="port-metric-value">&yen;3.5B</div></div>
+          <div><div class="port-metric-label">Current</div><div class="port-metric-value">&yen;6.8B</div></div>
+          <div><div class="port-metric-label">MOIC</div><div class="port-metric-value" style="color:var(--success)">&#9650; 1.94x</div></div>
+          <div><div class="port-metric-label">IRR</div><div class="port-metric-value" style="color:var(--success)">42.1%</div></div>
+        </div>
+        <div class="port-sparklines">
+          <div class="sparkline-box"><div class="sparkline-label">Revenue Trend</div><div class="spark-bar-row"><div class="spark-bar up" style="height:30%"></div><div class="spark-bar up" style="height:42%"></div><div class="spark-bar up" style="height:55%"></div><div class="spark-bar up" style="height:68%"></div><div class="spark-bar up" style="height:82%"></div><div class="spark-bar up" style="height:100%"></div></div></div>
+          <div class="sparkline-box"><div class="sparkline-label">EBITDA Trend</div><div class="spark-bar-row"><div class="spark-bar" style="height:18%;background:var(--accent)"></div><div class="spark-bar" style="height:30%;background:var(--accent)"></div><div class="spark-bar" style="height:44%;background:var(--accent)"></div><div class="spark-bar" style="height:60%;background:var(--accent)"></div><div class="spark-bar" style="height:78%;background:var(--accent)"></div><div class="spark-bar" style="height:100%;background:var(--accent)"></div></div></div>
+        </div>
+      </div>
+      <!-- Kanto Chemical -->
+      <div class="port-card at-risk">
+        <div class="port-card-head">
+          <div><div class="port-card-name">Kanto Chemical Industries</div><div class="port-card-info"><span>Chemicals</span><span>2022-12</span></div></div>
+          <span class="status-badge at-risk">&#9888; At Risk</span>
+        </div>
+        <div class="port-metrics">
+          <div><div class="port-metric-label">Invested</div><div class="port-metric-value">&yen;9.2B</div></div>
+          <div><div class="port-metric-label">Current</div><div class="port-metric-value">&yen;10.1B</div></div>
+          <div><div class="port-metric-label">MOIC</div><div class="port-metric-value" style="color:var(--warn)">&#9660; 1.10x</div></div>
+          <div><div class="port-metric-label">IRR</div><div class="port-metric-value" style="color:var(--danger)">3.2%</div></div>
+        </div>
+        <div class="port-sparklines">
+          <div class="sparkline-box"><div class="sparkline-label">Revenue Trend</div><div class="spark-bar-row"><div class="spark-bar down" style="height:100%"></div><div class="spark-bar down" style="height:92%"></div><div class="spark-bar down" style="height:96%"></div><div class="spark-bar down" style="height:88%"></div><div class="spark-bar down" style="height:84%"></div><div class="spark-bar down" style="height:78%"></div></div></div>
+          <div class="sparkline-box"><div class="sparkline-label">EBITDA Trend</div><div class="spark-bar-row"><div class="spark-bar down" style="height:100%"></div><div class="spark-bar down" style="height:88%"></div><div class="spark-bar down" style="height:92%"></div><div class="spark-bar down" style="height:82%"></div><div class="spark-bar down" style="height:76%"></div><div class="spark-bar down" style="height:68%"></div></div></div>
+        </div>
+        <div class="port-alerts">
+          <div class="port-alert"><span class="port-alert-icon">&#9888;</span>EBITDA declining 3 consecutive quarters</div>
+          <div class="port-alert"><span class="port-alert-icon">&#9888;</span>Raw material cost surge +18% YoY</div>
+          <div class="port-alert"><span class="port-alert-icon">&#9888;</span>Covenant breach risk: Net Debt/EBITDA approaching 5.0x</div>
+        </div>
+      </div>
+      <!-- Premier Logistics -->
+      <div class="port-card on-track">
+        <div class="port-card-head">
+          <div><div class="port-card-name">Premier Logistics Group</div><div class="port-card-info"><span>Logistics</span><span>2023-04</span></div></div>
+          <span class="status-badge on-track">&#10003; On Track</span>
+        </div>
+        <div class="port-metrics">
+          <div><div class="port-metric-label">Invested</div><div class="port-metric-value">&yen;6.0B</div></div>
+          <div><div class="port-metric-label">Current</div><div class="port-metric-value">&yen;9.3B</div></div>
+          <div><div class="port-metric-label">MOIC</div><div class="port-metric-value" style="color:var(--success)">&#9650; 1.55x</div></div>
+          <div><div class="port-metric-label">IRR</div><div class="port-metric-value" style="color:var(--success)">20.8%</div></div>
+        </div>
+        <div class="port-sparklines">
+          <div class="sparkline-box"><div class="sparkline-label">Revenue Trend</div><div class="spark-bar-row"><div class="spark-bar up" style="height:65%"></div><div class="spark-bar up" style="height:72%"></div><div class="spark-bar up" style="height:80%"></div><div class="spark-bar up" style="height:86%"></div><div class="spark-bar up" style="height:92%"></div><div class="spark-bar up" style="height:100%"></div></div></div>
+          <div class="sparkline-box"><div class="sparkline-label">EBITDA Trend</div><div class="spark-bar-row"><div class="spark-bar" style="height:62%;background:var(--accent)"></div><div class="spark-bar" style="height:70%;background:var(--accent)"></div><div class="spark-bar" style="height:78%;background:var(--accent)"></div><div class="spark-bar" style="height:86%;background:var(--accent)"></div><div class="spark-bar" style="height:92%;background:var(--accent)"></div><div class="spark-bar" style="height:100%;background:var(--accent)"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ==================== AI INSIGHTS ==================== -->
+<div id="page-ai" class="page-content">
+  <div class="header"><h1>AI Insights</h1>
+    <div class="header-actions"><div class="ai-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI Active<div class="ai-dot"></div></div><div class="avatar">TK</div></div>
+  </div>
+  <div class="content">
+    <div class="ai-layout">
+      <div class="chat-box">
+        <div class="chat-header"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4c0 2 2 3 2 6H14c0-3 2-4 2-6a4 4 0 0 0-4-4z"/></svg>AI DD Assistant<div class="dot"></div></div>
+        <div class="chat-messages">
+          <div class="chat-msg ai">Hello, I'm your AI Due Diligence assistant. Upload documents or ask me questions about ongoing deals. I can analyze IMs, contracts, financial data, and more.</div>
+          <div class="chat-msg user">Nexus Precisionの概要を教えて</div>
+          <div class="chat-msg ai"><strong>Nexus Precision Manufacturing &mdash; AI Score: 87/100</strong><br><br>Key findings from IM analysis:<br>&bull; Owner (age 68) seeking succession solution &mdash; strong alignment with our thesis<br>&bull; Niche market leader in precision parts for semiconductor equipment (32% domestic share)<br>&bull; EBITDA margin stable at 14.2% over 5 years<br>&bull; Red flags: Customer concentration (top 3 = 45%), aging facility infrastructure<br><br>Recommendation: Proceed to DD with focus on customer contract durability and capex requirements.</div>
+        </div>
+        <div class="chat-actions">
+          <button class="chat-action-btn">&#128269; Analyze IM</button>
+          <button class="chat-action-btn">&#128228; Upload Document</button>
+          <button class="chat-action-btn">&#9888; Red Flag Check</button>
+        </div>
+        <div class="chat-input-wrap">
+          <input class="chat-input" placeholder="Ask about a deal, request analysis...">
+          <button class="chat-send">&#10148;</button>
+        </div>
+      </div>
+      <div class="dd-tracker">
+        <h3>DD Progress &mdash; Nexus Precision</h3>
+        <div class="sub">AI-assisted due diligence tracking</div>
+        <div class="dd-items">
+          <div class="dd-item"><div class="dd-item-icon done">&#10003;</div><div class="dd-item-body"><div class="dd-item-head"><span class="dd-item-name">Financial DD</span><span class="dd-item-pct">100%</span></div><div class="dd-progress"><div class="dd-progress-fill done" style="width:100%"></div></div></div></div>
+          <div class="dd-item"><div class="dd-item-icon prog">&#9679;</div><div class="dd-item-body"><div class="dd-item-head"><span class="dd-item-name">Legal DD</span><span class="dd-item-pct">72%</span></div><div class="dd-progress"><div class="dd-progress-fill prog" style="width:72%"></div></div></div></div>
+          <div class="dd-item"><div class="dd-item-icon prog">&#9679;</div><div class="dd-item-body"><div class="dd-item-head"><span class="dd-item-name">Business DD</span><span class="dd-item-pct">58%</span></div><div class="dd-progress"><div class="dd-progress-fill prog" style="width:58%"></div></div></div></div>
+          <div class="dd-item"><div class="dd-item-icon prog">&#9679;</div><div class="dd-item-body"><div class="dd-item-head"><span class="dd-item-name">Tax DD</span><span class="dd-item-pct">45%</span></div><div class="dd-progress"><div class="dd-progress-fill prog" style="width:45%"></div></div></div></div>
+          <div class="dd-item"><div class="dd-item-icon pend"></div><div class="dd-item-body"><div class="dd-item-head"><span class="dd-item-name">IT/Cyber DD</span><span class="dd-item-pct">10%</span></div><div class="dd-progress"><div class="dd-progress-fill pend" style="width:10%"></div></div></div></div>
+          <div class="dd-item"><div class="dd-item-icon pend"></div><div class="dd-item-body"><div class="dd-item-head"><span class="dd-item-name">ESG DD</span><span class="dd-item-pct">0%</span></div><div class="dd-progress"><div class="dd-progress-fill pend" style="width:0%"></div></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:24px">
+      <div class="section-header">
+        <div class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI Insights Feed <span style="font-weight:400;color:var(--muted);font-size:11px;margin-left:4px">(8)</span></div>
+        <div class="filter-bar">
+          <button class="filter-btn active">All</button>
+          <button class="filter-btn">Risk</button>
+          <button class="filter-btn">Opportunity</button>
+          <button class="filter-btn">Alert</button>
+          <button class="filter-btn">Recommendation</button>
+        </div>
+      </div>
+      <div class="insights-grid">
+        <div class="insight-card risk"><div class="insight-header"><div class="insight-icon risk">&#9888;</div><div><div><span class="insight-badge risk">Risk</span><span class="insight-conf">Confidence: 94%</span></div><div class="insight-title">Customer Concentration &mdash; GreenLogix</div><div class="insight-desc">Top 3 customers account for 62% of revenue. DD data room analysis reveals no long-term contracts for top customer (28% of revenue).</div><div class="insight-meta"><span>DD Analysis Agent</span><span>&middot;</span><span>2026-03-08 18:30</span></div></div></div></div>
+        <div class="insight-card opportunity"><div class="insight-header"><div class="insight-icon opportunity">&#8599;</div><div><div><span class="insight-badge opportunity">Opportunity</span><span class="insight-conf">Confidence: 68%</span></div><div class="insight-title">New Sourcing Lead &mdash; Industrial Automation</div><div class="insight-desc">AI sourcing agent identified 3 companies matching "labor shortage solutions" theme with owner age >65. Estimated combined EV: &yen;8-12B.</div><div class="insight-meta"><span>Sourcing Agent</span><span>&middot;</span><span>2026-03-08 14:00</span></div></div></div></div>
+        <div class="insight-card alert"><div class="insight-header"><div class="insight-icon alert">&#128276;</div><div><div><span class="insight-badge alert">Alert</span><span class="insight-conf">Confidence: 88%</span></div><div class="insight-title">IM Analysis Complete &mdash; Sakura Healthcare</div><div class="insight-desc">23% EBITDA margin (sector avg 18%), strong regional monopoly position, capex cycle ending FY2026. 3 red flags identified for DD focus.</div><div class="insight-meta"><span>Screening Agent</span><span>&middot;</span><span>2026-03-09 09:00</span></div></div></div></div>
+        <div class="insight-card recommendation"><div class="insight-header"><div class="insight-icon recommendation">&#128161;</div><div><div><span class="insight-badge recommendation">Recommendation</span><span class="insight-conf">Confidence: 83%</span></div><div class="insight-title">Pricing Optimization &mdash; Atlas Industrial</div><div class="insight-desc">Price elasticity analysis across 847 SKUs reveals 15% of products significantly underpriced. Estimated EBITDA uplift: &yen;120-180M annually.</div><div class="insight-meta"><span>Value-Up Agent</span><span>&middot;</span><span>2026-03-08 11:00</span></div></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ==================== LP REPORTING ==================== -->
+<div id="page-lp" class="page-content">
+  <div class="header"><h1>LP Reporting</h1>
+    <div class="header-actions"><div class="ai-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI Active<div class="ai-dot"></div></div><div class="avatar">TK</div></div>
+  </div>
+  <div class="content">
+    <div class="lp-banner">
+      <div class="lp-banner-left">
+        <div class="lp-banner-icon">&#10024;</div>
+        <div>
+          <h3>AI Report Generation</h3>
+          <p>Automatically generate quarterly LP reports from portfolio data. AI analyzes KPIs, compiles performance metrics, and drafts narratives in ILPA-compliant format.</p>
+        </div>
+      </div>
+      <button class="lp-banner-btn">&#8635; Generate Q1 2026 Report</button>
+    </div>
+    <div class="lp-stats">
+      <div class="lp-stat"><div class="lp-stat-label">Fund III NAV</div><div class="lp-stat-value">&yen;44.1B</div></div>
+      <div class="lp-stat"><div class="lp-stat-label">Fund III TVPI</div><div class="lp-stat-value green">1.67x</div></div>
+      <div class="lp-stat"><div class="lp-stat-label">Fund II NAV</div><div class="lp-stat-value">&yen;27.2B</div></div>
+      <div class="lp-stat"><div class="lp-stat-label">Fund II TVPI</div><div class="lp-stat-value green">2.35x</div></div>
+    </div>
+    <div class="lp-bottom">
+      <div class="lp-table-card">
+        <div class="lp-table-head"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Quarterly Reports</div>
+        <table>
+          <thead><tr><th>Fund</th><th>Quarter</th><th>Status</th><th>NAV</th><th>DPI</th><th>TVPI</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:500;font-size:12px">Taiga Capital Fund III</td><td>Q4 2025</td><td><span class="report-status sent">&#10003; Sent</span></td><td>&yen;42.8B</td><td>0.32x</td><td style="font-weight:600;color:var(--accent)">1.62x</td></tr>
+            <tr><td style="font-weight:500;font-size:12px">Taiga Capital Fund III</td><td>Q1 2026</td><td><span class="report-status draft">&#9998; Draft</span></td><td>&yen;44.1B</td><td>0.32x</td><td style="font-weight:600;color:var(--accent)">1.67x</td></tr>
+            <tr><td style="font-weight:500;font-size:12px">Taiga Capital Fund II</td><td>Q4 2025</td><td><span class="report-status sent">&#10003; Sent</span></td><td>&yen;28.5B</td><td>1.15x</td><td style="font-weight:600;color:var(--accent)">2.31x</td></tr>
+            <tr><td style="font-weight:500;font-size:12px">Taiga Capital Fund II</td><td>Q1 2026</td><td><span class="report-status review">&#9200; In Review</span></td><td>&yen;27.2B</td><td>1.22x</td><td style="font-weight:600;color:var(--accent)">2.35x</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="lp-investors">
+        <h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>LP Overview &mdash; Fund III</h3>
+        <div class="lp-inv-list">
+          <div class="lp-inv-item"><div><div class="lp-inv-name">GPIF</div><div class="lp-inv-type">Pension Fund</div></div><div class="lp-inv-amt">&yen;15.0B</div></div>
+          <div class="lp-inv-item"><div><div class="lp-inv-name">Dai-ichi Life Insurance</div><div class="lp-inv-type">Insurance</div></div><div class="lp-inv-amt">&yen;8.0B</div></div>
+          <div class="lp-inv-item"><div><div class="lp-inv-name">University of Tokyo Endowment</div><div class="lp-inv-type">Endowment</div></div><div class="lp-inv-amt">&yen;3.0B</div></div>
+          <div class="lp-inv-item"><div><div class="lp-inv-name">Mizuho Bank</div><div class="lp-inv-type">Bank</div></div><div class="lp-inv-amt">&yen;5.0B</div></div>
+          <div class="lp-inv-item"><div><div class="lp-inv-name">Singapore GIC</div><div class="lp-inv-type">Sovereign Wealth</div></div><div class="lp-inv-amt">&yen;10.0B</div></div>
+        </div>
+        <div class="lp-inv-total"><span style="color:var(--muted)">Total Commitment</span><span style="font-weight:700">&yen;41.0B</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+function showPage(page) {
+  document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const names = {dashboard:0,pipeline:1,portfolio:2,ai:3,lp:4};
+  document.querySelectorAll('.nav-item')[names[page]].classList.add('active');
+}
+</script>
+</body>
+</html>
