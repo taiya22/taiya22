@@ -247,6 +247,32 @@ class TestScenarioAnalysis:
         assert "Bull" in table
 
 
+class TestMonteCarlo:
+    def test_monte_carlo_runs(self):
+        """Small Monte Carlo run should produce valid distributions."""
+        from taiga_sim.monte_carlo import run_monte_carlo
+        result = run_monte_carlo(n_trials=10, years=5)
+        assert result.n_trials == 10
+        assert len(result.ev) == 6  # year 0-5
+        assert result.ev[-1].p10 <= result.ev[-1].p50 <= result.ev[-1].p90
+        assert len(result.final_ev) == 10
+
+    def test_monte_carlo_spread(self):
+        """P90 should exceed P10 (randomness creates spread)."""
+        from taiga_sim.monte_carlo import run_monte_carlo
+        result = run_monte_carlo(n_trials=20, years=10)
+        final = result.ev[-1]
+        assert final.p90 > final.p10
+
+    def test_monte_carlo_summary_renders(self):
+        """Summary table should render without errors."""
+        from taiga_sim.monte_carlo import run_monte_carlo, format_monte_carlo_summary
+        result = run_monte_carlo(n_trials=5, years=5)
+        text = format_monte_carlo_summary(result)
+        assert "P10" in text
+        assert "P90" in text
+
+
 class TestMemberModel:
     def test_founder(self):
         m = Member(
