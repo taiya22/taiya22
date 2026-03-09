@@ -275,7 +275,7 @@ def slide_exec_summary(prs, reports):
                 "vs. Sum-of-the-Parts",
                 value_color=GREEN_ACCENT if final.conglomerate_premium_pct > 0 else RED_ACCENT)
     add_kpi_box(slide, start_x + kpi_w + gap, kpi_y2, kpi_w, kpi_h,
-                "Operating System", f"{final.operating_system_maturity:.0%}",
+                "PMI Capability", f"{final.pmi_capability:.0%}",
                 "DBS-equivalent maturity", value_color=TEAL)
     add_kpi_box(slide, start_x + (kpi_w + gap) * 2, kpi_y2, kpi_w, kpi_h,
                 "Governance Quality", f"{final.governance_quality:.0%}",
@@ -301,7 +301,7 @@ def slide_exec_summary(prs, reports):
                 "Phase Milestones", font_size=13, bold=True, color=DARK_BLUE)
 
     milestones = [
-        ("Phase", "Year", "Revenue", "EBITDA", "EV", "CP%", "OS"),
+        ("Phase", "Year", "Revenue", "EBITDA", "EV", "CP%", "PMI"),
     ]
     phase_years = [0, 3, 6, 10, 15, 20, 30]
     for py in phase_years:
@@ -314,7 +314,7 @@ def slide_exec_summary(prs, reports):
                 fmt_jpy(r.ebitda),
                 fmt_jpy(r.enterprise_value),
                 f"+{r.conglomerate_premium_pct:.1f}%" if r.conglomerate_premium_pct >= 0 else f"{r.conglomerate_premium_pct:.1f}%",
-                f"{r.operating_system_maturity:.0%}",
+                f"{r.pmi_capability:.0%}",
             ))
 
     table_shape = slide.shapes.add_table(
@@ -357,7 +357,7 @@ def slide_conglomerate_premium(prs, reports):
 
     years = [r.year for r in reports]
     cp = [r.conglomerate_premium_pct for r in reports]
-    os_mat = [r.operating_system_maturity * 100 for r in reports]
+    os_mat = [r.pmi_capability * 100 for r in reports]
     gov = [r.governance_quality * 100 for r in reports]
 
     # Main chart: CP% over time
@@ -384,10 +384,10 @@ def slide_conglomerate_premium(prs, reports):
         ax1.text((s + e) / 2, 32, label, fontsize=7, ha="center", color="#999999")
 
     # Right: OS maturity + Governance
-    ax2.plot(years, os_mat, color="#009688", linewidth=2.5, label="Operating System Maturity")
+    ax2.plot(years, os_mat, color="#009688", linewidth=2.5, label="PMI Capability")
     ax2.plot(years, gov, color="#005B96", linewidth=2.5, linestyle="--", label="Governance Quality")
     ax2.fill_between(years, os_mat, alpha=0.1, color="#009688")
-    make_chart_style(ax2, "Operating System & Governance Maturity",
+    make_chart_style(ax2, "PMI Capability & Governance Maturity",
                      "Year", "Maturity (%)")
     ax2.set_ylim(0, 105)
     ax2.legend(fontsize=8, loc="lower right")
@@ -507,24 +507,24 @@ def slide_premium_decomposition(prs, reports):
     factor_diversification = relatedness_ratio * cfg.related_premium + (1 - relatedness_ratio) * cfg.unrelated_discount
     segment_deviation = abs(n_types - cfg.optimal_segment_count)
     factor_segment = -0.02 * (segment_deviation ** 1.5) / cfg.diversification_curve_width
-    factor_os = holding.operating_system_maturity * cfg.related_premium * 1.5
+    factor_os = holding.pmi_capability * cfg.related_premium * 1.5
     monitoring_raw = 0.0
     if n_companies > cfg.monitoring_decay_threshold:
         excess = n_companies - cfg.monitoring_decay_threshold
         monitoring_raw = -excess * cfg.monitoring_decay_rate
-        monitoring_raw *= (1.0 - holding.operating_system_maturity * 0.6)
+        monitoring_raw *= (1.0 - holding.pmi_capability * 0.6)
     factor_monitoring = monitoring_raw
     factor_governance = cfg.governance_bonus_max * holding.governance_quality - cfg.governance_penalty_max * (1 - holding.governance_quality)
     factor_japan = -cfg.japan_institutional_discount
     venture_ratio = type_counts.get(CompanyType.VENTURE, 0) / n_companies if n_companies > 0 else 0
     factor_platform = 0.0
-    if venture_ratio > 0.2 and holding.operating_system_maturity > 0.5:
-        factor_platform = min(cfg.platform_premium_max, venture_ratio * holding.operating_system_maturity * cfg.platform_premium_max)
+    if venture_ratio > 0.2 and holding.pmi_capability > 0.5:
+        factor_platform = min(cfg.platform_premium_max, venture_ratio * holding.pmi_capability * cfg.platform_premium_max)
 
     factors = [
         ("Related\nDiversification", factor_diversification * 100),
         ("Segment\nOptimality", factor_segment * 100),
-        ("Operating\nSystem (DBS)", factor_os * 100),
+        ("PMI\nCapability", factor_os * 100),
         ("Monitoring\nDecay", factor_monitoring * 100),
         ("Governance\nQuality", factor_governance * 100),
         ("Japan\nContext", factor_japan * 100),
@@ -581,7 +581,7 @@ def slide_premium_decomposition(prs, reports):
     # Research citations
     citations = [
         ("Diversification Type", "Villalonga (2004): related = premium, unrelated = -14% discount"),
-        ("Operating System", "Danaher: DBS yields +650bps margin improvement; 80,000% stock return"),
+        ("PMI Capability", "Danaher: DBS yields +650bps margin improvement; 80,000% stock return"),
         ("Monitoring Decay", "Stein (1997): HQ monitoring efficiency decays with # of divisions"),
         ("Governance", "Strong governance eliminates conglomerate discount (multiple studies)"),
         ("Japan Context", "Khanna & Palepu (2000): weaker institutions increase diversification value"),
@@ -825,7 +825,7 @@ def slide_appendix_data(prs, reports):
                    "Complete 30-year simulation output (seed=42)")
 
     # Split into two columns for readability
-    headers = ["Yr", "Phase", "Revenue", "EBITDA", "EV", "Co.", "CP%", "OS%"]
+    headers = ["Yr", "Phase", "Revenue", "EBITDA", "EV", "Co.", "CP%", "PMI%"]
     rows_per_col = 16
 
     for col_offset in range(2):
@@ -865,7 +865,7 @@ def slide_appendix_data(prs, reports):
             row_data = [
                 str(r.year), r.phase[:4],
                 fmt_jpy(r.revenue), fmt_jpy(r.ebitda), fmt_jpy(r.enterprise_value),
-                str(r.num_companies), cp_str, f"{r.operating_system_maturity:.0%}",
+                str(r.num_companies), cp_str, f"{r.pmi_capability:.0%}",
             ]
             for ci, val in enumerate(row_data):
                 cell = table.cell(ri + 1, ci)

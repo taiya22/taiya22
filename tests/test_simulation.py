@@ -142,7 +142,7 @@ class TestConglomeratePremium:
             Company(id=f"c{i}", company_type=CompanyType.PRODUCT, revenue=10_0000_0000, ebitda=1_0000_0000)
             for i in range(4)
         ]
-        state.holding.operating_system_maturity = 0.5
+        state.holding.pmi_capability = 0.5
         state.holding.governance_quality = 0.7
         multiplier = engine.compute_conglomerate_premium(state)
         # Related diversification should yield premium (>1.0)
@@ -158,14 +158,14 @@ class TestConglomeratePremium:
             Company(id=f"c{i}", company_type=types[i], revenue=10_0000_0000, ebitda=1_0000_0000)
             for i in range(5)
         ]
-        state.holding.operating_system_maturity = 0.0
+        state.holding.pmi_capability = 0.0
         state.holding.governance_quality = 0.3
         multiplier = engine.compute_conglomerate_premium(state)
         # Unrelated with poor governance and no OS should discount
         assert multiplier < 1.0
 
-    def test_operating_system_improves_premium(self):
-        """Mature operating system should improve the premium."""
+    def test_pmi_capability_improves_premium(self):
+        """Mature PMI capability should improve the premium."""
         from taiga_sim.engines.financial_engine import FinancialEngine
         engine = FinancialEngine()
         state = SimulationState()
@@ -175,12 +175,12 @@ class TestConglomeratePremium:
             for i in range(6)
         ]
         # Without OS
-        state.holding.operating_system_maturity = 0.0
+        state.holding.pmi_capability = 0.0
         state.holding.governance_quality = 0.5
         mult_no_os = engine.compute_conglomerate_premium(state)
 
         # With mature OS
-        state.holding.operating_system_maturity = 0.9
+        state.holding.pmi_capability = 0.9
         state.holding.governance_quality = 0.5
         mult_with_os = engine.compute_conglomerate_premium(state)
 
@@ -196,7 +196,7 @@ class TestConglomeratePremium:
             Company(id=f"c{i}", company_type=CompanyType.PRODUCT, revenue=10_0000_0000, ebitda=1_0000_0000)
             for i in range(5)
         ]
-        state.holding.operating_system_maturity = 0.5
+        state.holding.pmi_capability = 0.5
         state.holding.governance_quality = 0.7
         mult_small = engine.compute_conglomerate_premium(state)
 
@@ -216,7 +216,7 @@ class TestConglomeratePremium:
         reports = runner.run(years=10)
         final = reports[-1]
         # Premium should be non-zero once companies exist
-        assert final.operating_system_maturity > 0
+        assert final.pmi_capability > 0
         assert final.governance_quality > 0
 
 

@@ -288,18 +288,18 @@ class FinancialEngine:
         segment_penalty = -0.02 * (segment_deviation ** 1.5) / cfg.diversification_curve_width
         diversification_effect += segment_penalty
 
-        # --- 3. Operating system premium (Danaher DBS effect) ---
-        # Mature operating system converts discount into premium
-        os_maturity = holding.operating_system_maturity
-        os_premium = os_maturity * cfg.related_premium * 1.5  # up to +15%
+        # --- 3. PMI capability premium (Danaher DBS effect) ---
+        # Mature PMI capability converts discount into premium
+        pmi_cap = holding.pmi_capability
+        os_premium = pmi_cap * cfg.related_premium * 1.5  # up to +15%
 
         # --- 4. Monitoring efficiency decay (Stein 1997) ---
         monitoring_penalty = 0.0
         if n_companies > cfg.monitoring_decay_threshold:
             excess = n_companies - cfg.monitoring_decay_threshold
             monitoring_penalty = -excess * cfg.monitoring_decay_rate
-            # Operating system mitigates monitoring decay
-            monitoring_penalty *= (1.0 - os_maturity * 0.6)
+            # PMI capability mitigates monitoring decay
+            monitoring_penalty *= (1.0 - pmi_cap * 0.6)
 
         # --- 5. Governance quality ---
         gov = holding.governance_quality
@@ -317,10 +317,10 @@ class FinancialEngine:
             CompanyType.VENTURE, 0
         ) / n_companies if n_companies > 0 else 0
         platform_premium = 0.0
-        if venture_ratio > 0.2 and os_maturity > 0.5:
+        if venture_ratio > 0.2 and pmi_cap > 0.5:
             platform_premium = min(
                 cfg.platform_premium_max,
-                venture_ratio * os_maturity * cfg.platform_premium_max
+                venture_ratio * pmi_cap * cfg.platform_premium_max
             )
 
         # --- Combine all effects ---
@@ -338,8 +338,8 @@ class FinancialEngine:
 
         return 1.0 + total_premium
 
-    def advance_operating_system(self, state: SimulationState) -> None:
-        """Advance the group's operating system maturity (DBS-like).
+    def advance_pmi_capability(self, state: SimulationState) -> None:
+        """Advance the group's PMI capability (DBS-like).
 
         Matures based on:
         - Time (experience accumulation)
@@ -352,10 +352,10 @@ class FinancialEngine:
 
         # Operating system matures over configured years
         if year > 0:
-            target_maturity = min(1.0, year / cfg.operating_system_maturity_years)
+            target_maturity = min(1.0, year / cfg.pmi_capability_years)
             # Smooth convergence: don't jump instantly
-            holding.operating_system_maturity += (
-                (target_maturity - holding.operating_system_maturity) * 0.3
+            holding.pmi_capability += (
+                (target_maturity - holding.pmi_capability) * 0.3
             )
 
         # Governance improves with track record and scale

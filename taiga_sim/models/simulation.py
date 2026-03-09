@@ -70,9 +70,9 @@ class ConglomeratePremiumConfig:
     # Max tech/platform conglomerate premium (Research Affiliates 2026)
     platform_premium_max: float = 0.40  # up to +40% (conservative vs 70% avg)
 
-    # Operating system (DBS-like) parameters (Danaher)
-    operating_system_margin_improvement: float = 0.065  # +650bps per acquisition
-    operating_system_maturity_years: int = 5  # years to develop full system
+    # PMI capability parameters (Danaher DBS-like)
+    pmi_margin_improvement: float = 0.065  # +650bps per acquisition
+    pmi_capability_years: int = 5  # years to develop full PMI capability
     acquisition_multiple_arbitrage: float = 0.45  # effective multiple halving
 
     # Monitoring efficiency decay (Stein 1997)

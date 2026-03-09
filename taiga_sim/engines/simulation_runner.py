@@ -49,7 +49,7 @@ class AnnualReport:
     divestitures_this_year: int = 0
     # Conglomerate premium metrics
     conglomerate_premium_pct: float = 0.0  # e.g. +10% or -13%
-    operating_system_maturity: float = 0.0
+    pmi_capability: float = 0.0
     governance_quality: float = 0.5
     n_company_types: int = 0
 
@@ -260,8 +260,8 @@ class SimulationRunner:
         self.hr.evaluate_members(state)
         self.hr.assign_units(state)
 
-        # --- Advance operating system maturity (DBS-like) ---
-        self.financial.advance_operating_system(state)
+        # --- Advance PMI capability (DBS-like) ---
+        self.financial.advance_pmi_capability(state)
 
         # --- Quarterly simulation ---
         annual_revenue = 0.0
@@ -271,14 +271,14 @@ class SimulationRunner:
         for q in range(1, 5):
             state.quarter = q
 
-            os_maturity = state.holding.operating_system_maturity
-            os_margin = state.config.conglomerate.operating_system_margin_improvement
+            pmi_cap = state.holding.pmi_capability
+            pmi_margin = state.config.conglomerate.pmi_margin_improvement
             for company in state.holding.companies:
                 quarters_since = (year - company.acquired_year) * 4 + q
                 self.ma.advance_pmi(
                     company, quarters_since,
-                    operating_system_maturity=os_maturity,
-                    os_margin_improvement=os_margin,
+                    pmi_capability=pmi_cap,
+                    pmi_margin_improvement=pmi_margin,
                 )
 
             if q == 1:
@@ -353,7 +353,7 @@ class SimulationRunner:
             ma_events_this_year=ma_count,
             divestitures_this_year=divest_count,
             conglomerate_premium_pct=round(cong_premium_pct, 2),
-            operating_system_maturity=round(state.holding.operating_system_maturity, 3),
+            pmi_capability=round(state.holding.pmi_capability, 3),
             governance_quality=round(state.holding.governance_quality, 3),
             n_company_types=n_types,
         )
@@ -394,7 +394,7 @@ class SimulationRunner:
                 "ma_events": r.ma_events_this_year,
                 "divestitures": r.divestitures_this_year,
                 "conglomerate_premium_pct": r.conglomerate_premium_pct,
-                "operating_system_maturity": r.operating_system_maturity,
+                "pmi_capability": r.pmi_capability,
                 "governance_quality": r.governance_quality,
                 "n_company_types": r.n_company_types,
             })
@@ -432,7 +432,7 @@ class SimulationRunner:
                 f"{r.seed_investor_moic:>8.1f} "
                 f"{r.seed_investor_irr * 100:>5.1f}% "
                 f"{cp_sign}{r.conglomerate_premium_pct:>4.1f}% "
-                f"{r.operating_system_maturity:>4.2f} "
+                f"{r.pmi_capability:>4.2f} "
                 f"{crisis_mark:>3}"
             )
 
@@ -458,7 +458,7 @@ class SimulationRunner:
             lines.append(f"  累計M&A:      {total_ma}件")
             lines.append(f"  累計売却:     {total_divest}件")
             lines.append(f"  コングロマリットP/D: {'+' if final.conglomerate_premium_pct >= 0 else ''}{final.conglomerate_premium_pct:.1f}%")
-            lines.append(f"  経営システム成熟度:  {final.operating_system_maturity:.1%}")
+            lines.append(f"  PMI Capability:      {final.pmi_capability:.1%}")
             lines.append(f"  ガバナンス品質:      {final.governance_quality:.1%}")
 
         return "\n".join(lines)
