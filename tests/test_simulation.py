@@ -220,6 +220,33 @@ class TestConglomeratePremium:
         assert final.governance_quality > 0
 
 
+class TestScenarioAnalysis:
+    def test_three_scenarios_run(self):
+        """All three scenarios should complete and produce different results."""
+        from taiga_sim.scenario_analysis import run_scenarios
+        results = run_scenarios(years=10, seed=42)
+        assert set(results.keys()) == {"bear", "base", "bull"}
+        for name, sr in results.items():
+            assert len(sr.reports) == 11  # year 0-10
+            assert sr.final.enterprise_value > 0
+
+    def test_scenarios_differ(self):
+        """Different scenarios should produce different EV outcomes."""
+        from taiga_sim.scenario_analysis import run_scenarios
+        results = run_scenarios(years=10, seed=42)
+        evs = {name: sr.ev for name, sr in results.items()}
+        # All three should be distinct (different macro assumptions)
+        assert len(set(evs.values())) == 3
+
+    def test_comparison_table_renders(self):
+        """Comparison table should be a non-empty string."""
+        from taiga_sim.scenario_analysis import run_scenarios, format_comparison_table
+        results = run_scenarios(years=10, seed=42)
+        table = format_comparison_table(results)
+        assert "Bear" in table
+        assert "Bull" in table
+
+
 class TestMemberModel:
     def test_founder(self):
         m = Member(
