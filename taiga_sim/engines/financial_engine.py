@@ -10,6 +10,15 @@ EV/EBITDA multiple is dynamic, driven by:
   - Growth rate (faster growing = premium)
   - Brand strength (builds over time with consistent execution)
   - Portfolio diversification (conglomerate premium vs discount)
+
+Conglomerate premium/discount model (research-based):
+  - Berger & Ofek (1995): unrelated diversification discount -13% to -15%
+  - Villalonga (2004): related diversification yields premium
+  - Research Affiliates (2026): tech conglomerates avg +70% premium
+  - Stein (1997): monitoring efficiency decays with # divisions
+  - Danaher: operating system yields +600-700bps margin improvement
+  - Arte & Larimo (2022): inverted U-shape for diversification-performance
+  - Khanna & Palepu (2000): institutional voids create premium in emerging markets
 """
 
 from __future__ import annotations
@@ -232,6 +241,131 @@ class FinancialEngine:
             foundation_contribution=foundation_contribution,
         )
 
+    def compute_conglomerate_premium(self, state: SimulationState) -> float:
+        """Compute conglomerate premium/discount as a multiplier on EV.
+
+        Research-based model combining:
+        1. Diversification type mix (related vs unrelated) - Villalonga (2004)
+        2. Operating system maturity (DBS effect) - Danaher case
+        3. Monitoring efficiency decay - Stein (1997)
+        4. Governance quality - multiple studies
+        5. Inverted U-shape for segment count - Arte & Larimo (2022)
+        6. Japanese institutional context - Khanna & Palepu (2000)
+
+        Returns: multiplier (e.g. 1.10 = +10% premium, 0.87 = -13% discount)
+        """
+        cfg = state.config.conglomerate
+        holding = state.holding
+        companies = holding.companies
+
+        if len(companies) <= 1:
+            return 1.0  # no conglomerate effect with single business
+
+        # --- 1. Diversification type: related vs unrelated ---
+        # Count unique company types (proxy for diversification breadth)
+        type_counts: dict = {}
+        for c in companies:
+            type_counts[c.company_type] = type_counts.get(c.company_type, 0) + 1
+        n_types = len(type_counts)
+        n_companies = len(companies)
+
+        # Relatedness ratio: fraction of companies sharing a type with others
+        companies_in_clusters = sum(
+            count for count in type_counts.values() if count >= 2
+        )
+        relatedness_ratio = companies_in_clusters / n_companies if n_companies > 0 else 0
+
+        # Blend between related premium and unrelated discount
+        # High relatedness -> premium; low relatedness -> discount
+        diversification_effect = (
+            relatedness_ratio * cfg.related_premium
+            + (1 - relatedness_ratio) * cfg.unrelated_discount
+        )
+
+        # --- 2. Inverted U-shape for segment count (Arte & Larimo 2022) ---
+        # Peak at optimal_segment_count, declines on both sides
+        segment_deviation = abs(n_types - cfg.optimal_segment_count)
+        segment_penalty = -0.02 * (segment_deviation ** 1.5) / cfg.diversification_curve_width
+        diversification_effect += segment_penalty
+
+        # --- 3. Operating system premium (Danaher DBS effect) ---
+        # Mature operating system converts discount into premium
+        os_maturity = holding.operating_system_maturity
+        os_premium = os_maturity * cfg.related_premium * 1.5  # up to +15%
+
+        # --- 4. Monitoring efficiency decay (Stein 1997) ---
+        monitoring_penalty = 0.0
+        if n_companies > cfg.monitoring_decay_threshold:
+            excess = n_companies - cfg.monitoring_decay_threshold
+            monitoring_penalty = -excess * cfg.monitoring_decay_rate
+            # Operating system mitigates monitoring decay
+            monitoring_penalty *= (1.0 - os_maturity * 0.6)
+
+        # --- 5. Governance quality ---
+        gov = holding.governance_quality
+        governance_effect = (
+            cfg.governance_bonus_max * gov
+            - cfg.governance_penalty_max * (1 - gov)
+        )
+
+        # --- 6. Japanese market institutional context ---
+        # Weaker institutions in Japan = diversification somewhat more valuable
+        japan_context = -cfg.japan_institutional_discount  # positive contribution
+
+        # --- 7. Platform/tech premium for venture-heavy portfolios ---
+        venture_ratio = type_counts.get(
+            CompanyType.VENTURE, 0
+        ) / n_companies if n_companies > 0 else 0
+        platform_premium = 0.0
+        if venture_ratio > 0.2 and os_maturity > 0.5:
+            platform_premium = min(
+                cfg.platform_premium_max,
+                venture_ratio * os_maturity * cfg.platform_premium_max
+            )
+
+        # --- Combine all effects ---
+        total_premium = (
+            diversification_effect
+            + os_premium
+            + monitoring_penalty
+            + governance_effect
+            + japan_context
+            + platform_premium
+        )
+
+        # Clamp to reasonable range: -25% discount to +50% premium
+        total_premium = max(-0.25, min(0.50, total_premium))
+
+        return 1.0 + total_premium
+
+    def advance_operating_system(self, state: SimulationState) -> None:
+        """Advance the group's operating system maturity (DBS-like).
+
+        Matures based on:
+        - Time (experience accumulation)
+        - Number of completed PMIs (learning-by-doing)
+        - Governance quality improves with scale and track record
+        """
+        cfg = state.config.conglomerate
+        holding = state.holding
+        year = state.year
+
+        # Operating system matures over configured years
+        if year > 0:
+            target_maturity = min(1.0, year / cfg.operating_system_maturity_years)
+            # Smooth convergence: don't jump instantly
+            holding.operating_system_maturity += (
+                (target_maturity - holding.operating_system_maturity) * 0.3
+            )
+
+        # Governance improves with track record and scale
+        n_companies = len(holding.companies)
+        if n_companies >= 3:
+            gov_target = min(0.95, 0.5 + n_companies * 0.02 + year * 0.01)
+            holding.governance_quality += (
+                (gov_target - holding.governance_quality) * 0.2
+            )
+
     def compute_enterprise_value(
         self,
         state: SimulationState,
@@ -244,7 +378,10 @@ class FinancialEngine:
         2. Growth premium: faster-growing groups get higher multiples
         3. Brand premium: builds over time with consistent execution
         4. Scale premium: larger groups command higher multiples
-        5. Diversification: well-diversified portfolio avoids conglomerate discount
+        5. Conglomerate premium/discount: research-based model
+
+        The conglomerate premium is applied as a multiplier on the final EV,
+        following Berger & Ofek (1995) methodology of measuring excess value.
         """
         year = state.year
         holding = state.holding
@@ -288,16 +425,7 @@ class FinancialEngine:
         if ebitda_oku > 100:
             scale_premium = min(3.0, math.log10(ebitda_oku / 100) * 2.0)
 
-        # 5. Diversification adjustment
-        n_types = len(set(c.company_type for c in holding.companies))
-        if n_types >= 4:
-            diversification = 0.5  # well-diversified premium
-        elif n_types >= 2:
-            diversification = 0.0  # neutral
-        else:
-            diversification = -0.5  # concentrated discount
-
-        multiple = base + growth_premium + brand_premium + scale_premium + diversification
+        multiple = base + growth_premium + brand_premium + scale_premium
         # Post-IPO public market premium (higher multiples for listed companies)
         # Comparable: Danaher 30x, Constellation Software 35x, growth conglomerates 25-40x
         max_multiple = 25.0
@@ -305,7 +433,15 @@ class FinancialEngine:
             max_multiple = 40.0  # public market premium for growth conglomerates
         multiple = max(4.0, min(max_multiple, multiple))
 
-        return annualized_ebitda * multiple
+        # Base EV from sum-of-the-parts multiple
+        base_ev = annualized_ebitda * multiple
+
+        # 5. Apply conglomerate premium/discount (research-based)
+        # This follows Berger & Ofek (1995) "excess value" methodology:
+        # EV = SoTP * (1 + premium/discount)
+        conglomerate_multiplier = self.compute_conglomerate_premium(state)
+
+        return base_ev * conglomerate_multiplier
 
     def consolidate(
         self,

@@ -211,3 +211,10 @@ class HoldingCompany:
     current_phase: int = 0  # 0-6
     is_public: bool = False
     listing_market: str = "tse_prime"  # tse_prime / nyse / dual
+
+    # Operating system (DBS-like) maturity
+    # Matures over time as the group develops standardized management practices
+    # 0.0 = no system, 1.0 = fully mature (Danaher-level)
+    operating_system_maturity: float = 0.0
+    # Governance quality score (0.0 = poor, 1.0 = excellent)
+    governance_quality: float = 0.5

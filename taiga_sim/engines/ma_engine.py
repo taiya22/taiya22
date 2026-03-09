@@ -473,12 +473,22 @@ class MAEngine:
     # PMI with organizational learning
     # -----------------------------------------------------------------------
 
-    def advance_pmi(self, company: Company, quarters_since_acquisition: int) -> None:
+    def advance_pmi(
+        self,
+        company: Company,
+        quarters_since_acquisition: int,
+        operating_system_maturity: float = 0.0,
+        os_margin_improvement: float = 0.065,
+    ) -> None:
         """Advance PMI with learning-adjusted improvement rates.
 
         Learning factor (Haleblian & Finkelstein 1999):
         - More experienced acquirers extract more value from PMI
         - Type-specific experience matters (roll-up best)
+
+        Operating system effect (Danaher DBS):
+        - Mature operating system adds +600-700bps margin improvement
+        - Applied proportionally to OS maturity during PMI phases 2-4
 
         Relative size effect (Ellis et al. 2011):
         - Larger relative acquisitions take longer to integrate
@@ -502,6 +512,16 @@ class MAEngine:
 
         # Apply organizational learning factor
         improvement = base_improvement * self.pmi_learning_factor
+
+        # Operating system (DBS-like) margin improvement
+        # Danaher: +600-700bps on acquisitions, applied during PMI phases 2-4
+        # Scales with OS maturity (0 = no effect, 1.0 = full 650bps)
+        if operating_system_maturity > 0 and company.pmi_phase >= 2:
+            # Distribute the OS improvement across PMI phases 2-4 (~10 quarters)
+            quarterly_os_improvement = (
+                os_margin_improvement * operating_system_maturity / 10
+            )
+            improvement += quarterly_os_improvement
 
         company.ebitda *= (1 + improvement)
         if company.revenue > 0:

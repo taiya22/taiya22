@@ -47,6 +47,11 @@ class AnnualReport:
     crisis_active: bool = False
     ma_events_this_year: int = 0
     divestitures_this_year: int = 0
+    # Conglomerate premium metrics
+    conglomerate_premium_pct: float = 0.0  # e.g. +10% or -13%
+    operating_system_maturity: float = 0.0
+    governance_quality: float = 0.5
+    n_company_types: int = 0
 
 
 class SimulationRunner:
@@ -255,6 +260,9 @@ class SimulationRunner:
         self.hr.evaluate_members(state)
         self.hr.assign_units(state)
 
+        # --- Advance operating system maturity (DBS-like) ---
+        self.financial.advance_operating_system(state)
+
         # --- Quarterly simulation ---
         annual_revenue = 0.0
         annual_ebitda = 0.0
@@ -263,9 +271,15 @@ class SimulationRunner:
         for q in range(1, 5):
             state.quarter = q
 
+            os_maturity = state.holding.operating_system_maturity
+            os_margin = state.config.conglomerate.operating_system_margin_improvement
             for company in state.holding.companies:
                 quarters_since = (year - company.acquired_year) * 4 + q
-                self.ma.advance_pmi(company, quarters_since)
+                self.ma.advance_pmi(
+                    company, quarters_since,
+                    operating_system_maturity=os_maturity,
+                    os_margin_improvement=os_margin,
+                )
 
             if q == 1:
                 for company in state.holding.companies:
@@ -315,6 +329,11 @@ class SimulationRunner:
         state.annual_ebitda_history.append(annual_ebitda)
         state.annual_fcf_history.append(annual_fcf)
 
+        # Compute conglomerate premium for reporting
+        cong_multiplier = self.financial.compute_conglomerate_premium(state)
+        cong_premium_pct = (cong_multiplier - 1.0) * 100  # as percentage
+        n_types = len(set(c.company_type for c in state.holding.companies)) if state.holding.companies else 0
+
         report = AnnualReport(
             year=year,
             phase=phase_name,
@@ -333,6 +352,10 @@ class SimulationRunner:
             crisis_active=state.macro.is_shock_active,
             ma_events_this_year=ma_count,
             divestitures_this_year=divest_count,
+            conglomerate_premium_pct=round(cong_premium_pct, 2),
+            operating_system_maturity=round(state.holding.operating_system_maturity, 3),
+            governance_quality=round(state.holding.governance_quality, 3),
+            n_company_types=n_types,
         )
         self.annual_reports.append(report)
         return report
@@ -370,6 +393,10 @@ class SimulationRunner:
                 "crisis_active": r.crisis_active,
                 "ma_events": r.ma_events_this_year,
                 "divestitures": r.divestitures_this_year,
+                "conglomerate_premium_pct": r.conglomerate_premium_pct,
+                "operating_system_maturity": r.operating_system_maturity,
+                "governance_quality": r.governance_quality,
+                "n_company_types": r.n_company_types,
             })
 
         path = Path(output_path)
@@ -387,13 +414,14 @@ class SimulationRunner:
         lines.append(
             f"{'Year':>4} {'Phase':<8} {'売上':>10} {'EBITDA':>10} "
             f"{'EV':>10} {'社員':>5} {'事業':>4} {'売却':>3} {'創業者%':>7} "
-            f"{'MOIC':>8} {'IRR%':>6} {'危機':>3}"
+            f"{'MOIC':>8} {'IRR%':>6} {'CP%':>6} {'OS':>5} {'危機':>3}"
         )
-        lines.append("-" * 110)
+        lines.append("-" * 120)
 
         for r in self.annual_reports:
             crisis_mark = "●" if r.crisis_active else ""
             divest_mark = f"({r.divestitures_this_year})" if r.divestitures_this_year > 0 else ""
+            cp_sign = "+" if r.conglomerate_premium_pct >= 0 else ""
             lines.append(
                 f"{r.year:>4} {r.phase:<8} "
                 f"{fmt_table(r.revenue):>10} "
@@ -403,6 +431,8 @@ class SimulationRunner:
                 f"{r.founder_ownership_pct * 100:>6.1f}% "
                 f"{r.seed_investor_moic:>8.1f} "
                 f"{r.seed_investor_irr * 100:>5.1f}% "
+                f"{cp_sign}{r.conglomerate_premium_pct:>4.1f}% "
+                f"{r.operating_system_maturity:>4.2f} "
                 f"{crisis_mark:>3}"
             )
 
@@ -427,5 +457,8 @@ class SimulationRunner:
             total_ma = sum(r.ma_events_this_year for r in self.annual_reports)
             lines.append(f"  累計M&A:      {total_ma}件")
             lines.append(f"  累計売却:     {total_divest}件")
+            lines.append(f"  コングロマリットP/D: {'+' if final.conglomerate_premium_pct >= 0 else ''}{final.conglomerate_premium_pct:.1f}%")
+            lines.append(f"  経営システム成熟度:  {final.operating_system_maturity:.1%}")
+            lines.append(f"  ガバナンス品質:      {final.governance_quality:.1%}")
 
         return "\n".join(lines)

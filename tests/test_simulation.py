@@ -119,6 +119,107 @@ class TestCompanyModel:
         assert company.signal == "green"
 
 
+class TestConglomeratePremium:
+    """Tests for research-based conglomerate premium/discount model."""
+
+    def test_single_company_no_effect(self):
+        """Single company should have no conglomerate effect."""
+        from taiga_sim.engines.financial_engine import FinancialEngine
+        engine = FinancialEngine()
+        state = SimulationState()
+        state.holding.companies = [
+            Company(id="c1", company_type=CompanyType.PRODUCT, revenue=10_0000_0000, ebitda=1_0000_0000)
+        ]
+        multiplier = engine.compute_conglomerate_premium(state)
+        assert multiplier == 1.0
+
+    def test_related_diversification_premium(self):
+        """Multiple companies of same type should yield related diversification premium."""
+        from taiga_sim.engines.financial_engine import FinancialEngine
+        engine = FinancialEngine()
+        state = SimulationState()
+        state.holding.companies = [
+            Company(id=f"c{i}", company_type=CompanyType.PRODUCT, revenue=10_0000_0000, ebitda=1_0000_0000)
+            for i in range(4)
+        ]
+        state.holding.operating_system_maturity = 0.5
+        state.holding.governance_quality = 0.7
+        multiplier = engine.compute_conglomerate_premium(state)
+        # Related diversification should yield premium (>1.0)
+        assert multiplier > 1.0
+
+    def test_unrelated_diversification_discount(self):
+        """Many unrelated types with no operating system should yield discount."""
+        from taiga_sim.engines.financial_engine import FinancialEngine
+        engine = FinancialEngine()
+        state = SimulationState()
+        types = list(CompanyType)
+        state.holding.companies = [
+            Company(id=f"c{i}", company_type=types[i], revenue=10_0000_0000, ebitda=1_0000_0000)
+            for i in range(5)
+        ]
+        state.holding.operating_system_maturity = 0.0
+        state.holding.governance_quality = 0.3
+        multiplier = engine.compute_conglomerate_premium(state)
+        # Unrelated with poor governance and no OS should discount
+        assert multiplier < 1.0
+
+    def test_operating_system_improves_premium(self):
+        """Mature operating system should improve the premium."""
+        from taiga_sim.engines.financial_engine import FinancialEngine
+        engine = FinancialEngine()
+        state = SimulationState()
+        types = list(CompanyType)
+        state.holding.companies = [
+            Company(id=f"c{i}", company_type=types[i % len(types)], revenue=10_0000_0000, ebitda=1_0000_0000)
+            for i in range(6)
+        ]
+        # Without OS
+        state.holding.operating_system_maturity = 0.0
+        state.holding.governance_quality = 0.5
+        mult_no_os = engine.compute_conglomerate_premium(state)
+
+        # With mature OS
+        state.holding.operating_system_maturity = 0.9
+        state.holding.governance_quality = 0.5
+        mult_with_os = engine.compute_conglomerate_premium(state)
+
+        assert mult_with_os > mult_no_os
+
+    def test_monitoring_decay(self):
+        """Many companies should trigger monitoring efficiency decay."""
+        from taiga_sim.engines.financial_engine import FinancialEngine
+        engine = FinancialEngine()
+        state = SimulationState()
+        # 5 companies (below threshold)
+        state.holding.companies = [
+            Company(id=f"c{i}", company_type=CompanyType.PRODUCT, revenue=10_0000_0000, ebitda=1_0000_0000)
+            for i in range(5)
+        ]
+        state.holding.operating_system_maturity = 0.5
+        state.holding.governance_quality = 0.7
+        mult_small = engine.compute_conglomerate_premium(state)
+
+        # 12 companies (well above threshold)
+        state.holding.companies = [
+            Company(id=f"c{i}", company_type=CompanyType.PRODUCT, revenue=10_0000_0000, ebitda=1_0000_0000)
+            for i in range(12)
+        ]
+        mult_large = engine.compute_conglomerate_premium(state)
+
+        # More companies should have lower premium due to monitoring decay
+        assert mult_large < mult_small
+
+    def test_conglomerate_premium_in_annual_report(self):
+        """30-year run should include conglomerate premium metrics."""
+        runner = SimulationRunner(seed=42)
+        reports = runner.run(years=10)
+        final = reports[-1]
+        # Premium should be non-zero once companies exist
+        assert final.operating_system_maturity > 0
+        assert final.governance_quality > 0
+
+
 class TestMemberModel:
     def test_founder(self):
         m = Member(

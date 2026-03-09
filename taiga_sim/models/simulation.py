@@ -50,6 +50,50 @@ class CompensationConfig:
 
 
 @dataclass
+class ConglomeratePremiumConfig:
+    """Conglomerate premium/discount parameters based on academic research.
+
+    Sources:
+    - Berger & Ofek (1995): -13% to -15% unrelated diversification discount
+    - Villalonga (2004): related diversification yields premium
+    - Research Affiliates (2026): tech conglomerates avg +70% premium
+    - Stein (1997): monitoring efficiency decays with # divisions
+    - Danaher: operating system yields +600-700bps margin improvement
+    - Khanna & Palepu (2000): emerging market premium
+    - Schommer et al. (2019): diversification effect becomes more positive over time
+    """
+
+    # Base discount for unrelated diversification (Berger & Ofek 1995)
+    unrelated_discount: float = -0.14  # -14% midpoint of -13% to -15%
+    # Premium for related diversification (Villalonga 2004)
+    related_premium: float = 0.10  # +10%
+    # Max tech/platform conglomerate premium (Research Affiliates 2026)
+    platform_premium_max: float = 0.40  # up to +40% (conservative vs 70% avg)
+
+    # Operating system (DBS-like) parameters (Danaher)
+    operating_system_margin_improvement: float = 0.065  # +650bps per acquisition
+    operating_system_maturity_years: int = 5  # years to develop full system
+    acquisition_multiple_arbitrage: float = 0.45  # effective multiple halving
+
+    # Monitoring efficiency decay (Stein 1997)
+    monitoring_decay_threshold: int = 6  # # of companies before decay starts
+    monitoring_decay_rate: float = 0.02  # per company above threshold
+
+    # Governance quality multiplier range
+    governance_bonus_max: float = 0.10  # strong governance eliminates discount
+    governance_penalty_max: float = -0.10  # weak governance amplifies discount
+
+    # Optimal diversification: inverted U-shape (Arte & Larimo 2022)
+    optimal_segment_count: int = 3  # peak of inverted-U
+    diversification_curve_width: float = 2.5  # width of the bell
+
+    # Japanese market context
+    japan_institutional_discount: float = -0.05  # weaker institutions = less discount
+    # Keiretsu stability benefit: lower earnings volatility
+    stability_volatility_reduction: float = 0.15  # 15% lower earnings volatility
+
+
+@dataclass
 class HRConfig:
     """Human resources configuration."""
 
@@ -106,6 +150,7 @@ class SimulationConfig:
     ma: MAConfig = field(default_factory=MAConfig)
     compensation: CompensationConfig = field(default_factory=CompensationConfig)
     hr: HRConfig = field(default_factory=HRConfig)
+    conglomerate: ConglomeratePremiumConfig = field(default_factory=ConglomeratePremiumConfig)
     phases: list[PhaseDefinition] = field(default_factory=lambda: list(DEFAULT_PHASES))
 
     # IPO / control
