@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taiga Capital Group</title>
+    <meta name="description" content="Taiga Capital Group — Building a global conglomerate over 30 years from Japan.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28' font-family='serif'>大</text></svg>">
+    <style>
+        /* ===== RESET ===== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ===== TOKENS ===== */
+        :root {
+            --black: #0A0A0A;
+            --white: #FAFAF8;
+            --stone: #6B6B6B;
+            --gold: #B8860B;
+            --forest: #1B3A2D;
+            --frost: #E8E4DF;
+
+            --ff-serif: 'Cormorant Garamond', 'Georgia', serif;
+            --ff-sans: 'Montserrat', 'Helvetica Neue', sans-serif;
+            --ff-jp: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+
+            --max-w: 1200px;
+            --text-max: 680px;
+        }
+
+        /* ===== BASE ===== */
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--ff-sans);
+            font-weight: 300;
+            color: var(--black);
+            background: var(--white);
+            line-height: 1.75;
+            letter-spacing: 0.01em;
+            overflow-x: hidden;
+        }
+
+        ::selection {
+            background: var(--gold);
+            color: var(--white);
+        }
+
+        /* ===== UTILITIES ===== */
+        .container {
+            max-width: var(--max-w);
+            margin: 0 auto;
+            padding: 0 48px;
+        }
+
+        .text-block {
+            max-width: var(--text-max);
+        }
+
+        .section {
+            padding: 140px 0;
+        }
+
+        .gold-line {
+            width: 48px;
+            height: 1px;
+            background: var(--gold);
+            margin: 32px 0;
+        }
+
+        .gold-line--center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        .display {
+            font-family: var(--ff-serif);
+            font-weight: 600;
+            font-size: clamp(40px, 6vw, 72px);
+            line-height: 1.05;
+            letter-spacing: 0.02em;
+        }
+
+        h1 {
+            font-family: var(--ff-serif);
+            font-weight: 600;
+            font-size: clamp(36px, 4vw, 48px);
+            line-height: 1.1;
+            letter-spacing: 0.02em;
+        }
+
+        h2 {
+            font-family: var(--ff-serif);
+            font-weight: 500;
+            font-size: clamp(28px, 3vw, 36px);
+            line-height: 1.15;
+            letter-spacing: 0.02em;
+        }
+
+        h3, .subheader {
+            font-family: var(--ff-sans);
+            font-weight: 500;
+            font-size: 13px;
+            line-height: 1.4;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--stone);
+        }
+
+        p {
+            font-size: 17px;
+            line-height: 1.75;
+            color: var(--black);
+        }
+
+        p.jp {
+            font-family: var(--ff-jp);
+            font-weight: 300;
+            font-size: 16px;
+            line-height: 1.9;
+            letter-spacing: 0.05em;
+        }
+
+        p + p { margin-top: 1.5em; }
+
+        .caption {
+            font-size: 13px;
+            line-height: 1.6;
+            letter-spacing: 0.03em;
+            color: var(--stone);
+        }
+
+        .lead {
+            font-size: 19px;
+            line-height: 1.8;
+            color: var(--stone);
+            font-weight: 300;
+        }
+
+        .lead.jp {
+            font-family: var(--ff-jp);
+            font-size: 17px;
+            line-height: 2.0;
+        }
+
+        blockquote {
+            font-family: var(--ff-serif);
+            font-style: italic;
+            font-size: clamp(20px, 2.5vw, 28px);
+            line-height: 1.5;
+            color: var(--stone);
+            padding-left: 24px;
+            border-left: 1px solid var(--gold);
+            margin: 48px 0;
+        }
+
+        /* ===== NAVIGATION ===== */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 0 48px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(250, 250, 248, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.4s ease;
+        }
+
+        .nav--scrolled {
+            border-bottom-color: var(--frost);
+        }
+
+        .nav__logo {
+            font-family: var(--ff-serif);
+            font-weight: 600;
+            font-size: 20px;
+            letter-spacing: 0.35em;
+            text-decoration: none;
+            color: var(--black);
+        }
+
+        .nav__links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav__links a {
+            font-family: var(--ff-sans);
+            font-weight: 400;
+            font-size: 12px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--stone);
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav__links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--gold);
+            transition: width 0.3s ease;
+        }
+
+        .nav__links a:hover {
+            color: var(--black);
+        }
+
+        .nav__links a:hover::after {
+            width: 100%;
+        }
+
+        .nav__menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .nav__menu-btn span {
+            display: block;
+            width: 24px;
+            height: 1px;
+            background: var(--black);
+            margin: 6px 0;
+            transition: all 0.3s ease;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            background: var(--black);
+            color: var(--white);
+            overflow: hidden;
+        }
+
+        .hero__bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 120% 80% at 80% 40%, rgba(27, 58, 45, 0.4) 0%, transparent 60%),
+                radial-gradient(ellipse 80% 60% at 20% 70%, rgba(27, 58, 45, 0.2) 0%, transparent 50%),
+                var(--black);
+        }
+
+        .hero__content {
+            position: relative;
+            z-index: 1;
+            padding: 0 48px;
+            max-width: var(--max-w);
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero .subheader {
+            color: var(--gold);
+            margin-bottom: 32px;
+        }
+
+        .hero .display {
+            color: var(--white);
+            margin-bottom: 40px;
+        }
+
+        .hero .lead {
+            color: rgba(250, 250, 248, 0.6);
+            max-width: 560px;
+        }
+
+        .hero__scroll {
+            position: absolute;
+            bottom: 48px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            z-index: 1;
+        }
+
+        .hero__scroll span {
+            font-size: 11px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: rgba(250, 250, 248, 0.3);
+        }
+
+        .hero__scroll-line {
+            width: 1px;
+            height: 48px;
+            background: linear-gradient(to bottom, var(--gold), transparent);
+            animation: scrollPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* ===== PHILOSOPHY ===== */
+        .philosophy {
+            background: var(--white);
+        }
+
+        .philosophy__grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: start;
+            margin-top: 64px;
+        }
+
+        .philosophy__item {
+            padding-top: 32px;
+            border-top: 1px solid var(--frost);
+        }
+
+        .philosophy__item h2 {
+            margin-bottom: 16px;
+        }
+
+        .philosophy__item p {
+            color: var(--stone);
+        }
+
+        .philosophy__quote {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 64px 0;
+        }
+
+        .philosophy__quote blockquote {
+            border: none;
+            padding: 0;
+            font-size: clamp(22px, 2.5vw, 32px);
+        }
+
+        /* ===== NUMBERS ===== */
+        .numbers {
+            background: var(--black);
+            color: var(--white);
+        }
+
+        .numbers__grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 48px;
+            margin-top: 64px;
+        }
+
+        .numbers__item {
+            border-top: 1px solid rgba(250, 250, 248, 0.1);
+            padding-top: 32px;
+        }
+
+        .numbers__value {
+            font-family: var(--ff-serif);
+            font-weight: 600;
+            font-size: clamp(36px, 4vw, 56px);
+            line-height: 1;
+            letter-spacing: -0.02em;
+            color: var(--white);
+            margin-bottom: 12px;
+        }
+
+        .numbers__value span {
+            font-size: 0.5em;
+            font-weight: 400;
+            color: var(--gold);
+            margin-left: 4px;
+        }
+
+        .numbers__label {
+            font-size: 12px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(250, 250, 248, 0.4);
+        }
+
+        .numbers__note {
+            font-size: 13px;
+            color: rgba(250, 250, 248, 0.3);
+            margin-top: 8px;
+        }
+
+        /* ===== PORTFOLIO ===== */
+        .portfolio {
+            background: var(--white);
+        }
+
+        .portfolio__grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0;
+            margin-top: 64px;
+        }
+
+        .portfolio__item {
+            padding: 48px 32px;
+            border-right: 1px solid var(--frost);
+            transition: background 0.4s ease;
+        }
+
+        .portfolio__item:last-child {
+            border-right: none;
+        }
+
+        .portfolio__item:hover {
+            background: var(--frost);
+        }
+
+        .portfolio__item h3 {
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+
+        .portfolio__item h2 {
+            font-size: clamp(20px, 2vw, 24px);
+            margin-bottom: 20px;
+        }
+
+        .portfolio__item p {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--stone);
+        }
+
+        .portfolio__pct {
+            font-family: var(--ff-serif);
+            font-weight: 600;
+            font-size: 32px;
+            color: var(--gold);
+            margin-top: 24px;
+            display: block;
+        }
+
+        /* ===== TIMELINE ===== */
+        .timeline {
+            background: var(--frost);
+        }
+
+        .timeline__track {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0;
+            margin-top: 64px;
+            position: relative;
+        }
+
+        .timeline__track::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gold);
+        }
+
+        .timeline__phase {
+            padding: 32px 16px;
+            border-right: 1px solid rgba(107, 107, 107, 0.2);
+        }
+
+        .timeline__phase:last-child {
+            border-right: none;
+        }
+
+        .timeline__dot {
+            width: 8px;
+            height: 8px;
+            background: var(--gold);
+            border-radius: 50%;
+            margin-top: -36px;
+            margin-bottom: 24px;
+        }
+
+        .timeline__year {
+            font-family: var(--ff-serif);
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+
+        .timeline__name {
+            font-family: var(--ff-jp);
+            font-weight: 500;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .timeline__en {
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--stone);
+            margin-bottom: 16px;
+        }
+
+        .timeline__target {
+            font-size: 13px;
+            color: var(--stone);
+            line-height: 1.6;
+        }
+
+        /* ===== APPROACH ===== */
+        .approach {
+            background: var(--white);
+        }
+
+        .approach__grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 64px;
+            margin-top: 64px;
+        }
+
+        .approach__item {
+            padding-top: 32px;
+            border-top: 1px solid var(--frost);
+        }
+
+        .approach__num {
+            font-family: var(--ff-serif);
+            font-weight: 600;
+            font-size: 48px;
+            color: var(--frost);
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+
+        .approach__item h2 {
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .approach__item p {
+            font-size: 15px;
+            color: var(--stone);
+            line-height: 1.75;
+        }
+
+        /* ===== FOUNDATION ===== */
+        .foundation {
+            background: var(--forest);
+            color: var(--white);
+        }
+
+        .foundation .subheader {
+            color: var(--gold);
+        }
+
+        .foundation h1 {
+            color: var(--white);
+        }
+
+        .foundation .lead {
+            color: rgba(250, 250, 248, 0.6);
+        }
+
+        .foundation__stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            margin-top: 64px;
+            padding-top: 48px;
+            border-top: 1px solid rgba(250, 250, 248, 0.1);
+        }
+
+        .foundation__stat-value {
+            font-family: var(--ff-serif);
+            font-weight: 600;
+            font-size: 48px;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .foundation__stat-value span {
+            font-size: 0.5em;
+            color: var(--gold);
+        }
+
+        .foundation__stat-label {
+            font-size: 13px;
+            letter-spacing: 0.15em;
+            color: rgba(250, 250, 248, 0.4);
+        }
+
+        /* ===== CONTACT ===== */
+        .contact {
+            background: var(--black);
+            color: var(--white);
+            text-align: center;
+            padding: 160px 0;
+        }
+
+        .contact h1 {
+            color: var(--white);
+            margin-bottom: 24px;
+        }
+
+        .contact .lead {
+            color: rgba(250, 250, 248, 0.5);
+            max-width: 480px;
+            margin: 0 auto 48px;
+        }
+
+        .contact__email {
+            font-family: var(--ff-serif);
+            font-weight: 400;
+            font-size: clamp(18px, 2vw, 24px);
+            color: var(--gold);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .contact__email::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--gold);
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .contact__email:hover::after {
+            opacity: 1;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--black);
+            border-top: 1px solid rgba(250, 250, 248, 0.06);
+            padding: 48px 0;
+        }
+
+        .footer__inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer__logo {
+            font-family: var(--ff-serif);
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.35em;
+            color: rgba(250, 250, 248, 0.3);
+        }
+
+        .footer__legal {
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            color: rgba(250, 250, 248, 0.2);
+        }
+
+        /* ===== ANIMATIONS ===== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+        .stagger-4 { transition-delay: 0.4s; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .container { padding: 0 32px; }
+            .nav { padding: 0 32px; }
+            .hero__content { padding: 0 32px; }
+
+            .portfolio__grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .portfolio__item:nth-child(3) {
+                border-right: none;
+            }
+
+            .portfolio__item:nth-child(4),
+            .portfolio__item:nth-child(5) {
+                border-top: 1px solid var(--frost);
+            }
+
+            .timeline__track {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .timeline__phase:nth-child(4) {
+                border-right: none;
+            }
+
+            .numbers__grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section { padding: 96px 0; }
+            .container { padding: 0 24px; }
+            .nav { padding: 0 24px; height: 64px; }
+            .hero__content { padding: 0 24px; }
+
+            .nav__links { display: none; }
+            .nav__menu-btn { display: block; }
+
+            .nav__links.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 64px;
+                left: 0;
+                right: 0;
+                background: var(--white);
+                padding: 32px 24px;
+                gap: 24px;
+                border-bottom: 1px solid var(--frost);
+            }
+
+            .philosophy__grid {
+                grid-template-columns: 1fr;
+                gap: 48px;
+            }
+
+            .numbers__grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 32px;
+            }
+
+            .portfolio__grid {
+                grid-template-columns: 1fr;
+            }
+
+            .portfolio__item {
+                border-right: none;
+                border-bottom: 1px solid var(--frost);
+                padding: 32px 0;
+            }
+
+            .timeline__track {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .approach__grid {
+                grid-template-columns: 1fr;
+                gap: 48px;
+            }
+
+            .foundation__stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION -->
+    <nav class="nav" id="nav">
+        <a href="#" class="nav__logo">TAIGA</a>
+        <ul class="nav__links" id="navLinks">
+            <li><a href="#philosophy">Philosophy</a></li>
+            <li><a href="#portfolio">Portfolio</a></li>
+            <li><a href="#approach">Approach</a></li>
+            <li><a href="#timeline">Roadmap</a></li>
+            <li><a href="#foundation">Foundation</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <button class="nav__menu-btn" id="menuBtn" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero__bg"></div>
+        <div class="hero__content">
+            <p class="subheader fade-in">Taiga Capital Group</p>
+            <h1 class="display fade-in stagger-1">Building permanence<br>in a world of speed.</h1>
+            <p class="lead fade-in stagger-2">30年の時間軸で日本発のグローバル・コングロマリットを構築する。<br>速度ではなく、不可逆性。</p>
+        </div>
+        <div class="hero__scroll">
+            <div class="hero__scroll-line"></div>
+            <span>Scroll</span>
+        </div>
+    </section>
+
+    <!-- PHILOSOPHY -->
+    <section class="philosophy section" id="philosophy">
+        <div class="container">
+            <p class="subheader fade-in">Philosophy</p>
+            <div class="gold-line fade-in"></div>
+            <h1 class="fade-in">大河の思想</h1>
+
+            <div class="philosophy__grid">
+                <div class="philosophy__item fade-in">
+                    <h2>Permanence</h2>
+                    <p class="jp">川は最短距離を流れない。しかし、必ず海に届く。短期的な最適化ではなく、地形を受け入れながら前に進む力。1つの事業モデルに賭けるのではなく、複数の流れが1つの大きな河になる構造を築く。</p>
+                </div>
+                <div class="philosophy__item fade-in stagger-1">
+                    <h2>Discipline</h2>
+                    <p class="jp">EV/EBITDA 4.5倍を超える買収は行わない。この一つの規律が、30年後の企業価値を決定づける。感度分析が示す最大のリスクファクターは、マクロ経済でも競合でもなく、自らの規律の緩みである。</p>
+                </div>
+                <div class="philosophy__item fade-in stagger-2">
+                    <h2>Landscape</h2>
+                    <p class="jp">私たちの評価制度の最上位軸は「景色創造」である。KPIでもROICでもない。あなたは、どんな景色を作ったか。数字は結果であり、景色は因果の構造だ。</p>
+                </div>
+                <div class="philosophy__item fade-in stagger-3">
+                    <h2>Ownership</h2>
+                    <p class="jp">オーナーシップとは口号ではなく、設計である。3層の報酬設計、5つの評価軸、そして自らの資金を投じるコインベスト制度。自分のお金を入れている人間は、会議室での発言が変わる。</p>
+                </div>
+
+                <div class="philosophy__quote fade-in">
+                    <blockquote>
+                        「私たちは、速く走る会社を作っているのではない。<br>止まらない会社を作っている。」
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NUMBERS -->
+    <section class="numbers section">
+        <div class="container">
+            <p class="subheader" style="color: var(--gold);">By The Numbers</p>
+            <div class="gold-line" style="background: rgba(250,250,248,0.1);"></div>
+            <h1 style="color: var(--white);">Monte Carlo Simulation</h1>
+            <p class="lead" style="color: rgba(250,250,248,0.4); margin-top: 16px;">100 trials, 30-year horizon</p>
+
+            <div class="numbers__grid">
+                <div class="numbers__item fade-in">
+                    <div class="numbers__value">22<span>兆円</span></div>
+                    <div class="numbers__label">Median Enterprise Value at Y30</div>
+                    <div class="numbers__note">P10: 11兆 — P90: 35兆</div>
+                </div>
+                <div class="numbers__item fade-in stagger-1">
+                    <div class="numbers__value">4,908<span>x</span></div>
+                    <div class="numbers__label">Seed Investor MOIC</div>
+                    <div class="numbers__note">Baseline scenario, 50億円 → 24.5兆円</div>
+                </div>
+                <div class="numbers__item fade-in stagger-2">
+                    <div class="numbers__value">73<span>%</span></div>
+                    <div class="numbers__label">Probability of exceeding 20兆 EV</div>
+                    <div class="numbers__note">30兆 target: 25% probability</div>
+                </div>
+                <div class="numbers__item fade-in stagger-3">
+                    <div class="numbers__value">32.7<span>%</span></div>
+                    <div class="numbers__label">Seed IRR at Year 30</div>
+                    <div class="numbers__note">Sustained over three decades</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PORTFOLIO -->
+    <section class="portfolio section" id="portfolio">
+        <div class="container">
+            <p class="subheader fade-in">Portfolio Architecture</p>
+            <div class="gold-line fade-in"></div>
+            <h1 class="fade-in">5つの景色</h1>
+            <p class="lead jp fade-in" style="margin-top: 16px; max-width: 600px;">異なる景色の文法を持つ5つの事業領域が、景気循環の異なるフェーズで支え合う。</p>
+        </div>
+
+        <div class="container" style="max-width: 100%; padding: 0;">
+            <div class="portfolio__grid" style="max-width: var(--max-w); margin: 0 auto; padding: 0 48px;">
+                <div class="portfolio__item fade-in">
+                    <h3>Product</h3>
+                    <h2>実業</h2>
+                    <p>農業、ロボティクス、製造業。手で触れるものを作る。景色の中で最も壊れにくい。大河の川床。</p>
+                    <span class="portfolio__pct">25%</span>
+                </div>
+                <div class="portfolio__item fade-in stagger-1">
+                    <h3>Experience</h3>
+                    <h2>体験</h2>
+                    <p>エンターテインメント、食、宇宙。人の記憶に残る瞬間を設計する。大河の水面に映る光。</p>
+                    <span class="portfolio__pct">15%</span>
+                </div>
+                <div class="portfolio__item fade-in stagger-2">
+                    <h3>Strategy</h3>
+                    <h2>戦略</h2>
+                    <p>PE投資、戦略コンサルティング。他の事業領域を俯瞰し、資本を配分する。上空から見る鳥。</p>
+                    <span class="portfolio__pct">15%</span>
+                </div>
+                <div class="portfolio__item fade-in stagger-3">
+                    <h3>Venture</h3>
+                    <h2>創発</h2>
+                    <p>事業開発、VC。まだ存在しない景色を想像し、走る。雪解け水が最初の一滴になる場所。</p>
+                    <span class="portfolio__pct">15%</span>
+                </div>
+                <div class="portfolio__item fade-in stagger-4">
+                    <h3>Terra</h3>
+                    <h2>大地</h2>
+                    <p>不動産、インフラ、森林。最も長い時間軸で景色を作り、守る。ポートフォリオの最大の柱。</p>
+                    <span class="portfolio__pct">30%</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- APPROACH -->
+    <section class="approach section" id="approach">
+        <div class="container">
+            <p class="subheader fade-in">Our Approach</p>
+            <div class="gold-line fade-in"></div>
+            <h1 class="fade-in">良い会社を見つけて、もっと良くする</h1>
+
+            <div class="approach__grid">
+                <div class="approach__item fade-in">
+                    <div class="approach__num">01</div>
+                    <h2>Acquire</h2>
+                    <p class="jp">事業承継問題を抱える優良中小企業を、EV/EBITDA 4.5倍以下で取得。バリュエーション・ディシプリンは鉄の掟。高値掴みは複利で効く。</p>
+                </div>
+                <div class="approach__item fade-in stagger-1">
+                    <div class="approach__num">02</div>
+                    <h2>Integrate</h2>
+                    <p class="jp">経営管理ユニットがTaigaの経営OS を移植。買収1件あたり+650bpsのマージン改善を、ダナハーのDBSをモデルに実現する。</p>
+                </div>
+                <div class="approach__item fade-in stagger-2">
+                    <div class="approach__num">03</div>
+                    <h2>Compound</h2>
+                    <p class="jp">マルチプル・アービトラージが複利で効く。安く買い、経営改善後に高い倍率で評価される。この繰り返しが、50億円を22兆円に変える。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="timeline section" id="timeline">
+        <div class="container">
+            <p class="subheader fade-in">30-Year Roadmap</p>
+            <div class="gold-line fade-in"></div>
+            <h1 class="fade-in">7つのフェーズ</h1>
+
+            <div class="timeline__track">
+                <div class="timeline__phase fade-in">
+                    <div class="timeline__dot"></div>
+                    <div class="timeline__year">Y0</div>
+                    <div class="timeline__name">調達</div>
+                    <div class="timeline__en">Fundraising</div>
+                    <div class="timeline__target">Seed 50億円<br>Post-money評価</div>
+                </div>
+                <div class="timeline__phase fade-in stagger-1">
+                    <div class="timeline__dot"></div>
+                    <div class="timeline__year">Y1 – 3</div>
+                    <div class="timeline__name">サバイバル</div>
+                    <div class="timeline__en">Survival</div>
+                    <div class="timeline__target">売上 30億円<br>2–3社買収</div>
+                </div>
+                <div class="timeline__phase fade-in stagger-1">
+                    <div class="timeline__dot"></div>
+                    <div class="timeline__year">Y4 – 6</div>
+                    <div class="timeline__name">離陸</div>
+                    <div class="timeline__en">Takeoff</div>
+                    <div class="timeline__target">売上 70億円<br>利益分配開始</div>
+                </div>
+                <div class="timeline__phase fade-in stagger-2">
+                    <div class="timeline__dot"></div>
+                    <div class="timeline__year">Y7 – 10</div>
+                    <div class="timeline__name">拡大</div>
+                    <div class="timeline__en">Expansion</div>
+                    <div class="timeline__target">売上 1,000億円<br>大型LBO開始</div>
+                </div>
+                <div class="timeline__phase fade-in stagger-2">
+                    <div class="timeline__dot"></div>
+                    <div class="timeline__year">Y11 – 15</div>
+                    <div class="timeline__name">支配</div>
+                    <div class="timeline__en">Dominance</div>
+                    <div class="timeline__target">売上 2,000億円<br>財団本格化</div>
+                </div>
+                <div class="timeline__phase fade-in stagger-3">
+                    <div class="timeline__dot"></div>
+                    <div class="timeline__year">Y16 – 20</div>
+                    <div class="timeline__name">上場</div>
+                    <div class="timeline__en">IPO</div>
+                    <div class="timeline__target">時価総額 1兆円<br>東証プライム</div>
+                </div>
+                <div class="timeline__phase fade-in stagger-3">
+                    <div class="timeline__dot"></div>
+                    <div class="timeline__year">Y21 – 30</div>
+                    <div class="timeline__name">グローバル</div>
+                    <div class="timeline__en">Global</div>
+                    <div class="timeline__target">EV 30兆円<br>多国籍コングロマリット</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOUNDATION -->
+    <section class="foundation section" id="foundation">
+        <div class="container">
+            <p class="subheader fade-in">Taiga Foundation</p>
+            <div class="gold-line fade-in"></div>
+            <h1 class="fade-in">利益が社会に還流する構造</h1>
+            <p class="lead jp fade-in text-block" style="margin-top: 24px;">CSRでもESG対応でもない。利益が社会に還流する仕組みを、事業設計の内部に組み込む。50億円で始めた会社が、30年後に1,860億円を社会に返す。この事実そのものが、「なぜ30年かけてコングロマリットを築くのか」への最も端的な回答である。</p>
+
+            <div class="foundation__stats fade-in">
+                <div>
+                    <div class="foundation__stat-value">1,860<span>億円</span></div>
+                    <div class="foundation__stat-label">Cumulative Foundation Contributions at Y30</div>
+                </div>
+                <div>
+                    <div class="foundation__stat-value">5<span>%</span></div>
+                    <div class="foundation__stat-label">of Free Cash Flow, Every Year from Phase 3</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <h1 class="fade-in">Get in Touch</h1>
+            <p class="lead fade-in" style="margin-top: 16px;">事業承継・M&A・資本提携のご相談</p>
+            <div class="gold-line gold-line--center fade-in"></div>
+            <a href="mailto:contact@taigacapital.jp" class="contact__email fade-in">contact@taigacapital.jp</a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__inner">
+                <div class="footer__logo">TAIGA CAPITAL GROUP</div>
+                <div class="footer__legal">All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll-based nav border
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('nav--scrolled', window.scrollY > 10);
+        }, { passive: true });
+
+        // Mobile menu toggle
+        const menuBtn = document.getElementById('menuBtn');
+        const navLinks = document.getElementById('navLinks');
+        menuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+        });
+
+        // Close mobile menu on link click
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => navLinks.classList.remove('open'));
+        });
+
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // Hero elements visible immediately
+        document.querySelectorAll('.hero .fade-in').forEach(el => {
+            setTimeout(() => el.classList.add('visible'), 200);
+        });
+    </script>
+
+</body>
+</html>
