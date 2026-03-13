@@ -435,51 +435,102 @@ function genDeals(){
   return deals;
 }
 var pipelineDeals=genDeals();
-// Portfolio companies (50+)
+// WSP LBO Returns Attribution: calcFactors computes the 3-factor breakdown
+// EBITDA Growth = (Exit EBITDA - Entry EBITDA) x Purchase Multiple
+// Multiple Expansion = (Exit Multiple - Purchase Multiple) x Exit EBITDA
+// Debt Paydown = Entry Net Debt - Exit Net Debt
+// Total Value Creation = Exit Equity - Entry Equity = sum of 3 factors
+// Each factor % = factor amount / total * 100, summing to 100%
+function calcFactors(entryEbitda,exitEbitda,purchMult,exitMult,entryDebt,exitDebt){
+  var egAmt=(exitEbitda-entryEbitda)*purchMult;
+  var meAmt=(exitMult-purchMult)*exitEbitda;
+  var dpAmt=entryDebt-exitDebt;
+  var total=egAmt+meAmt+dpAmt;
+  if(Math.abs(total)<0.01)total=1;
+  return{
+    eg:{amt:egAmt,pct:Math.round(egAmt/total*100),d:'('+exitEbitda.toFixed(1)+' - '+entryEbitda.toFixed(1)+') x '+purchMult.toFixed(1)+'x = '+egAmt.toFixed(1)},
+    me:{amt:meAmt,pct:Math.round(meAmt/total*100),d:'('+exitMult.toFixed(1)+'x - '+purchMult.toFixed(1)+'x) x '+exitEbitda.toFixed(1)+' = '+meAmt.toFixed(1)},
+    dp:{amt:dpAmt,pct:Math.round(dpAmt/total*100),d:entryDebt.toFixed(1)+' - '+exitDebt.toFixed(1)+' = '+dpAmt.toFixed(1)},
+    total:total
+  };
+}
+
+// Portfolio companies (50+) with WSP-accurate LBO data
 function genPortfolio(){
+  // Core 5: full LBO data for WSP-accurate 3-factor decomposition
+  // Entry Equity = Purchase EV - Entry Net Debt = Entry EBITDA x Purch Mult - Entry Debt
+  // Exit Equity = Exit EV - Exit Net Debt = Exit EBITDA x Exit Mult - Exit Debt
   var base=[
-    {id:'atlas',name:'Atlas Industrial Services',sector:'産業サービス',fund:'fund3',date:'2024-06',status:'on',inv:52,val:89,moic:1.71,irr:28.5,rev:182,ebitda:27,
-      f:{eg:{pct:42,d:'EBITDA: ¥20億→¥27億'},me:{pct:0,d:'7.0x → 7.0x'},dp:{pct:58,d:'デレバレッジ効果'}},entryEq:52,exitEq:89},
-    {id:'horizon',name:'Horizon Medical Devices',sector:'ヘルスケア',fund:'fund3',date:'2023-09',status:'watch',inv:78,val:112,moic:1.44,irr:16.2,rev:245,ebitda:39,
-      f:{eg:{pct:31,d:'EBITDA: ¥33億→¥39億'},me:{pct:55,d:'5.9x → 8.3x'},dp:{pct:14,d:'部分デレバレッジ'}},entryEq:78,exitEq:112},
-    {id:'digital',name:'Digital Frontier Inc.',sector:'SaaS',fund:'fund3',date:'2024-01',status:'on',inv:35,val:68,moic:1.94,irr:42.1,rev:22,ebitda:5.2,
-      f:{eg:{pct:55,d:'EBITDA: ¥3.5億→¥5.2億'},me:{pct:33,d:'14.9x → 16.0x'},dp:{pct:12,d:'¥17億→¥15億'}},entryEq:35,exitEq:68},
-    {id:'kanto',name:'関東化学工業',sector:'化学',fund:'fund2',date:'2022-12',status:'risk',inv:92,val:101,moic:1.10,irr:3.2,rev:310,ebitda:28,
-      f:{eg:{pct:-75,d:'EBITDA: ¥35億→¥28億 減少'},me:{pct:-35,d:'6.6x → 6.0x 縮小'},dp:{pct:110,d:'¥138億→¥67億（唯一のプラス）'}},entryEq:92,exitEq:101},
-    {id:'premier',name:'Premier Logistics Group',sector:'物流',fund:'fund2',date:'2023-04',status:'on',inv:60,val:93,moic:1.55,irr:20.8,rev:380,ebitda:48,
-      f:{eg:{pct:28,d:'EBITDA: ¥38億→¥48億'},me:{pct:58,d:'4.3x → 6.8x'},dp:{pct:14,d:'レバレッジ増を成長で補填'}},entryEq:60,exitEq:93}
+    // Atlas: Entry EBITDA 20, Exit 27, Purch 7.0x, Exit 7.0x, Debt 88→62
+    (function(){var eE=20,xE=27,pM=7.0,xM=7.0,eD=88,xD=62;var f=calcFactors(eE,xE,pM,xM,eD,xD);
+      return{id:'atlas',name:'Atlas Industrial Services',sector:'産業サービス',fund:'fund3',date:'2024-06',status:'on',inv:52,val:127,moic:2.44,irr:28.5,rev:182,ebitda:27,
+        entryEbitda:eE,exitEbitda:xE,purchMult:pM,exitMult:xM,entryDebt:eD,exitDebt:xD,f:f,entryEq:eE*pM-eD,exitEq:xE*xM-xD}})(),
+    // Horizon: Entry EBITDA 33, Exit 39, Purch 5.9x, Exit 8.3x, Debt 117→212 (leveraged up)
+    (function(){var eE=33,xE=39,pM=5.9,xM=8.3,eD=117,xD=145;var f=calcFactors(eE,xE,pM,xM,eD,xD);
+      return{id:'horizon',name:'Horizon Medical Devices',sector:'ヘルスケア',fund:'fund3',date:'2023-09',status:'watch',inv:78,val:179,moic:1.44,irr:16.2,rev:245,ebitda:39,
+        entryEbitda:eE,exitEbitda:xE,purchMult:pM,exitMult:xM,entryDebt:eD,exitDebt:xD,f:f,entryEq:eE*pM-eD,exitEq:xE*xM-xD}})(),
+    // Digital Frontier: Entry EBITDA 3.5, Exit 5.2, Purch 14.9x, Exit 16.0x, Debt 17→15
+    (function(){var eE=3.5,xE=5.2,pM=14.9,xM=16.0,eD=17,xD=15;var f=calcFactors(eE,xE,pM,xM,eD,xD);
+      return{id:'digital',name:'Digital Frontier Inc.',sector:'SaaS',fund:'fund3',date:'2024-01',status:'on',inv:35,val:68,moic:1.94,irr:42.1,rev:22,ebitda:5.2,
+        entryEbitda:eE,exitEbitda:xE,purchMult:pM,exitMult:xM,entryDebt:eD,exitDebt:xD,f:f,entryEq:eE*pM-eD,exitEq:xE*xM-xD}})(),
+    // 関東化学: Entry EBITDA 35, Exit 28, Purch 6.6x, Exit 6.0x, Debt 138→67
+    (function(){var eE=35,xE=28,pM=6.6,xM=6.0,eD=138,xD=67;var f=calcFactors(eE,xE,pM,xM,eD,xD);
+      return{id:'kanto',name:'関東化学工業',sector:'化学',fund:'fund2',date:'2022-12',status:'risk',inv:92,val:101,moic:1.10,irr:3.2,rev:310,ebitda:28,
+        entryEbitda:eE,exitEbitda:xE,purchMult:pM,exitMult:xM,entryDebt:eD,exitDebt:xD,f:f,entryEq:eE*pM-eD,exitEq:xE*xM-xD}})(),
+    // Premier: Entry EBITDA 38, Exit 48, Purch 4.3x, Exit 6.8x, Debt 103→233
+    (function(){var eE=38,xE=48,pM=4.3,xM=6.8,eD=103,xD=180;var f=calcFactors(eE,xE,pM,xM,eD,xD);
+      return{id:'premier',name:'Premier Logistics Group',sector:'物流',fund:'fund2',date:'2023-04',status:'on',inv:60,val:147,moic:1.55,irr:20.8,rev:380,ebitda:48,
+        entryEbitda:eE,exitEbitda:xE,purchMult:pM,exitMult:xM,entryDebt:eD,exitDebt:xD,f:f,entryEq:eE*pM-eD,exitEq:xE*xM-xD}})()
   ];
-  // Generate more portfolio companies
-  var extra=[
-    ['TerraGreen Energy','再生エネルギー','fund3','2024-03','on',45,72,1.60,25.3,95,14,{eg:{pct:48,d:'+35%成長'},me:{pct:38,d:'6.5x→8.2x'},dp:{pct:14,d:'安定'}}],
-    ['NipponAI Corp','AIソリューション','fund3','2024-08','on',28,52,1.86,55.2,18,4.8,{eg:{pct:62,d:'急成長'},me:{pct:30,d:'テックプレミアム'},dp:{pct:8,d:'低レバレッジ'}}],
-    ['SmartFactory Japan','産業IoT','fund3','2023-06','on',42,65,1.55,19.8,120,16,{eg:{pct:40,d:'EBITDA改善'},me:{pct:45,d:'DX評価向上'},dp:{pct:15,d:'着実返済'}}],
-    ['Yamato Precision Parts','精密部品','fund2','2021-09','on',55,98,1.78,18.5,165,24,{eg:{pct:50,d:'自動車EV化恩恵'},me:{pct:25,d:'安定'},dp:{pct:25,d:'積極返済'}}],
-    ['OceanView Logistics','海上物流','fund2','2022-06','on',38,52,1.37,12.8,210,22,{eg:{pct:35,d:'コスト改善'},me:{pct:30,d:'市場回復'},dp:{pct:35,d:'計画的返済'}}],
-    ['AgriTech Japan','農業テック','fund3','2024-10','on',22,30,1.36,28.0,12,2.8,{eg:{pct:65,d:'高成長フェーズ'},me:{pct:25,d:'テーマ評価'},dp:{pct:10,d:'初期段階'}}],
-    ['CleanEnergy Japan','クリーンエネルギー','fund2','2021-03','on',65,115,1.77,15.2,180,28,{eg:{pct:38,d:'安定成長'},me:{pct:32,d:'ESGプレミアム'},dp:{pct:30,d:'計画的返済'}}],
-    ['MedTech Japan','医療機器','fund1','2019-06','on',48,135,2.81,22.8,95,18,{eg:{pct:42,d:'堅調'},me:{pct:28,d:'ヘルスケア評価'},dp:{pct:30,d:'完済間近'}}],
-    ['FutureWave Technologies','通信機器','fund1','2018-09','on',35,88,2.51,20.5,78,12,{eg:{pct:45,d:'5G需要'},me:{pct:30,d:'テック評価'},dp:{pct:25,d:'ほぼ完済'}}],
-    ['CrystalVision Optics','光学機器','fund1','2019-12','watch',42,55,1.31,7.2,65,8,{eg:{pct:20,d:'横ばい'},me:{pct:-15,d:'市場軟調'},dp:{pct:95,d:'返済進捗のみ'}}],
+  // Extra named companies with LBO data
+  var extras=[
+    ['TerraGreen Energy','再生エネルギー','fund3','2024-03','on',10,14,6.5,8.2,20,12],
+    ['NipponAI Corp','AIソリューション','fund3','2024-08','on',3,4.8,12.0,15.0,8,5],
+    ['SmartFactory Japan','産業IoT','fund3','2023-06','on',12,16,6.0,7.5,30,18],
+    ['Yamato Precision Parts','精密部品','fund2','2021-09','on',18,24,7.0,7.5,71,35],
+    ['OceanView Logistics','海上物流','fund2','2022-06','on',18,22,6.0,6.5,70,52],
+    ['AgriTech Japan','農業テック','fund3','2024-10','on',2,2.8,8.0,10.0,6,3],
+    ['CleanEnergy Japan','クリーンエネルギー','fund2','2021-03','on',22,28,6.5,7.0,78,40],
+    ['MedTech Japan','医療機器','fund1','2019-06','on',14,18,7.0,8.5,50,15],
+    ['FutureWave Technologies','通信機器','fund1','2018-09','on',10,12,7.0,8.0,35,8],
+    ['CrystalVision Optics','光学機器','fund1','2019-12','watch',8,8,7.5,7.0,18,5]
   ];
-  extra.forEach(function(e,i){
-    base.push({id:'gen'+i,name:e[0],sector:e[1],fund:e[2],date:e[3],status:e[4],inv:e[5],val:e[6],moic:e[7],irr:e[8],rev:e[9],ebitda:e[10],f:e[11],entryEq:e[5],exitEq:e[6]});
+  extras.forEach(function(e,i){
+    var eE=e[5],xE=e[6],pM=e[7],xM=e[8],eD=e[9],xD=e[10];
+    var f=calcFactors(eE,xE,pM,xM,eD,xD);
+    var entryEq=eE*pM-eD,exitEq=xE*xM-xD;
+    var moic=exitEq/entryEq;
+    base.push({id:'gen'+i,name:e[0],sector:e[1],fund:e[2],date:e[3],status:e[4],
+      inv:Math.round(entryEq),val:Math.round(exitEq),moic:parseFloat(moic.toFixed(2)),irr:parseFloat((Math.pow(moic,1/3)-1)*100).toFixed(1),
+      rev:Math.floor(Math.random()*200)+30,ebitda:xE,
+      entryEbitda:eE,exitEbitda:xE,purchMult:pM,exitMult:xM,entryDebt:eD,exitDebt:xD,f:f,entryEq:entryEq,exitEq:exitEq});
   });
-  // Add 40 more generated
+  // Generate 40 more with random but WSP-correct data
   var gNames=['DigiHealth Corp','PharmaSync Labs','CloudNative Systems','AutoDrive Japan','RoboWorks Inc','NanoTech Japan','BioGenesis Corp','UrbanConnect Inc','EdgeCompute Ltd','QuantumLeap Systems','CyberShield Japan','DataMesh Corp','MicroPrecision Corp','VitalCare Medical','LogiNext Japan','FinBridge Corp','EduTech Japan','PropTech Tokyo','GreenChem Industries','TeleConnect Japan','MediaWave Corp','AutoParts Japan','BioFrontier Inc','SmartGrid Japan','NeuroScience Corp','NextGen Pharma','SolarTech Japan','DroneLogistics Corp','AI Diagnostics Inc','BlockChain Solutions','SpaceTech Japan','QuantumCompute Ltd','GeneTherapy Corp','SmartCity Solutions','OceanClean Tech','AgriDrone Japan','FoodTech Innovation','CarbonCapture Inc','HydrogenFuel Japan','CircularEconomy Corp','WasteToEnergy Japan','SmartMobility Corp','HealthAI Japan','InsurTech Tokyo','WealthTech Japan'];
-  var gSecs=['デジタルヘルス','製薬','クラウド','自動運転','ロボティクス','ナノテク','バイオ','都市開発','エッジコンピューティング','量子技術','サイバーセキュリティ','データ分析','精密加工','医療','物流テック','フィンテック','EdTech','不動産テック','化学','通信','メディア','自動車部品','バイオテック','スマートグリッド','ニューロサイエンス','製薬','太陽光','ドローン物流','AI診断','ブロックチェーン','宇宙','量子','遺伝子治療','スマートシティ','海洋','農業ドローン','フードテック','炭素回収','水素','循環経済','廃棄物','モビリティ','ヘルスAI','InsurTech','WealthTech'];
+  var gSecs=['デジタルヘルス','製薬','クラウド','自動運転','ロボティクス','ナノテク','バイオ','都市開発','エッジ','量子技術','セキュリティ','データ分析','精密加工','医療','物流テック','フィンテック','EdTech','不動産テック','化学','通信','メディア','自動車部品','バイオテック','スマートグリッド','ニューロ','製薬','太陽光','ドローン','AI診断','ブロックチェーン','宇宙','量子','遺伝子','スマートシティ','海洋','農業','フードテック','炭素回収','水素','循環経済','廃棄物','モビリティ','ヘルスAI','InsurTech','WealthTech'];
   for(var j=0;j<gNames.length;j++){
     var f2=fundOptions[j%3];
-    var inv2=Math.floor(Math.random()*80)+15;
-    var moic2=(1+Math.random()*2).toFixed(2);
-    var val2=Math.round(inv2*moic2);
-    var irr2=(Math.random()*40+2).toFixed(1);
-    var stat2=moic2>1.5?'on':moic2>1.1?'watch':'risk';
-    var egPct=Math.floor(Math.random()*60)+10;
-    var mePct=Math.floor(Math.random()*50);
-    var dpPct=100-egPct-mePct;
-    base.push({id:'g'+j,name:gNames[j],sector:gSecs[j%gSecs.length],fund:f2,date:'20'+(20+Math.floor(Math.random()*6))+'-'+(Math.floor(Math.random()*12)+1<10?'0':'')+(Math.floor(Math.random()*12)+1),status:stat2,inv:inv2,val:val2,moic:parseFloat(moic2),irr:parseFloat(irr2),rev:Math.floor(Math.random()*300)+20,ebitda:Math.floor(Math.random()*40)+3,
-      f:{eg:{pct:egPct,d:'EBITDA成長寄与'},me:{pct:mePct,d:'マルチプル変動'},dp:{pct:dpPct,d:'デレバレッジ寄与'}},entryEq:inv2,exitEq:val2});
+    // Generate realistic LBO parameters
+    var eE2=5+Math.floor(Math.random()*30); // entry EBITDA
+    var growthRate=0.8+Math.random()*0.6; // 0.8x to 1.4x
+    var xE2=parseFloat((eE2*growthRate).toFixed(1));
+    var pM2=5+Math.random()*6; // purchase mult 5-11x
+    var exitMultShift=-1+Math.random()*3; // -1x to +2x
+    var xM2=parseFloat((pM2+exitMultShift).toFixed(1));
+    var levRatio=3+Math.random()*3; // 3-6x leverage
+    var eD2=Math.round(eE2*levRatio);
+    var paydownPct=0.1+Math.random()*0.5;
+    var xD2=Math.round(eD2*(1-paydownPct));
+    var f3=calcFactors(eE2,xE2,pM2,xM2,eD2,xD2);
+    var entryEq2=eE2*pM2-eD2,exitEq2=xE2*xM2-xD2;
+    if(entryEq2<=0)entryEq2=5;if(exitEq2<=0)exitEq2=3;
+    var moic3=exitEq2/entryEq2;
+    var stat3=moic3>1.5?'on':moic3>1.05?'watch':'risk';
+    base.push({id:'g'+j,name:gNames[j],sector:gSecs[j%gSecs.length],fund:f2,
+      date:'20'+(20+Math.floor(Math.random()*6))+'-'+(Math.floor(Math.random()*12)+1<10?'0':'')+(Math.floor(Math.random()*12)+1),
+      status:stat3,inv:Math.round(entryEq2),val:Math.round(exitEq2),moic:parseFloat(moic3.toFixed(2)),irr:parseFloat(((Math.pow(Math.max(moic3,0.1),0.25)-1)*100).toFixed(1)),
+      rev:Math.floor(Math.random()*300)+20,ebitda:xE2,
+      entryEbitda:eE2,exitEbitda:xE2,purchMult:pM2,exitMult:xM2,entryDebt:eD2,exitDebt:xD2,f:f3,entryEq:entryEq2,exitEq:exitEq2});
   }
   return base;
 }
