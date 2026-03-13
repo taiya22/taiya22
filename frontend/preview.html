@@ -176,6 +176,8 @@ tr:hover{background:var(--s2)}
 .factor-card-l{font-size:8px;color:var(--m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
 .factor-card-v{font-size:20px;font-weight:800;font-family:Arial}
 .factor-card-v.pos{color:var(--a)}.factor-card-v.neg{color:var(--ng)}.factor-card-v.neu{color:var(--m)}
+.factor-card-v.fc-eg{color:#22c55e}.factor-card-v.fc-me{color:#f97316}.factor-card-v.fc-dp{color:#2563eb}
+.factor-card.fc-eg-bg{border-left:3px solid #22c55e}.factor-card.fc-me-bg{border-left:3px solid #f97316}.factor-card.fc-dp-bg{border-left:3px solid #2563eb}
 .factor-card-d{font-size:8px;color:var(--m);margin-top:2px}
 /* Sparklines */
 .sp-box{background:var(--s2);border-radius:8px;padding:10px}
@@ -379,7 +381,7 @@ const navItems=[
 ];
 
 const accounts=[
-  {name:'山脇 大河',short:'山脇',role:'マネージング・パートナー',color:'#111',email:'yamawaki@taigacapital.jp',phone:'+81-3-6xxx-7890',joined:'2012-04',bio:'東京大学経済学部卒。ゴールドマン・サックス証券IBD（6年）を経て、カーライル・グループ日本拠点のプリンシパルとして製造業・テクノロジーセクターの投資を主導。2018年にTaiga Capitalを創業し、マネージング・パートナーに就任。累計投資実績: 28件・総額¥2,800億。Forbes Japan「注目のPEプロフェッショナル」選出。',career:[{t:'Taiga Capital マネージング・パートナー',s:'2018 - 現在',d:'ファーム創業・ファンドI/II/III組成'},{t:'カーライル・グループ プリンシパル',s:'2014 - 2018',d:'日本バイアウト・チーム'},{t:'ゴールドマン・サックス証券 VP',s:'2008 - 2014',d:'IBD / M&Aアドバイザリー'},{t:'東京大学 経済学部',s:'2004 - 2008',d:''}],deals:6,port:4,util:82},
+  {name:'山脇 大河',short:'山脇',role:'マネージング・パートナー',color:'#111',email:'yamawaki@taigacapital.jp',phone:'+81-3-6xxx-7890',joined:'2020-04',bio:'慶應義塾大学 環境情報学部を卒業後、同大学院 政策・メディア研究科にて修士課程を修了。在学中よりテクノロジーと経営戦略の融合をテーマに研究を重ね、修了後は合同会社デロイト トーマツにてM&Aアドバイザリー業務に従事。製造業・テクノロジーセクターを中心に、クロスボーダー案件を含む数十件のM&A案件をリード。その後、国内PEファンドに参画しバイアウト投資の実務経験を積み、投資先のバリューアップ・PMI・Exit戦略の一連のプロセスを主導。これらの経験を基盤に、データドリブンなPE投資の新たなスタンダードを確立すべくTaiga Capital Groupを創業。テクノロジーの力でPE投資の意思決定を高度化し、日本の中堅企業の成長と事業承継を支援するというビジョンを掲げ、ファンドI/II/IIIを組成。累計投資実績: 28件・総額¥2,800億超。',career:[{t:'Taiga Capital Group 創業 / マネージング・パートナー',s:'2020 - 現在',d:'ファーム創業・ファンドI/II/III組成・投資戦略統括'},{t:'国内PEファンド インベストメント・プロフェッショナル',s:'2017 - 2020',d:'バイアウト投資・バリューアップ・PMI推進'},{t:'合同会社デロイト トーマツ M&Aアドバイザリー',s:'2014 - 2017',d:'製造業・テクノロジーセクターのM&A案件をリード'},{t:'慶應義塾大学大学院 政策・メディア研究科 修士課程修了',s:'2012 - 2014',d:'テクノロジー×経営戦略の融合研究'},{t:'慶應義塾大学 環境情報学部 卒業',s:'2008 - 2012',d:''}],deals:6,port:4,util:82},
   {name:'田中 健太',short:'田中',role:'シニア・マネージング・ディレクター',color:'#1d4ed8',email:'tanaka@taigacapital.jp',phone:'+81-3-6xxx-7891',joined:'2018-04',bio:'慶應義塾大学商学部卒。モルガン・スタンレー証券M&Aアドバイザリー（8年）を経てTaiga Capital創業メンバーとして参画。',career:[{t:'Taiga Capital シニアMD',s:'2018 - 現在',d:'投資委員会メンバー'},{t:'モルガン・スタンレー証券 ED',s:'2010 - 2018',d:'M&Aアドバイザリー本部'},{t:'慶應義塾大学 商学部',s:'2006 - 2010',d:''}],deals:5,port:3,util:88},
   {name:'鈴木 美咲',short:'鈴木',role:'ディレクター',color:'#404040',email:'suzuki@taigacapital.jp',phone:'+81-3-6xxx-7892',joined:'2019-09',bio:'一橋大学商学部卒。ベイン&カンパニー（5年）でPEデューデリジェンスを専門とした後、Taiga Capitalに参画。ヘルスケア・消費財セクターを担当。',career:[{t:'Taiga Capital ディレクター',s:'2019 - 現在',d:'ヘルスケア・消費財担当'},{t:'ベイン&カンパニー マネージャー',s:'2014 - 2019',d:'PEグループ / DD専門'},{t:'一橋大学 商学部',s:'2010 - 2014',d:''}],deals:4,port:2,util:91},
   {name:'山本 拓也',short:'山本',role:'ヴァイス・プレジデント',color:'#525252',email:'yamamoto@taigacapital.jp',phone:'+81-3-6xxx-7893',joined:'2020-04',bio:'京都大学工学部・MIT Sloan MBA。マッキンゼー（4年）でテクノロジーセクターの戦略コンサルティングに従事。テクノロジー・SaaS投資を担当。',career:[{t:'Taiga Capital VP',s:'2020 - 現在',d:'テクノロジー・SaaS担当'},{t:'マッキンゼー アソシエイトパートナー',s:'2016 - 2020',d:'テクノロジープラクティス'},{t:'MIT Sloan School MBA',s:'2014 - 2016',d:''},{t:'京都大学 工学部',s:'2010 - 2014',d:''}],deals:4,port:2,util:79},
@@ -408,7 +410,7 @@ const sectors=['製造業','テクノロジー','ヘルスケア','SaaS','物流
 const stages=['sourcing','screening','dd','valuation','ic','execution','closed'];
 const stageLabels={sourcing:'ソーシング',screening:'スクリーニング',dd:'デューデリジェンス',valuation:'バリュエーション',ic:'投資委員会',execution:'エグゼキューション',closed:'クローズ済'};
 const stageColors={sourcing:'#a3a3a3',screening:'#737373',dd:'#2563eb',valuation:'#1d4ed8',ic:'#111',execution:'#2563eb',closed:'#404040'};
-const companyNames=['Nexus Precision Manufacturing','CloudBridge Solutions','Sakura Healthcare Group','GreenLogix Corp','Tokyo Food Technologies','Aether Semiconductors','Matic Robotics','Zenith Software','Pacific Building Materials','Wellness Connect','Nihon Packaging','Atlas Industrial Services','Horizon Dynamics','Kaizen Chemicals','FutureWave Technologies','Yamato Precision Parts','OceanView Logistics','MedTech Japan','SkyBridge Analytics','EcoSmart Solutions','NipponAI Corp','CrystalVision Optics','TerraGreen Energy','AquaPure Technologies','SmartFactory Japan','DigiHealth Corp','PharmaSync Labs','CloudNative Systems','AutoDrive Japan','RoboWorks Inc','NanoTech Japan','BioGenesis Corp','UrbanConnect Inc','AgriTech Japan','EdgeCompute Ltd','QuantumLeap Systems','CyberShield Japan','DataMesh Corp','CleanEnergy Japan','MicroPrecision Corp','VitalCare Medical','LogiNext Japan','FinBridge Corp','EduTech Japan','PropTech Tokyo','GreenChem Industries','TeleConnect Japan','MediaWave Corp','AutoParts Japan','BioFrontier Inc','SmartGrid Japan','NeuroScience Corp'];
+const companyNames=['Nexus Precision Manufacturing','CloudBridge Solutions','Sakura Healthcare Group','GreenLogix Corp','Tokyo Food Technologies','Aether Semiconductors','Matic Robotics','Zenith Software','Pacific Building Materials','Wellness Connect','Nihon Packaging','Atlas Industrial Services','Horizon Dynamics','Kaizen Chemicals','FutureWave Technologies','Yamato Precision Parts','OceanView Logistics','MedTech Japan','SkyBridge Analytics','EcoSmart Solutions','NipponAI Corp','CrystalVision Optics','TerraGreen Energy','AquaPure Technologies','SmartFactory Japan','DigiHealth Corp','PharmaSync Labs','CloudNative Systems','AutoDrive Japan','RoboWorks Inc','NanoTech Japan','BioGenesis Corp','UrbanConnect Inc','AgriTech Japan','EdgeCompute Ltd','QuantumLeap Systems','CyberShield Japan','DataMesh Corp','CleanEnergy Japan','MicroPrecision Corp','VitalCare Medical','LogiNext Japan','FinBridge Corp','EduTech Japan','PropTech Tokyo','GreenChem Industries','TeleConnect Japan','MediaWave Corp','AutoParts Japan','BioFrontier Inc','SmartGrid Japan','NeuroScience Corp','Kansai Precision Works','Tokai Packaging Corp','Hokkaido Logistics','NihonBridge Systems','AeroTech Japan','MarineTech Corp','SilverAge Care','OptoElectronics Japan','Digital Craft Inc','SmartAgri Solutions','TechnoMetal Japan','PhoenixEnergy Corp','BioSensors Japan','OmniCloud Systems','NextWave Robotics','PrecisionCast Japan','GreenLogistics Corp','InfoSec Japan','SmartBuild Corp','NutraTech Japan','DataVault Japan','QuantumSense Corp','EnergyGrid Japan','CyberMed Japan','NanoFiber Japan','CircuitDesign Japan','AquaEnergy Corp','SkyNet Japan','GenoTech Japan','UltraPrecision Corp'];
 const tagPool=['高成長','事業承継','DXテーマ','ニッチトップ','顧客集中リスク','高マージン','輸出比率高','規制リスク','オーナー高齢','環境配慮','人手不足テーマ','リカーリング収益','SPA交渉中','独占的ポジション','M&Aロールアップ','CAGR 20%超','特許保有','海外展開余地','安定キャッシュフロー','コスト削減余地'];
 const fundOptions=['fund3','fund2','fund1'];
 const leadPool=[0,1,2,3,4,5,6,7];
@@ -461,6 +463,15 @@ function genPortfolio(){
     ['MedTech Japan','医療機器','fund1','2019-06','on',48,135,2.81,22.8,95,18,{eg:{pct:42,d:'堅調'},me:{pct:28,d:'ヘルスケア評価'},dp:{pct:30,d:'完済間近'}}],
     ['FutureWave Technologies','通信機器','fund1','2018-09','on',35,88,2.51,20.5,78,12,{eg:{pct:45,d:'5G需要'},me:{pct:30,d:'テック評価'},dp:{pct:25,d:'ほぼ完済'}}],
     ['CrystalVision Optics','光学機器','fund1','2019-12','watch',42,55,1.31,7.2,65,8,{eg:{pct:20,d:'横ばい'},me:{pct:-15,d:'市場軟調'},dp:{pct:95,d:'返済進捗のみ'}}],
+    ['SkyBridge Analytics','データ分析','fund3','2024-05','on',35,58,1.66,28.5,42,7.5,{eg:{pct:52,d:'急成長'},me:{pct:35,d:'テック評価'},dp:{pct:13,d:'安定'}}],
+    ['EcoSmart Solutions','環境','fund3','2023-11','on',34,52,1.53,18.2,75,11,{eg:{pct:45,d:'ESG追い風'},me:{pct:32,d:'評価改善'},dp:{pct:23,d:'計画的返済'}}],
+    ['AquaPure Technologies','水処理','fund2','2022-03','on',52,78,1.50,13.8,130,19,{eg:{pct:38,d:'安定成長'},me:{pct:28,d:'環境テーマ'},dp:{pct:34,d:'着実返済'}}],
+    ['Nihon Packaging','包装','fund2','2021-06','on',38,56,1.47,11.5,95,14,{eg:{pct:32,d:'堅調'},me:{pct:28,d:'安定'},dp:{pct:40,d:'計画的返済'}}],
+    ['Pacific Building Materials','建材','fund1','2019-03','on',52,92,1.77,12.5,145,20,{eg:{pct:38,d:'建設需要'},me:{pct:22,d:'安定'},dp:{pct:40,d:'ほぼ完済'}}],
+    ['Wellness Connect','ヘルスケアIT','fund3','2024-07','on',28,42,1.50,32.0,25,6,{eg:{pct:58,d:'急成長フェーズ'},me:{pct:30,d:'DXプレミアム'},dp:{pct:12,d:'低レバレッジ'}}],
+    ['Kaizen Chemicals','化学','fund2','2022-09','watch',68,72,1.06,1.8,185,22,{eg:{pct:-25,d:'EBITDA減少'},me:{pct:-18,d:'マルチプル縮小'},dp:{pct:143,d:'返済のみがプラス'}}],
+    ['Horizon Dynamics','産業機械','fund1','2018-12','on',45,82,1.82,11.2,125,26,{eg:{pct:42,d:'自動化需要'},me:{pct:25,d:'安定'},dp:{pct:33,d:'ほぼ完済'}}],
+    ['GreenLogix Solutions','環境物流','fund2','2021-12','watch',32,38,1.19,5.8,88,12,{eg:{pct:22,d:'低成長'},me:{pct:15,d:'横ばい'},dp:{pct:63,d:'返済中心'}}],
   ];
   extra.forEach(function(e,i){
     base.push({id:'gen'+i,name:e[0],sector:e[1],fund:e[2],date:e[3],status:e[4],inv:e[5],val:e[6],moic:e[7],irr:e[8],rev:e[9],ebitda:e[10],f:e[11],entryEq:e[5],exitEq:e[6]});
@@ -499,6 +510,20 @@ var recruitCandidates=[
   {name:'佐々木 健太',role:'IT/DX候補',stage:'sourcing',source:'リファラル',school:'東京工業大学',current:'アクセンチュア',yoe:5,skills:['DX戦略','AI/ML','クラウド'],rating:83,detail:'アクセンチュアでPE投資先のDX支援を担当。AI・クラウド導入によるバリューアップの知見。技術DDにも対応可能。'},
   {name:'長谷川 美優',role:'アソシエイト候補',stage:'final',source:'エージェント',school:'東京大学',current:'ゴールドマン・サックス証券',yoe:3,skills:['M&Aアドバイザリー','財務分析','プレゼンテーション'],rating:91,detail:'ゴールドマン・サックスIBDでM&Aアドバイザリーを担当。大型クロスボーダー案件の実績あり。分析力とコミュニケーション力の両方が高い。'},
   {name:'原田 駿',role:'アナリスト候補',stage:'interview2',source:'大学キャリアセンター',school:'大阪大学',current:'新卒',yoe:0,skills:['データサイエンス','機械学習','R/Python'],rating:84,detail:'大阪大学情報科学研究科修士。金融データの機械学習分析を研究。Kaggleコンペ上位入賞実績あり。'},
+  {name:'岡田 真一',role:'VP候補',stage:'interview2',source:'ヘッドハンター',school:'東京大学',current:'アドバンテッジパートナーズ',yoe:7,skills:['LBOモデリング','バリューアップ','PMI'],rating:91,detail:'アドバンテッジパートナーズで7年、ミッドキャップバイアウト案件を主導。製造業セクターでの投資・バリューアップ実績が豊富。'},
+  {name:'Sarah Kim',role:'アソシエイト候補',stage:'screening',source:'LinkedIn',school:'Stanford MBA',current:'McKinsey (Tokyo)',yoe:4,skills:['戦略コンサル','デューデリジェンス','市場分析'],rating:87,detail:'Stanford MBA。マッキンゼー東京オフィスでPEグループに所属しDD・PMI支援を担当。日韓バイリンガル。'},
+  {name:'村上 拓海',role:'シニアアソシエイト候補',stage:'interview1',source:'エージェント',school:'一橋大学',current:'野村證券',yoe:5,skills:['M&Aアドバイザリー','ECM','クロスボーダー'],rating:86,detail:'野村證券IBDでM&Aアドバイザリーを担当。大型クロスボーダー案件を複数経験。PE業界への転身を強く希望。'},
+  {name:'James Rodriguez',role:'ディレクター候補',stage:'sourcing',source:'ヘッドハンター',school:'INSEAD MBA',current:'Permira (London)',yoe:12,skills:['テクノロジー投資','クロスボーダー','LP IR'],rating:93,detail:'INSEAD MBA。Permiraロンドンでテクノロジーセクター投資を12年担当。日本市場への関心が高く東京移住を検討中。'},
+  {name:'山田 彩花',role:'アナリスト候補',stage:'final',source:'インターン経由',school:'慶應義塾大学',current:'新卒（インターン実績あり）',yoe:0,skills:['財務分析','PowerPoint','リサーチ'],rating:83,detail:'慶應義塾大学経済学部4年。2025年夏季インターンでDD資料作成を担当し高評価。プレゼン能力が特に優秀。'},
+  {name:'鶴田 康平',role:'オペレーション候補',stage:'offer',source:'エージェント',school:'神戸大学',current:'EY新日本有限責任監査法人',yoe:6,skills:['ファンド監査','IFRS','レポーティング'],rating:82,detail:'EY新日本でオルタナティブ投資ファンドの監査を6年間担当。ファンド会計・IFRS・J-GAAP対応に精通。'},
+  {name:'Alex Chen',role:'テクノロジー候補',stage:'interview1',source:'リファラル',school:'MIT',current:'Google Japan',yoe:5,skills:['AI/ML','プロダクト開発','データエンジニアリング'],rating:89,detail:'MIT Computer Science卒。Google JapanでプロダクトマネージャーとしてAI/MLプロダクトを開発。PEテック領域に強い関心。'},
+  {name:'中島 優希',role:'アソシエイト候補',stage:'screening',source:'エージェント',school:'東京大学',current:'日本政策投資銀行',yoe:4,skills:['プロジェクトファイナンス','企業分析','公的金融'],rating:81,detail:'日本政策投資銀行で大企業・インフラセクターの融資審査を担当。財務分析力と産業知見が強み。'},
+  {name:'Sophie Martin',role:'ESGアナリスト候補',stage:'interview2',source:'LinkedIn',school:'LSE MSc',current:'BlackRock (Tokyo)',yoe:3,skills:['ESG統合投資','サステナビリティ','インパクト測定'],rating:86,detail:'LSE修士（環境経済学）。BlackRock東京でESG統合投資リサーチを担当。日本語ビジネスレベル。'},
+  {name:'西村 大地',role:'アソシエイト候補',stage:'offer_accepted',source:'リファラル',school:'早稲田大学',current:'三井物産',yoe:4,skills:['事業投資','海外事業','PMI'],rating:88,detail:'三井物産で化学品・ヘルスケア分野の事業投資を担当。海外拠点でのPMI経験あり。4月入社確定。'},
+  {name:'加藤 理沙',role:'IR候補',stage:'interview1',source:'エージェント',school:'上智大学',current:'SMBC日興証券',yoe:5,skills:['IR','プレゼンテーション','英語'],rating:80,detail:'SMBC日興証券でIR・広報業務を担当。機関投資家とのコミュニケーション力が高い。英語ネイティブレベル。'},
+  {name:'Tommy Lee',role:'アナリスト候補',stage:'sourcing',source:'大学キャリアセンター',school:'Columbia University',current:'新卒',yoe:0,skills:['金融工学','Python','統計分析'],rating:82,detail:'Columbia大学金融工学修士。在学中にPEファンドでインターン経験あり。日本語堪能（日本育ち）。'},
+  {name:'森本 健太',role:'VP候補',stage:'screening',source:'ヘッドハンター',school:'京都大学',current:'ユニゾン・キャピタル',yoe:8,skills:['バイアウト投資','事業承継','ファンドレイズ'],rating:90,detail:'ユニゾン・キャピタルで事業承継案件を中心に8年間投資実務を経験。日本の中堅企業オーナーとの豊富なネットワーク。'},
+  {name:'田村 美咲',role:'アソシエイト候補',stage:'interview2',source:'エージェント',school:'東京大学',current:'BCG',yoe:3,skills:['戦略コンサル','DX支援','オペレーション改善'],rating:85,detail:'BCGで製造業・テクノロジーセクターのDX戦略を担当。PE投資先のバリューアップに直結するスキルセット。'},
 ];
 var recruitStages={sourcing:'ソーシング',screening:'スクリーニング',interview1:'一次面談',interview2:'二次面談',final:'最終面談',offer:'オファー',offer_accepted:'内定承諾',joined:'入社済'};
 var recruitStageOrder=['sourcing','screening','interview1','interview2','final','offer','offer_accepted','joined'];
@@ -514,7 +539,12 @@ var notifications=[
   {title:'ESGスコア更新: 関東化学工業',desc:'CO2排出量増加でC+に低下',time:'8時間前',unread:false,detail:'関東化学工業のESGスコアが前四半期のBからC+に低下。主因: ①CO2排出量前年比+5%増（Scope 1: 3,200t, Scope 2: 2,600t）、②廃棄物リサイクル率60%→52%に悪化、③ESGアクションプラン完了率25%。次回取締役会で改善計画の承認を取り付ける必要があります。'},
   {title:'Nexus Precision — 財務DD完了',desc:'最終レポート提出済み',time:'10時間前',unread:false,detail:'佐藤が担当した財務DDが完了。主要所見: ①過去5年のEBITDA調整項目は軽微（累計¥2.1億）、②運転資本の季節性あり（Q4に約¥8億増加）、③設備投資計画¥15億が今後3年間で必要。品質問題なし。事業DD・法務DDの完了を待って投資委員会に上程予定。'},
   {title:'マーケットアラート: 半導体セクター',desc:'M&Aマルチプル上昇',time:'12時間前',unread:false,detail:'日本の半導体関連企業のM&Aマルチプルが直近3ヶ月で平均0.8x上昇（8.2x→9.0x）。Aether Semiconductorsの投資に追い風。ただし、米中半導体規制の強化リスクに注意。中村のAI分析によると、規制強化の確率は35%と推定。'},
-  {title:'新規ソーシング: 事業承継案件3件',desc:'AIソーシングが候補を検出',time:'1日前',unread:false,detail:'AIソーシングエンジンが以下の事業承継案件を検出: ①関西精密工業（オーナー72歳、EV推定¥45億、精密部品）、②東海包装（オーナー68歳、EV推定¥30億、食品包装）、③北海道物流サービス（オーナー70歳、EV推定¥55億、冷蔵物流）。高橋がアプローチ準備中。'}
+  {title:'新規ソーシング: 事業承継案件3件',desc:'AIソーシングが候補を検出',time:'1日前',unread:false,detail:'AIソーシングエンジンが以下の事業承継案件を検出: ①関西精密工業（オーナー72歳、EV推定¥45億、精密部品）、②東海包装（オーナー68歳、EV推定¥30億、食品包装）、③北海道物流サービス（オーナー70歳、EV推定¥55億、冷蔵物流）。高橋がアプローチ準備中。'},
+  {title:'Matic Robotics — LOI提出完了',desc:'売り手側の回答待ち',time:'1日前',unread:false,detail:'LOI（Letter of Intent）を3月11日付で提出。提示条件: EV ¥120億（EV/EBITDA 8.5x）、株式100%取得、エスクロー10%。売り手側アドバイザー（SMBC日興証券）からの回答を2週間以内に見込む。山本がリードで対応中。'},
+  {title:'Fund II DPI更新 — 1.22xに上昇',desc:'Premier Logistics部分Exit反映',time:'1日前',unread:false,detail:'Premier Logistics Groupのセカンダリー部分売却（持分15%、¥22億）がクロージング。Fund IIのDPIが1.15x→1.22xに上昇。LP全体への分配通知を3月15日までに発送予定。小林が対応中。'},
+  {title:'採用: 石井慎太郎 — オファー受諾',desc:'4月1日入社確定',time:'2日前',unread:false,detail:'石井慎太郎氏（デロイトトーマツFAS出身）がオファーを受諾。入社日: 4月1日。アソシエイトとしてDD案件を中心にアサイン予定。初月は伊藤がメンターとして指導。オンボーディング資料の準備を開始。'},
+  {title:'月次運用報告 — Fund III',desc:'2月度パフォーマンスサマリー',time:'2日前',unread:false,detail:'Fund III 2月度: NAV ¥441億（前月比+2.1%）、Gross IRR 18.7%、Net IRR 15.2%。主な要因: Digital Frontier売上成長+15% MoM、Atlas Industrial新規顧客獲得3件。マイナス要因: 関東化学工業EBITDA予算比-18%。'},
+  {title:'AI分析: 市場トレンドレポート',desc:'2026年Q1日本PE市場動向',time:'3日前',unread:false,detail:'2026年Q1の日本PE市場: 取引件数142件（前年同期比+18%）、平均EV/EBITDA 8.2x（+0.4x）、事業承継案件が全体の35%を占める。注目セクター: ヘルスケアIT、産業オートメーション、フードテック。金利上昇環境下でもPE投資意欲は堅調。'}
 ];
 
 var insights=[
@@ -529,7 +559,17 @@ var insights=[
   {type:'rec',badge:'badge-vi',label:'推奨',conf:79,title:'コスト削減施策 — 関東化学工業',desc:'調達先統合で年間¥4.5億のコスト削減可能。',agent:'バリューアップAgent',time:'03-09 10:30',fund:'fund2'},
   {type:'opp',badge:'badge-ok',label:'機会',conf:72,title:'M&Aボルトオン — Premier Logistics',desc:'コールドチェーン物流3社を特定。顧客単価20%向上期待。',agent:'M&A戦略Agent',time:'03-09 07:00',fund:'fund2'},
   {type:'rec',badge:'badge-vi',label:'推奨',conf:85,title:'テクニカルDD — Zenith Software',desc:'技術的負債は低水準。マイクロサービス移行で運用コスト30%削減見込み。',agent:'テクニカルDDAgent',time:'03-10 09:00',fund:'fund3'},
-  {type:'alert',badge:'badge-w',label:'アラート',conf:77,title:'為替ヘッジ推奨 — ポートフォリオ全体',desc:'USD/JPY変動率上昇。輸出比率高企業にヘッジ戦略見直し推奨。',agent:'リスク管理Agent',time:'03-10 07:30',fund:'all'}
+  {type:'alert',badge:'badge-w',label:'アラート',conf:77,title:'為替ヘッジ推奨 — ポートフォリオ全体',desc:'USD/JPY変動率上昇。輸出比率高企業にヘッジ戦略見直し推奨。',agent:'リスク管理Agent',time:'03-10 07:30',fund:'all'},
+  {type:'risk',badge:'badge-ng',label:'リスク',conf:91,title:'人材流出リスク — Horizon Medical',desc:'キーパーソン2名の退職意向を検出。リテンション施策の早期実施を推奨。',agent:'HR分析Agent',time:'03-10 14:00',fund:'fund3'},
+  {type:'opp',badge:'badge-ok',label:'機会',conf:74,title:'ボルトオンM&A — Atlas Industrial',desc:'九州地方の競合企業（EV¥18億）が売却意向。地理的補完性が高い。',agent:'M&A戦略Agent',time:'03-10 11:30',fund:'fund3'},
+  {type:'rec',badge:'badge-vi',label:'推奨',conf:88,title:'DX投資推奨 — Premier Logistics',desc:'倉庫自動化システム導入でオペレーションコスト年間¥2.8億削減見込み。ROI 18ヶ月。',agent:'DX推進Agent',time:'03-10 09:15',fund:'fund2'},
+  {type:'alert',badge:'badge-w',label:'アラート',conf:82,title:'金利上昇影響 — ポートフォリオ全体',desc:'日銀追加利上げ観測。変動金利借入比率50%超のポートフォリオ企業3社に影響試算が必要。',agent:'マクロ分析Agent',time:'03-11 08:00',fund:'all'},
+  {type:'opp',badge:'badge-ok',label:'機会',conf:69,title:'新規ソーシング — ヘルスケアIT',desc:'医療DX推進法施行に伴いヘルスケアIT企業3社を候補として特定。',agent:'ソーシングAgent',time:'03-11 10:00',fund:'fund3'},
+  {type:'risk',badge:'badge-ng',label:'リスク',conf:86,title:'サプライチェーンリスク — 関東化学工業',desc:'主要原材料サプライヤー1社が経営不振。代替調達先の確保が急務。',agent:'サプライチェーンAgent',time:'03-11 07:45',fund:'fund2'},
+  {type:'rec',badge:'badge-vi',label:'推奨',conf:81,title:'人材採用加速 — アソシエイト2名',desc:'Q2のDD案件増加に備え即戦力アソシエイト2名の採用を推奨。現在のパイプラインに有力候補あり。',agent:'リソース最適化Agent',time:'03-11 13:00',fund:'all'},
+  {type:'alert',badge:'badge-w',label:'アラート',conf:75,title:'競合動向 — Bain Capital',desc:'Bain Capitalが同セクターの類似企業にアプローチ中。Nexus Precisionの投資判断を加速する必要あり。',agent:'競合インテリジェンスAgent',time:'03-11 16:30',fund:'fund3'},
+  {type:'opp',badge:'badge-ok',label:'機会',conf:78,title:'IPO Window — Digital Frontier',desc:'SaaS企業のIPOマーケットが好調。2026年Q4でのIPO準備開始を推奨。想定時価総額¥250-300億。',agent:'Exit最適化Agent',time:'03-12 09:00',fund:'fund3'},
+  {type:'rec',badge:'badge-vi',label:'推奨',conf:84,title:'ガバナンス強化 — ポートフォリオ全体',desc:'社外取締役の独立性強化が必要な企業2社を特定。ESGスコア改善にも寄与。',agent:'ガバナンスAgent',time:'03-12 11:00',fund:'all'}
 ];
 // ========== CORE FUNCTIONS ==========
 function showPage(id){
@@ -619,7 +659,7 @@ function renderWaterfall(id,c){
   var w=520,h=240,pad=55,barW=64;
   var maxV=Math.max(c.entryEq,c.exitEq)*1.4;
   var sc=function(v){return h-pad-(v/maxV)*(h-pad*2)};
-  var bars=[{l:'Entry Equity',v:c.entryEq,col:'#737373',base:true},{l:'EBITDA成長',pct:eg,col:eg>=0?'#2563eb':'#dc2626'},{l:'マルチプル変動',pct:me,col:me>0?'#404040':me<0?'#dc2626':'#a3a3a3'},{l:'デレバレッジ',pct:dp,col:dp>=0?'#111':'#dc2626'},{l:'Exit Equity',v:c.exitEq,col:'#111',base:true}];
+  var bars=[{l:'Entry Equity',v:c.entryEq,col:'#737373',base:true},{l:'EBITDA成長',pct:eg,col:'#22c55e'},{l:'マルチプル変動',pct:me,col:'#f97316'},{l:'デレバレッジ',pct:dp,col:'#2563eb'},{l:'Exit Equity',v:c.exitEq,col:'#111',base:true}];
   var run=c.entryEq,positions=[];
   bars.forEach(function(b){
     if(b.base){positions.push({y:sc(b.v),h:sc(0)-sc(b.v),bot:sc(0),v:b.v});}
@@ -641,9 +681,9 @@ function renderWaterfall(id,c){
     '<div class="wf-title">リターン要因分解ウォーターフォール <a class="wf-ref" href="https://www.wallstreetprep.com/knowledge/lbo-returns-attribution-analysis-value-creation/" target="_blank">WSP準拠 ↗</a></div>'+
     '<div class="wf-subtitle">LBO Returns Attribution: Entry Equity → 3要素 → Exit Equity</div>'+svg+
     '<div class="wf-legend">'+
-    '<div class="wf-legend-i"><div class="wf-legend-d" style="background:#2563eb"></div>EBITDA成長: '+eg+'%</div>'+
-    '<div class="wf-legend-i"><div class="wf-legend-d" style="background:#404040"></div>マルチプル変動: '+me+'%</div>'+
-    '<div class="wf-legend-i"><div class="wf-legend-d" style="background:#111"></div>デレバレッジ: '+dp+'%</div></div>';
+    '<div class="wf-legend-i"><div class="wf-legend-d" style="background:#22c55e"></div>EBITDA成長: '+eg+'%</div>'+
+    '<div class="wf-legend-i"><div class="wf-legend-d" style="background:#f97316"></div>マルチプル変動: '+me+'%</div>'+
+    '<div class="wf-legend-i"><div class="wf-legend-d" style="background:#2563eb"></div>デレバレッジ: '+dp+'%</div></div>';
 }
 // ========== DASHBOARD ==========
 function renderDashboard(){
@@ -733,7 +773,7 @@ function renderPortCards(companies){
     return '<div class="pc '+c.status+'"><div class="pc-h"><div><div class="pc-n">'+c.name+'</div><div class="pc-info"><span>'+c.sector+'</span><span>'+c.date+'</span><span class="badge '+fb+'">'+c.fund.replace('fund','Fund ')+'</span></div></div><span class="sb '+c.status+'">'+(c.status==='on'?'&#10003; 順調':c.status==='watch'?'&#9673; 要注意':'&#9888; 要対応')+'</span></div>'+
     '<div class="pm"><div><div class="pm-l">投資額</div><div class="pm-v">¥'+c.inv+'億</div></div><div><div class="pm-l">評価額</div><div class="pm-v">¥'+c.val+'億</div></div><div><div class="pm-l">MOIC</div><div class="pm-v" style="color:'+(c.moic>=1.3?'var(--a)':c.moic>=1?'var(--m)':'var(--ng)')+'">'+c.moic.toFixed(2)+'x</div></div><div><div class="pm-l">IRR</div><div class="pm-v" style="color:'+(c.irr>=15?'var(--a)':c.irr>=5?'var(--m)':'var(--ng)')+'">'+c.irr+'%</div></div><div><div class="pm-l">売上高</div><div class="pm-v">¥'+c.rev+'億</div></div><div><div class="pm-l">EBITDA</div><div class="pm-v">¥'+c.ebitda+'億</div></div></div>'+
     '<div class="sh"><div class="st" style="font-size:11px">リターン3要素分解（LBO Returns Attribution）</div></div>'+
-    '<div class="factor-grid"><div class="factor-card"><div class="factor-card-l">EBITDA成長</div><div class="factor-card-v '+(c.f.eg.pct>=0?'pos':'neg')+'">'+c.f.eg.pct+'%</div><div class="factor-card-d">'+c.f.eg.d+'</div></div><div class="factor-card"><div class="factor-card-l">マルチプル変動</div><div class="factor-card-v '+(c.f.me.pct>0?'pos':c.f.me.pct<0?'neg':'neu')+'">'+c.f.me.pct+'%</div><div class="factor-card-d">'+c.f.me.d+'</div></div><div class="factor-card"><div class="factor-card-l">デレバレッジ</div><div class="factor-card-v '+(c.f.dp.pct>=0?'pos':'neg')+'">'+c.f.dp.pct+'%</div><div class="factor-card-d">'+c.f.dp.d+'</div></div></div>'+
+    '<div class="factor-grid"><div class="factor-card fc-eg-bg"><div class="factor-card-l">EBITDA成長</div><div class="factor-card-v fc-eg">'+c.f.eg.pct+'%</div><div class="factor-card-d">'+c.f.eg.d+'</div></div><div class="factor-card fc-me-bg"><div class="factor-card-l">マルチプル変動</div><div class="factor-card-v fc-me">'+c.f.me.pct+'%</div><div class="factor-card-d">'+c.f.me.d+'</div></div><div class="factor-card fc-dp-bg"><div class="factor-card-l">デレバレッジ</div><div class="factor-card-v fc-dp">'+c.f.dp.pct+'%</div><div class="factor-card-d">'+c.f.dp.d+'</div></div></div>'+
     '<div id="wf-'+c.id+'" class="wf-container"></div></div>';
   }).join('');
 }
