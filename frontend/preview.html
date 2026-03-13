@@ -5,49 +5,91 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Taiga Capital — PE Investment AI Platform</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--a:#2563eb;--a2:#1d4ed8;--fg:#111;--bg:#f8f9fa;--surface:#fff;--b:#e5e7eb;--b2:#f3f4f6;--m:#6b7280;--m2:#9ca3af;--s2:#f3f4f6;--ok:#16a34a;--oks:rgba(22,163,74,.1);--ng:#dc2626;--ngs:rgba(220,38,38,.1);--w:#d97706;--ws:rgba(217,119,6,.1);--vi:#7c3aed;--vis:rgba(124,58,237,.1);--as:rgba(37,99,235,.06)}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color:var(--fg);display:flex;height:100vh;overflow:hidden;font-size:13px}
-.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--b);padding:16px 12px;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
-.sidebar-logo{display:flex;align-items:center;gap:8px;margin-bottom:16px}
-.logo-i{width:32px;height:32px;background:var(--a);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
-.logo-t{display:flex;flex-direction:column;line-height:1.2}.logo-t span:first-child{font-weight:700;font-size:13px}.logo-t span:last-child{font-size:9px;color:var(--m)}
+:root{--a:#2563eb;--a2:#1d4ed8;--a3:#3b82f6;--al:rgba(37,99,235,.08);--fg:#111;--bg:#f5f5f5;--surface:#fff;--b:#e0e0e0;--b2:#f0f0f0;--m:#737373;--m2:#a3a3a3;--s2:#f5f5f5;--ok:#2563eb;--oks:rgba(37,99,235,.08);--ng:#dc2626;--ngs:rgba(220,38,38,.08);--w:#a3a3a3;--ws:rgba(163,163,163,.12);--vi:#404040;--vis:rgba(64,64,64,.08);--as:rgba(37,99,235,.06)}
+body{font-family:Arial,'Noto Sans JP',sans-serif;background:var(--bg);color:var(--fg);display:flex;height:100vh;overflow:hidden;font-size:13px;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,h5,h6,.kpi-v,.pm-v,.ps-v,.lp-s-v,.esg-score,.team-stat-v,.factor-card-v,.wf-val{font-family:Arial,'Noto Sans JP',sans-serif}
+/* Sidebar */
+.sidebar{width:224px;background:var(--surface);border-right:1px solid var(--b);padding:16px 12px;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-logo{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.logo-i{width:34px;height:34px;background:var(--fg);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;font-family:Arial}
+.logo-t{display:flex;flex-direction:column;line-height:1.2}.logo-t span:first-child{font-weight:700;font-size:14px}.logo-t span:last-child{font-size:9px;color:var(--m);letter-spacing:.02em}
 .fund-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--m);margin-bottom:4px;font-weight:600}
-.fund-sel{width:100%;padding:6px 8px;border:1px solid var(--b);border-radius:6px;font-size:11px;background:var(--surface);cursor:pointer;font-family:inherit}
-.sidebar-nav{display:flex;flex-direction:column;gap:2px}
-.nav-i{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:500;color:var(--m);transition:all .15s}
-.nav-i:hover{background:var(--s2);color:var(--fg)}.nav-i.active{background:var(--as);color:var(--a);font-weight:600}
+.fund-sel{width:100%;padding:7px 8px;border:1px solid var(--b);border-radius:6px;font-size:11px;background:var(--surface);cursor:pointer;font-family:Arial,'Noto Sans JP',sans-serif;color:var(--fg)}
+.sidebar-nav{display:flex;flex-direction:column;gap:1px}
+.nav-i{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:500;color:var(--m);transition:all .15s}
+.nav-i:hover{background:var(--s2);color:var(--fg)}.nav-i.active{background:var(--al);color:var(--a);font-weight:600}
 .nav-i svg{width:16px;height:16px;flex-shrink:0}
+.nav-i .nav-badge{margin-left:auto;font-size:8px;background:var(--ng);color:#fff;padding:1px 5px;border-radius:99px;font-weight:700}
 .main{flex:1;overflow-y:auto;padding:0}
+/* Header */
 .hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 24px;border-bottom:1px solid var(--b);background:var(--surface);position:sticky;top:0;z-index:10}
-.hdr h1{font-size:16px;font-weight:700}
+.hdr h1{font-size:15px;font-weight:700;font-family:Arial,'Noto Sans JP',sans-serif}
 .hdr-r{display:flex;align-items:center;gap:10px}
-.srch-w{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--s2);border-radius:6px}
+.srch-w{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--s2);border-radius:6px;border:1px solid transparent;transition:border .15s}
+.srch-w:focus-within{border-color:var(--a)}
 .srch-w svg{width:14px;height:14px;color:var(--m)}
-.srch{border:none;background:transparent;font-size:11px;width:160px;outline:none;font-family:inherit}
-.ai-b{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:500;color:var(--a);background:var(--as);padding:4px 10px;border-radius:99px}
-.ai-d{width:6px;height:6px;background:var(--ok);border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.dot{width:6px;height:6px;background:var(--ok);border-radius:50%;animation:pulse 2s infinite}
-.notif{position:relative;background:none;border:1px solid var(--b);border-radius:6px;padding:6px;cursor:pointer}
-.notif-n{position:absolute;top:-4px;right:-4px;background:var(--ng);color:#fff;font-size:8px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600}
-/* Account switcher */
+.srch{border:none;background:transparent;font-size:11px;width:180px;outline:none;font-family:Arial,'Noto Sans JP',sans-serif}
+.ai-b{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:500;color:var(--a);background:var(--al);padding:4px 10px;border-radius:99px}
+.ai-d{width:6px;height:6px;background:var(--a);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.dot{width:6px;height:6px;background:var(--a);border-radius:50%;animation:pulse 2s infinite}
+.notif{position:relative;background:none;border:1px solid var(--b);border-radius:6px;padding:6px;cursor:pointer;transition:background .15s}
+.notif:hover{background:var(--s2)}
+.notif-n{position:absolute;top:-4px;right:-4px;background:var(--ng);color:#fff;font-size:8px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
+/* Avatar & Account */
+.av{width:28px;height:28px;border-radius:8px;background:var(--fg);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:-.02em;flex-shrink:0}
 .acct-sw{position:relative;cursor:pointer}
-.av{width:28px;height:28px;border-radius:50%;background:var(--a);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;cursor:pointer}
-.acct-dd{display:none;position:absolute;top:36px;right:0;background:var(--surface);border:1px solid var(--b);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);min-width:200px;z-index:100;padding:4px}
+.acct-dd{display:none;position:absolute;top:36px;right:0;background:var(--surface);border:1px solid var(--b);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.12);min-width:220px;z-index:100;padding:4px}
 .acct-dd.show{display:block}
 .acct-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:11px;transition:background .1s}
 .acct-item:hover{background:var(--s2)}
-.acct-item.active{background:var(--as);color:var(--a)}
-.acct-item .av{width:24px;height:24px;font-size:9px;flex-shrink:0}
+.acct-item.active{background:var(--al);color:var(--a)}
+.acct-item .av{width:24px;height:24px;font-size:8px}
+/* Profile Panel (Slack-like) */
+.profile-overlay{display:none;position:fixed;top:0;right:0;bottom:0;width:380px;background:var(--surface);border-left:1px solid var(--b);box-shadow:-4px 0 24px rgba(0,0,0,.1);z-index:300;overflow-y:auto;transition:transform .2s}
+.profile-overlay.show{display:block}
+.profile-overlay .po-close{position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;font-size:18px;color:var(--m);padding:4px 8px;border-radius:4px}
+.profile-overlay .po-close:hover{background:var(--s2)}
+.po-header{padding:24px;text-align:center;border-bottom:1px solid var(--b)}
+.po-av{width:80px;height:80px;border-radius:16px;background:var(--fg);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;margin:0 auto 12px;font-family:'Noto Sans JP'}
+.po-name{font-size:18px;font-weight:700}
+.po-role{font-size:12px;color:var(--m);margin-top:4px}
+.po-status{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:10px;padding:3px 10px;border-radius:99px;background:var(--al);color:var(--a)}
+.po-section{padding:16px 24px;border-bottom:1px solid var(--b)}
+.po-section-t{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--m);margin-bottom:10px}
+.po-row{display:flex;justify-content:space-between;font-size:11px;padding:5px 0}
+.po-row-l{color:var(--m)}.po-row-v{font-weight:600}
+.po-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.po-stat{text-align:center;padding:10px;background:var(--s2);border-radius:8px}
+.po-stat-v{font-size:18px;font-weight:700;font-family:Arial}
+.po-stat-l{font-size:8px;color:var(--m);text-transform:uppercase;margin-top:2px}
+.po-bio{font-size:11px;color:var(--m);line-height:1.7}
+.po-career{display:flex;flex-direction:column;gap:8px}
+.po-career-i{display:flex;gap:10px;font-size:10px}
+.po-career-dot{width:8px;height:8px;border-radius:50%;background:var(--a);margin-top:3px;flex-shrink:0}
+.po-career-body{flex:1}
+.po-career-title{font-weight:600}
+.po-career-sub{color:var(--m);margin-top:1px}
 .ct{padding:20px 24px}
 /* KPI */
 .kpi-g{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
 .kpi{border:1px solid var(--b);background:var(--surface);border-radius:10px;padding:14px}
 .kpi-l{font-size:9px;color:var(--m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
-.kpi-v{font-size:20px;font-weight:700;margin-bottom:4px}
+.kpi-v{font-size:20px;font-weight:700;margin-bottom:4px;font-family:Arial}
 .kpi-c{display:flex;align-items:center;gap:4px;font-size:9px}
-.kpi-c.up{color:var(--ok)}.kpi-c.dn{color:var(--ng)}
+.kpi-c.up{color:var(--a)}.kpi-c.dn{color:var(--ng)}
+/* Funnel / Flow KPI */
+.funnel{display:flex;gap:2px;margin-bottom:20px;align-items:stretch}
+.funnel-step{flex:1;background:var(--surface);border:1px solid var(--b);padding:14px 10px;text-align:center;position:relative}
+.funnel-step:first-child{border-radius:10px 0 0 10px}
+.funnel-step:last-child{border-radius:0 10px 10px 0}
+.funnel-step::after{content:'';position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:7px solid var(--b);border-top:7px solid transparent;border-bottom:7px solid transparent;z-index:1}
+.funnel-step:last-child::after{display:none}
+.funnel-v{font-size:22px;font-weight:800;font-family:Arial;color:var(--fg)}
+.funnel-l{font-size:8px;color:var(--m);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.funnel-rate{font-size:9px;color:var(--a);font-weight:600;margin-top:4px}
 /* Charts */
 .cg{display:grid;gap:12px;margin-top:16px}.cg2{grid-template-columns:1fr 1fr}.cg3{grid-template-columns:1fr 1fr 1fr}
 .cd{border:1px solid var(--b);background:var(--surface);border-radius:10px;padding:16px}
@@ -67,13 +109,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP',sans
 .sl{font-size:10px;color:var(--a);text-decoration:none;font-weight:500}
 .ig{display:flex;flex-direction:column;gap:8px}
 .ic{border:1px solid var(--b);border-radius:10px;padding:12px 16px;background:var(--surface);transition:all .15s}
-.ic:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.ic.risk{border-left:3px solid var(--ng)}.ic.opp{border-left:3px solid var(--ok)}.ic.alert{border-left:3px solid var(--w)}.ic.rec{border-left:3px solid var(--a)}
+.ic:hover{box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.ic.risk{border-left:3px solid var(--ng)}.ic.opp{border-left:3px solid var(--a)}.ic.alert{border-left:3px solid var(--m)}.ic.rec{border-left:3px solid var(--fg)}
 .ic-h{display:flex;gap:10px}
 .ic-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.ic-icon.risk{background:var(--ngs)}.ic-icon.opp{background:var(--oks)}.ic-icon.alert{background:var(--ws)}.ic-icon.rec{background:var(--as)}
+.ic-icon.risk{background:var(--ngs)}.ic-icon.opp{background:var(--al)}.ic-icon.alert{background:var(--s2)}.ic-icon.rec{background:var(--vis)}
 .badge{padding:2px 8px;border-radius:99px;font-size:8px;font-weight:600;white-space:nowrap}
-.badge-ok{background:var(--oks);color:var(--ok)}.badge-ng{background:var(--ngs);color:var(--ng)}.badge-w{background:var(--ws);color:var(--w)}.badge-a{background:var(--as);color:var(--a)}.badge-vi{background:var(--vis);color:var(--vi)}
+.badge-ok{background:var(--al);color:var(--a)}.badge-ng{background:var(--ngs);color:var(--ng)}.badge-w{background:var(--s2);color:var(--m)}.badge-a{background:var(--al);color:var(--a)}.badge-vi{background:var(--vis);color:var(--vi)}
 .ic-conf{font-size:8px;color:var(--m);margin-left:6px}
 .ic-tt{font-size:12px;font-weight:600;margin:4px 0 2px}
 .ic-d{font-size:10px;color:var(--m);line-height:1.5}
@@ -83,23 +125,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP',sans
 table{width:100%;border-collapse:collapse;font-size:11px}
 th{background:var(--s2);padding:8px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--m);font-weight:600}
 td{padding:8px 12px;border-top:1px solid var(--b)}
-.sc-bar{display:flex;align-items:center;gap:6px}.sc-track{width:50px;height:5px;background:var(--s2);border-radius:3px;overflow:hidden}.sc-fill{height:100%;background:var(--a);border-radius:3px}.sc-v{font-size:10px;font-weight:600}
-/* Pipeline Kanban */
-.kanban{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;overflow-x:auto}
+tr:hover{background:var(--s2)}
+.sc-bar{display:flex;align-items:center;gap:6px}.sc-track{width:50px;height:5px;background:var(--s2);border-radius:3px;overflow:hidden}.sc-fill{height:100%;background:var(--a);border-radius:3px}.sc-v{font-size:10px;font-weight:600;font-family:Arial}
+/* Pipeline */
+.kanban{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;overflow-x:auto}
 .k-col-h{display:flex;align-items:center;gap:6px;margin-bottom:8px}
 .k-col-d{width:8px;height:8px;border-radius:50%}
 .k-col-t{font-size:10px;font-weight:600}
-.k-col-c{background:var(--s2);color:var(--m);font-size:9px;padding:1px 6px;border-radius:99px;font-weight:600}
-.k-cards{display:flex;flex-direction:column;gap:6px}
-.dc{border:1px solid var(--b);border-radius:8px;padding:10px;background:var(--surface);cursor:pointer;transition:box-shadow .15s}
-.dc:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.dc-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
-.dc-n{font-size:10px;font-weight:600}
-.dc-sc{font-size:9px;font-weight:700;white-space:nowrap}
-.dc-sc.hi{color:var(--ok)}.dc-sc.mi{color:var(--w)}.dc-sc.lo{color:var(--ng)}
-.dc-sec{font-size:8px;color:var(--m);margin-bottom:6px}
-.dc-ms{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;margin-bottom:6px}
-.dc-m{display:flex;flex-direction:column}.dc-m .l{font-size:7px;color:var(--m)}.dc-m .v{font-size:9px;font-weight:600}
+.k-col-c{background:var(--s2);color:var(--m);font-size:9px;padding:1px 6px;border-radius:99px;font-weight:600;font-family:Arial}
+.k-cards{display:flex;flex-direction:column;gap:6px;max-height:600px;overflow-y:auto}
+.dc{border:1px solid var(--b);border-radius:8px;padding:12px;background:var(--surface);cursor:pointer;transition:box-shadow .15s}
+.dc:hover{box-shadow:0 2px 12px rgba(0,0,0,.08);border-color:var(--a)}
+.dc-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.dc-n{font-size:11px;font-weight:600}
+.dc-sc{font-size:10px;font-weight:700;white-space:nowrap;font-family:Arial}
+.dc-sc.hi{color:var(--a)}.dc-sc.mi{color:var(--m)}.dc-sc.lo{color:var(--ng)}
+.dc-sec{font-size:9px;color:var(--m);margin-bottom:8px}
+.dc-ms{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px}
+.dc-m{display:flex;flex-direction:column}.dc-m .l{font-size:7px;color:var(--m)}.dc-m .v{font-size:10px;font-weight:600;font-family:Arial}
 .dc-fl{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
 .dc-f{font-size:7px;padding:2px 5px;background:var(--s2);border-radius:3px;color:var(--m)}
 .dc-ft{display:flex;justify-content:space-between;font-size:8px;color:var(--m2)}
@@ -107,29 +150,32 @@ td{padding:8px 12px;border-top:1px solid var(--b)}
 .p-sum{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
 .ps{border:1px solid var(--b);background:var(--surface);border-radius:10px;padding:14px;text-align:center}
 .ps-l{font-size:9px;color:var(--m);margin-bottom:4px}
-.ps-v{font-size:18px;font-weight:700}
+.ps-v{font-size:18px;font-weight:700;font-family:Arial}
 .p-grid{display:flex;flex-direction:column;gap:12px}
 .pc{border:1px solid var(--b);background:var(--surface);border-radius:10px;padding:16px}
-.pc.on{border-left:3px solid var(--ok)}.pc.watch{border-left:3px solid var(--w)}.pc.risk{border-left:3px solid var(--ng)}
+.pc.on{border-left:3px solid var(--a)}.pc.watch{border-left:3px solid var(--m)}.pc.risk{border-left:3px solid var(--ng)}
 .pc-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
 .pc-n{font-size:14px;font-weight:700}
 .pc-info{display:flex;gap:8px;font-size:9px;color:var(--m);margin-top:2px;align-items:center}
 .sb{padding:4px 10px;border-radius:99px;font-size:9px;font-weight:600}
-.sb.on{background:var(--oks);color:var(--ok)}.sb.watch{background:var(--ws);color:var(--w)}.sb.risk{background:var(--ngs);color:var(--ng)}
+.sb.on{background:var(--al);color:var(--a)}.sb.watch{background:var(--s2);color:var(--m)}.sb.risk{background:var(--ngs);color:var(--ng)}
 .pm{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:12px}
 .pm-l{font-size:8px;color:var(--m);text-transform:uppercase}
-.pm-v{font-size:14px;font-weight:700}
-/* Waterfall Chart */
+.pm-v{font-size:14px;font-weight:700;font-family:Arial}
+/* Waterfall */
 .wf-container{margin:12px 0;padding:16px;border:1px solid var(--b);border-radius:10px;background:var(--surface)}
-.wf-title{font-size:11px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.wf-title{font-size:12px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
 .wf-subtitle{font-size:9px;color:var(--m);margin-bottom:12px}
 .wf-ref{font-size:8px;color:var(--a);text-decoration:none;margin-left:auto}
+.wf-legend{display:flex;gap:16px;margin-top:10px;font-size:10px;flex-wrap:wrap}
+.wf-legend-i{display:flex;align-items:center;gap:5px;font-weight:600}
+.wf-legend-d{width:14px;height:14px;border-radius:3px}
 /* Factor cards */
 .factor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.factor-card{background:var(--s2);border-radius:8px;padding:10px;text-align:center}
+.factor-card{background:var(--s2);border-radius:8px;padding:12px;text-align:center}
 .factor-card-l{font-size:8px;color:var(--m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
-.factor-card-v{font-size:16px;font-weight:700}
-.factor-card-v.pos{color:var(--ok)}.factor-card-v.neg{color:var(--ng)}.factor-card-v.neu{color:var(--w)}
+.factor-card-v{font-size:20px;font-weight:800;font-family:Arial}
+.factor-card-v.pos{color:var(--a)}.factor-card-v.neg{color:var(--ng)}.factor-card-v.neu{color:var(--m)}
 .factor-card-d{font-size:8px;color:var(--m);margin-top:2px}
 /* Sparklines */
 .sp-box{background:var(--s2);border-radius:8px;padding:10px}
@@ -138,8 +184,8 @@ td{padding:8px 12px;border-top:1px solid var(--b)}
 .sp-b{flex:1;border-radius:2px 2px 0 0;min-width:8px}
 .sp-b.u{background:var(--a)}.sp-b.n{background:var(--fg)}.sp-b.d{background:var(--ng)}
 /* Exit */
-.exit-box{border:1px solid rgba(124,58,237,.2);background:rgba(124,58,237,.03);border-radius:10px;padding:14px;margin-top:12px}
-.exit-h{font-size:11px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;color:var(--vi)}
+.exit-box{border:1px solid var(--b);background:var(--s2);border-radius:10px;padding:14px;margin-top:12px}
+.exit-h{font-size:11px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;color:var(--fg)}
 .exit-cands{display:flex;flex-direction:column;gap:6px}
 .exit-cand{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surface);border:1px solid var(--b);border-radius:6px}
 .exit-cand-n{font-size:10px;font-weight:600}
@@ -154,56 +200,57 @@ td{padding:8px 12px;border-top:1px solid var(--b)}
 .ch-msgs{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px}
 .ch-msg{max-width:85%;padding:10px 14px;border-radius:12px;font-size:11px;line-height:1.6}
 .ch-msg.ai{background:var(--s2);border-bottom-left-radius:4px;align-self:flex-start}
-.ch-msg.user{background:var(--a);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+.ch-msg.user{background:var(--fg);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
 .ch-msg.typing{background:var(--s2);border-bottom-left-radius:4px;align-self:flex-start;color:var(--m);font-style:italic}
 .ch-acts{display:flex;gap:4px;padding:8px 16px;border-top:1px solid var(--b);flex-wrap:wrap}
-.ch-act{padding:4px 10px;background:var(--s2);border:1px solid var(--b);border-radius:99px;font-size:9px;cursor:pointer;font-family:inherit;transition:all .15s}
-.ch-act:hover{background:var(--as);border-color:var(--a);color:var(--a)}
+.ch-act{padding:4px 10px;background:var(--s2);border:1px solid var(--b);border-radius:99px;font-size:9px;cursor:pointer;font-family:Arial,'Noto Sans JP',sans-serif;transition:all .15s}
+.ch-act:hover{background:var(--al);border-color:var(--a);color:var(--a)}
 .ch-in-w{display:flex;padding:8px 12px;border-top:1px solid var(--b);gap:6px}
-.ch-in{flex:1;border:1px solid var(--b);border-radius:8px;padding:8px 12px;font-size:11px;outline:none;font-family:inherit}
+.ch-in{flex:1;border:1px solid var(--b);border-radius:8px;padding:8px 12px;font-size:11px;outline:none;font-family:Arial,'Noto Sans JP',sans-serif}
 .ch-in:focus{border-color:var(--a)}
-.ch-send{background:var(--a);color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px}
-.ch-send:hover{background:var(--a2)}
+.ch-send{background:var(--fg);color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px;transition:background .15s}
+.ch-send:hover{background:var(--a)}
 .dd-tr{border:1px solid var(--b);border-radius:10px;background:var(--surface);padding:16px}
 .dd-tr h3{font-size:13px;font-weight:600;margin-bottom:2px}
 .sub{font-size:9px;color:var(--m);margin-bottom:12px}
 .dd-items{display:flex;flex-direction:column;gap:8px}
 .dd-i{display:flex;gap:10px;align-items:flex-start}
 .dd-i-ic{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
-.dd-i-ic.done{background:var(--oks);color:var(--ok)}.dd-i-ic.prog{background:var(--as);color:var(--a)}.dd-i-ic.pend{background:var(--s2);border:1px solid var(--b)}
+.dd-i-ic.done{background:var(--al);color:var(--a)}.dd-i-ic.prog{background:var(--al);color:var(--a)}.dd-i-ic.pend{background:var(--s2);border:1px solid var(--b)}
 .dd-i-body{flex:1}
 .dd-i-h{display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px}
-.dd-i-n{font-weight:500}.dd-i-p{color:var(--m);font-size:9px}
+.dd-i-n{font-weight:500}.dd-i-p{color:var(--m);font-size:9px;font-family:Arial}
 .dd-pg{height:4px;background:var(--s2);border-radius:2px;overflow:hidden}
 .dd-pg-f{height:100%;border-radius:2px}
-.dd-pg-f.done{background:var(--ok)}.dd-pg-f.prog{background:var(--a)}.dd-pg-f.pend{background:var(--m2)}
+.dd-pg-f.done{background:var(--a)}.dd-pg-f.prog{background:var(--a)}.dd-pg-f.pend{background:var(--m2)}
 /* Filter */
 .flt{display:flex;gap:4px}
-.flt-b{padding:4px 10px;border-radius:99px;font-size:9px;font-weight:500;cursor:pointer;background:var(--s2);color:var(--m);border:none;font-family:inherit;transition:all .15s}
-.flt-b.active{background:var(--a);color:#fff}
+.flt-b{padding:4px 10px;border-radius:99px;font-size:9px;font-weight:500;cursor:pointer;background:var(--s2);color:var(--m);border:none;font-family:Arial,'Noto Sans JP',sans-serif;transition:all .15s}
+.flt-b.active{background:var(--fg);color:#fff}
 /* LP */
-.lp-bn{border:1px solid rgba(37,99,235,.2);background:var(--as);border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center}
+.lp-bn{border:1px solid var(--b);background:var(--al);border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center}
 .lp-bn-l{display:flex;gap:10px;align-items:center}
-.lp-bn-ic{width:36px;height:36px;background:var(--a);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.lp-bn-ic{width:36px;height:36px;background:var(--fg);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .lp-bn h3{font-size:12px;font-weight:600}
 .lp-bn p{font-size:10px;color:var(--m);margin-top:2px;max-width:420px}
-.lp-bn-btn{padding:7px 14px;background:var(--a);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:inherit}
-.lp-st{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.lp-bn-btn{padding:7px 14px;background:var(--fg);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:Arial,'Noto Sans JP',sans-serif;transition:background .15s}
+.lp-bn-btn:hover{background:var(--a)}
+.lp-st{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
 .lp-s{border:1px solid var(--b);background:var(--surface);border-radius:10px;padding:14px}
 .lp-s-l{font-size:8px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-.lp-s-v{font-size:18px;font-weight:700}
-.lp-bot{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+.lp-s-v{font-size:18px;font-weight:700;font-family:Arial}
+.lp-bot{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:12px}
 .lp-tc{border:1px solid var(--b);background:var(--surface);border-radius:10px;overflow:hidden}
 .lp-tc-h{padding:12px 16px;border-bottom:1px solid var(--b);font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
 .rs{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:99px;font-size:8px;font-weight:600}
-.rs.draft{background:var(--s2);color:var(--m)}.rs.review{background:var(--ws);color:var(--w)}.rs.sent{background:var(--oks);color:var(--ok)}
+.rs.draft{background:var(--s2);color:var(--m)}.rs.review{background:var(--al);color:var(--a)}.rs.sent{background:var(--al);color:var(--a)}
 .lp-inv{border:1px solid var(--b);background:var(--surface);border-radius:10px;padding:16px}
 .lp-inv h3{font-size:12px;font-weight:600;margin-bottom:12px}
 .lp-il{display:flex;flex-direction:column;gap:6px}
 .lp-ii{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--s2);border-radius:6px}
 .lp-ii-n{font-size:10px;font-weight:500}
 .lp-ii-t{font-size:8px;color:var(--m)}
-.lp-ii-a{font-size:10px;font-weight:600}
+.lp-ii-a{font-size:10px;font-weight:600;font-family:Arial}
 .lp-tot{display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--b);font-size:10px}
 /* Market */
 .mkt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -213,43 +260,71 @@ td{padding:8px 12px;border-top:1px solid var(--b)}
 .mkt-item:last-child{border:none}
 /* Tabs */
 .tabs{display:flex;gap:2px;margin-bottom:16px}
-.tab{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;background:var(--s2);color:var(--m);border:none;font-family:inherit;transition:all .15s}
+.tab{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;background:var(--s2);color:var(--m);border:none;font-family:Arial,'Noto Sans JP',sans-serif;transition:all .15s}
 .tab.active{background:var(--fg);color:#fff}
 .page{display:none}.page.active{display:block}
 /* Team */
-.team-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-.team-card{border:1px solid var(--b);background:var(--surface);border-radius:8px;padding:14px;text-align:center}
-.team-av{width:40px;height:40px;border-radius:50%;background:var(--a);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;margin:0 auto 8px}
+.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.team-card{border:1px solid var(--b);background:var(--surface);border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:all .15s}
+.team-card:hover{border-color:var(--a);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.team-av{width:44px;height:44px;border-radius:12px;background:var(--fg);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin:0 auto 8px;font-family:'Noto Sans JP'}
 .team-name{font-size:11px;font-weight:600}
 .team-role{font-size:9px;color:var(--m);margin-top:2px}
 .team-stat{display:flex;justify-content:center;gap:12px;margin-top:8px}
 .team-stat-i{text-align:center}
-.team-stat-v{font-size:13px;font-weight:700}
+.team-stat-v{font-size:13px;font-weight:700;font-family:Arial}
 .team-stat-l{font-size:7px;color:var(--m);text-transform:uppercase}
 /* ESG */
 .esg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .esg-card{border:1px solid var(--b);background:var(--surface);border-radius:8px;padding:14px;text-align:center}
-.esg-score{font-size:28px;font-weight:700;margin:8px 0}
+.esg-score{font-size:28px;font-weight:700;margin:8px 0;font-family:Arial}
 .esg-l{font-size:9px;color:var(--m)}
 .esg-bar{height:6px;background:var(--s2);border-radius:3px;margin-top:8px;overflow:hidden}
 .esg-fill{height:100%;border-radius:3px}
 /* Notification panel */
-.notif-panel{display:none;position:fixed;top:48px;right:24px;width:340px;background:var(--surface);border:1px solid var(--b);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:200;max-height:400px;overflow-y:auto}
+.notif-panel{display:none;position:fixed;top:48px;right:60px;width:380px;background:var(--surface);border:1px solid var(--b);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.12);z-index:200;max-height:500px;overflow-y:auto}
 .notif-panel.show{display:block}
-.notif-panel-h{padding:12px 16px;border-bottom:1px solid var(--b);font-size:12px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
-.notif-item{padding:10px 16px;border-bottom:1px solid var(--b2);cursor:pointer;transition:background .1s}
+.notif-panel-h{padding:14px 16px;border-bottom:1px solid var(--b);font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.notif-item{padding:12px 16px;border-bottom:1px solid var(--b2);cursor:pointer;transition:background .1s}
 .notif-item:hover{background:var(--s2)}
+.notif-item.unread{border-left:3px solid var(--a)}
 .notif-item:last-child{border:none}
-.notif-item-t{font-size:10px;font-weight:600;margin-bottom:2px}
-.notif-item-d{font-size:9px;color:var(--m)}
-.notif-item-time{font-size:8px;color:var(--m2);margin-top:2px}
+.notif-item-t{font-size:11px;font-weight:600;margin-bottom:3px}
+.notif-item-d{font-size:10px;color:var(--m);line-height:1.4}
+.notif-item-time{font-size:8px;color:var(--m2);margin-top:4px}
+.notif-detail{display:none;padding:10px 16px;background:var(--s2);font-size:10px;color:var(--m);line-height:1.6;border-bottom:1px solid var(--b2)}
 /* Search */
-.search-results{display:none;position:fixed;top:48px;left:280px;width:400px;background:var(--surface);border:1px solid var(--b);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:200;max-height:350px;overflow-y:auto;padding:8px}
+.search-results{display:none;position:fixed;top:48px;left:280px;width:420px;background:var(--surface);border:1px solid var(--b);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.12);z-index:200;max-height:400px;overflow-y:auto;padding:8px}
 .search-results.show{display:block}
 .sr-item{padding:8px 12px;border-radius:6px;cursor:pointer;transition:background .1s}
 .sr-item:hover{background:var(--s2)}
 .sr-item-n{font-size:11px;font-weight:600}
 .sr-item-d{font-size:9px;color:var(--m)}
+/* Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:500;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border-radius:12px;width:700px;max-height:80vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,.2);padding:24px}
+.modal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-h h2{font-size:16px;font-weight:700}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--m);padding:4px 8px;border-radius:4px}
+.modal-close:hover{background:var(--s2)}
+/* Member diagnosis */
+.diag-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.diag-card{border:1px solid var(--b);background:var(--surface);border-radius:8px;padding:12px}
+.diag-card-l{font-size:9px;color:var(--m);margin-bottom:4px}
+.diag-card-v{font-size:18px;font-weight:700;font-family:Arial}
+.task-list{display:flex;flex-direction:column;gap:4px}
+.task-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--s2);border-radius:6px;font-size:10px}
+.task-item .task-pri{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.task-item .task-pri.high{background:var(--ng)}.task-item .task-pri.med{background:var(--a)}.task-item .task-pri.low{background:var(--m2)}
+.task-item .task-due{margin-left:auto;font-size:8px;color:var(--m);font-family:Arial}
+/* Recruitment Pipeline */
+.cand-card{border:1px solid var(--b);border-radius:8px;padding:12px;background:var(--surface);cursor:pointer;transition:all .15s}
+.cand-card:hover{border-color:var(--a);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.cand-name{font-size:11px;font-weight:600}
+.cand-role{font-size:9px;color:var(--m)}
+.cand-tags{display:flex;gap:3px;margin-top:6px;flex-wrap:wrap}
+.cand-meta{display:flex;justify-content:space-between;margin-top:6px;font-size:8px;color:var(--m2)}
 </style>
 </head>
 <body>
@@ -263,764 +338,546 @@ td{padding:8px 12px;border-top:1px solid var(--b)}
     <option value="fund2">Taiga Capital Fund II</option>
     <option value="fund1">Taiga Capital Fund I</option>
   </select>
-  <div class="sidebar-nav" style="margin-top:8px">
-    <div class="nav-i active" onclick="showPage('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>ダッシュボード</div>
-    <div class="nav-i" onclick="showPage('pipeline')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>案件パイプライン</div>
-    <div class="nav-i" onclick="showPage('portfolio')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>ポートフォリオ</div>
-    <div class="nav-i" onclick="showPage('ai')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AIインサイト</div>
-    <div class="nav-i" onclick="showPage('lp')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>LPレポート</div>
-    <div class="nav-i" onclick="showPage('market')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>マーケット動向</div>
-    <div class="nav-i" onclick="showPage('team')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>チーム・リソース</div>
-    <div class="nav-i" onclick="showPage('esg')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>ESG</div>
-  </div>
+  <div class="sidebar-nav" style="margin-top:8px" id="sidebarNav"></div>
 </div>
 
-<div class="main">
+<!-- Profile Panel (Slack-like) -->
+<div class="profile-overlay" id="profilePanel"><button class="po-close" onclick="closeProfile()">&times;</button><div id="profileContent"></div></div>
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()"><div class="modal" id="modalContent"></div></div>
 <!-- Notification Panel -->
-<div class="notif-panel" id="notifPanel">
-  <div class="notif-panel-h">通知 <span style="font-size:9px;color:var(--m);cursor:pointer" onclick="clearNotifs()">すべて既読にする</span></div>
-  <div id="notifList"></div>
-</div>
-<!-- Search Results -->
+<div class="notif-panel" id="notifPanel"><div class="notif-panel-h">通知<span style="font-size:9px;color:var(--a);cursor:pointer" onclick="clearNotifs()">すべて既読</span></div><div id="notifList"></div></div>
 <div class="search-results" id="searchResults"></div>
 
-<!-- ==================== ダッシュボード ==================== -->
-<div id="page-dashboard" class="page active">
-  <div class="hdr"><h1>ダッシュボード</h1><div class="hdr-r">
-    <div class="srch-w"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="srch" id="globalSearch" placeholder="案件・企業を検索..." oninput="handleSearch(this.value)" onfocus="handleSearch(this.value)"></div>
-    <div class="ai-b"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI稼働中<div class="ai-d"></div></div>
-    <button class="notif" onclick="toggleNotifs()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-n" id="notifCount">7</span></button>
-    <div class="acct-sw" onclick="toggleAcctMenu()"><div class="av" id="currentAvatar">田中</div>
-      <div class="acct-dd" id="acctMenu">
-        <div class="acct-item active" onclick="switchAccount(0)"><div class="av">田中</div><div><div style="font-weight:600">田中 健太</div><div style="font-size:9px;color:var(--m)">マネージング・ディレクター</div></div></div>
-        <div class="acct-item" onclick="switchAccount(1)"><div class="av" style="background:var(--vi)">鈴木</div><div><div style="font-weight:600">鈴木 美咲</div><div style="font-size:9px;color:var(--m)">ディレクター</div></div></div>
-        <div class="acct-item" onclick="switchAccount(2)"><div class="av" style="background:var(--ok)">山本</div><div><div style="font-weight:600">山本 拓也</div><div style="font-size:9px;color:var(--m)">ヴァイス・プレジデント</div></div></div>
-        <div class="acct-item" onclick="switchAccount(3)"><div class="av" style="background:var(--w)">伊藤</div><div><div style="font-weight:600">伊藤 大輔</div><div style="font-size:9px;color:var(--m)">アソシエイト</div></div></div>
-        <div class="acct-item" onclick="switchAccount(4)"><div class="av" style="background:#e11d48">山脇</div><div><div style="font-weight:600">山脇 大河</div><div style="font-size:9px;color:var(--m)">アナリスト</div></div></div>
-      </div>
-    </div>
-  </div></div>
-  <div class="ct">
-    <div id="dash-fund-label" style="font-size:11px;color:var(--m);margin-bottom:-8px">Taiga Capital Fund III</div>
-    <div class="kpi-g" id="dash-kpis"></div>
-    <div class="cg cg3" id="dash-charts"></div>
-    <!-- AI Insights -->
-    <div style="margin-top:16px">
-      <div class="sh"><div class="st"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--a)" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>最新AIインサイト</div><a class="sl" href="#" onclick="showPage('ai');return false">すべて表示 &rarr;</a></div>
-      <div class="ig" id="dash-insights"></div>
-    </div>
-    <!-- Recent Deals -->
-    <div style="margin-top:16px">
-      <div class="sh"><div class="st">直近の案件動向</div><a class="sl" href="#" onclick="showPage('pipeline');return false">パイプラインを見る &rarr;</a></div>
-      <div class="tw" id="dash-deals-table"></div>
-    </div>
-  </div>
+<div class="main">
+<!-- Pages (generated by JS) -->
+<div id="page-dashboard" class="page active"></div>
+<div id="page-pipeline" class="page"></div>
+<div id="page-portfolio" class="page"></div>
+<div id="page-ai" class="page"></div>
+<div id="page-lp" class="page"></div>
+<div id="page-market" class="page"></div>
+<div id="page-team" class="page"></div>
+<div id="page-esg" class="page"></div>
+<div id="page-diagnosis" class="page"></div>
+<div id="page-recruit" class="page"></div>
 </div>
-
-<!-- ==================== パイプライン ==================== -->
-<div id="page-pipeline" class="page">
-  <div class="hdr"><h1>案件パイプライン</h1><div class="hdr-r"><div class="ai-b"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI稼働中<div class="ai-d"></div></div><div class="av" id="pipeAvatar">田中</div></div></div>
-  <div class="ct">
-    <div style="display:flex;gap:20px;margin-bottom:16px;font-size:12px" id="pipe-summary"></div>
-    <div class="kanban" id="pipe-kanban"></div>
-  </div>
-</div>
-
-<!-- ==================== ポートフォリオ ==================== -->
-<div id="page-portfolio" class="page">
-  <div class="hdr"><h1>ポートフォリオ モニタリング</h1><div class="hdr-r"><div class="ai-b"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI稼働中<div class="ai-d"></div></div><div class="av" id="portAvatar">田中</div></div></div>
-  <div class="ct">
-    <div class="p-sum" id="port-summary"></div>
-    <div class="tabs" style="margin-top:16px" id="port-tabs"></div>
-    <div class="p-grid" id="port-grid"></div>
-  </div>
-</div>
-
-<!-- ==================== AIインサイト ==================== -->
-<div id="page-ai" class="page">
-  <div class="hdr"><h1>AIインサイト</h1><div class="hdr-r"><div class="ai-b"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI稼働中<div class="ai-d"></div></div><div class="av" id="aiAvatar">田中</div></div></div>
-  <div class="ct">
-    <div class="ai-ly">
-      <div class="ch-box">
-        <div class="ch-hd"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--a)" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4c0 2 2 3 2 6H14c0-3 2-4 2-6a4 4 0 0 0-4-4z"/></svg>AI DDアシスタント<div class="dot"></div></div>
-        <div class="ch-msgs" id="chatMessages">
-          <div class="ch-msg ai">こんにちは。AI DDアシスタントです。案件に関する質問や、ドキュメントのアップロードによる分析が可能です。IM分析、契約書レビュー、財務データ解析などに対応しています。</div>
-        </div>
-        <div class="ch-acts">
-          <button class="ch-act" onclick="chatQuickAction('IM分析')">&#128269; IM分析</button>
-          <button class="ch-act" onclick="chatQuickAction('書類アップロード')">&#128228; 書類アップロード</button>
-          <button class="ch-act" onclick="chatQuickAction('レッドフラグチェック')">&#9888; レッドフラグチェック</button>
-          <button class="ch-act" onclick="chatQuickAction('Comps分析')">&#128200; Comps分析</button>
-          <button class="ch-act" onclick="chatQuickAction('Exit分析')">&#128176; Exit分析</button>
-        </div>
-        <div class="ch-in-w"><input class="ch-in" id="chatInput" placeholder="案件について質問、分析を依頼..." onkeydown="if(event.key==='Enter')sendChat()"><button class="ch-send" onclick="sendChat()">&#10148;</button></div>
-      </div>
-      <div class="dd-tr" id="ddTracker"></div>
-    </div>
-    <div style="margin-top:16px">
-      <div class="sh"><div class="st"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--a)" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AIインサイトフィード <span style="font-weight:400;color:var(--m);font-size:10px;margin-left:4px" id="insightCount">(12件)</span></div>
-        <div class="flt" id="insightFilter">
-          <button class="flt-b active" onclick="filterInsights('all',this)">すべて</button>
-          <button class="flt-b" onclick="filterInsights('risk',this)">リスク</button>
-          <button class="flt-b" onclick="filterInsights('opp',this)">機会</button>
-          <button class="flt-b" onclick="filterInsights('alert',this)">アラート</button>
-          <button class="flt-b" onclick="filterInsights('rec',this)">推奨</button>
-        </div>
-      </div>
-      <div class="ig" id="insightFeed"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== LPレポート ==================== -->
-<div id="page-lp" class="page">
-  <div class="hdr"><h1>LPレポート</h1><div class="hdr-r"><div class="ai-b"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI稼働中<div class="ai-d"></div></div><div class="av" id="lpAvatar">田中</div></div></div>
-  <div class="ct" id="lpContent"></div>
-</div>
-
-<!-- ==================== マーケット動向 ==================== -->
-<div id="page-market" class="page">
-  <div class="hdr"><h1>マーケット動向</h1><div class="hdr-r"><div class="ai-b"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI稼働中<div class="ai-d"></div></div><div class="av" id="mktAvatar">田中</div></div></div>
-  <div class="ct" id="marketContent"></div>
-</div>
-
-<!-- ==================== チーム ==================== -->
-<div id="page-team" class="page">
-  <div class="hdr"><h1>チーム・リソース管理</h1><div class="hdr-r"><div class="av" id="teamAvatar">田中</div></div></div>
-  <div class="ct" id="teamContent"></div>
-</div>
-
-<!-- ==================== ESG ==================== -->
-<div id="page-esg" class="page">
-  <div class="hdr"><h1>ESGモニタリング</h1><div class="hdr-r"><div class="ai-b"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI稼働中<div class="ai-d"></div></div><div class="av" id="esgAvatar">田中</div></div></div>
-  <div class="ct" id="esgContent"></div>
-</div>
-
-</div><!-- /main -->
 <script>
-// ========== DATA LAYER ==========
-const accounts=[
-  {name:'田中 健太',short:'田中',role:'マネージング・ディレクター',color:'var(--a)'},
-  {name:'鈴木 美咲',short:'鈴木',role:'ディレクター',color:'var(--vi)'},
-  {name:'山本 拓也',short:'山本',role:'ヴァイス・プレジデント',color:'var(--ok)'},
-  {name:'伊藤 大輔',short:'伊藤',role:'アソシエイト',color:'var(--w)'},
-  {name:'山脇 大河',short:'山脇',role:'アナリスト',color:'#e11d48'}
+// ========== DATA ==========
+let currentFund='fund3', currentAccount=0;
+const navItems=[
+  {id:'dashboard',icon:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',label:'ダッシュボード'},
+  {id:'pipeline',icon:'<line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>',label:'案件パイプライン',badge:null},
+  {id:'portfolio',icon:'<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>',label:'ポートフォリオ'},
+  {id:'ai',icon:'<path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/>',label:'AIインサイト'},
+  {id:'lp',icon:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',label:'LPレポート'},
+  {id:'market',icon:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',label:'マーケット動向'},
+  {id:'team',icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>',label:'チーム'},
+  {id:'diagnosis',icon:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',label:'業務診断'},
+  {id:'recruit',icon:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>',label:'採用パイプライン'},
+  {id:'esg',icon:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',label:'ESG'}
 ];
-let currentAccount=0;
+
+const accounts=[
+  {name:'山脇 大河',short:'山脇',role:'マネージング・パートナー',color:'#111',email:'yamawaki@taigacapital.jp',phone:'+81-3-6xxx-7890',joined:'2012-04',bio:'東京大学経済学部卒。ゴールドマン・サックス証券IBD（6年）を経て、カーライル・グループ日本拠点のプリンシパルとして製造業・テクノロジーセクターの投資を主導。2018年にTaiga Capitalを創業し、マネージング・パートナーに就任。累計投資実績: 28件・総額¥2,800億。Forbes Japan「注目のPEプロフェッショナル」選出。',career:[{t:'Taiga Capital マネージング・パートナー',s:'2018 - 現在',d:'ファーム創業・ファンドI/II/III組成'},{t:'カーライル・グループ プリンシパル',s:'2014 - 2018',d:'日本バイアウト・チーム'},{t:'ゴールドマン・サックス証券 VP',s:'2008 - 2014',d:'IBD / M&Aアドバイザリー'},{t:'東京大学 経済学部',s:'2004 - 2008',d:''}],deals:6,port:4,util:82},
+  {name:'田中 健太',short:'田中',role:'シニア・マネージング・ディレクター',color:'#1d4ed8',email:'tanaka@taigacapital.jp',phone:'+81-3-6xxx-7891',joined:'2018-04',bio:'慶應義塾大学商学部卒。モルガン・スタンレー証券M&Aアドバイザリー（8年）を経てTaiga Capital創業メンバーとして参画。',career:[{t:'Taiga Capital シニアMD',s:'2018 - 現在',d:'投資委員会メンバー'},{t:'モルガン・スタンレー証券 ED',s:'2010 - 2018',d:'M&Aアドバイザリー本部'},{t:'慶應義塾大学 商学部',s:'2006 - 2010',d:''}],deals:5,port:3,util:88},
+  {name:'鈴木 美咲',short:'鈴木',role:'ディレクター',color:'#404040',email:'suzuki@taigacapital.jp',phone:'+81-3-6xxx-7892',joined:'2019-09',bio:'一橋大学商学部卒。ベイン&カンパニー（5年）でPEデューデリジェンスを専門とした後、Taiga Capitalに参画。ヘルスケア・消費財セクターを担当。',career:[{t:'Taiga Capital ディレクター',s:'2019 - 現在',d:'ヘルスケア・消費財担当'},{t:'ベイン&カンパニー マネージャー',s:'2014 - 2019',d:'PEグループ / DD専門'},{t:'一橋大学 商学部',s:'2010 - 2014',d:''}],deals:4,port:2,util:91},
+  {name:'山本 拓也',short:'山本',role:'ヴァイス・プレジデント',color:'#525252',email:'yamamoto@taigacapital.jp',phone:'+81-3-6xxx-7893',joined:'2020-04',bio:'京都大学工学部・MIT Sloan MBA。マッキンゼー（4年）でテクノロジーセクターの戦略コンサルティングに従事。テクノロジー・SaaS投資を担当。',career:[{t:'Taiga Capital VP',s:'2020 - 現在',d:'テクノロジー・SaaS担当'},{t:'マッキンゼー アソシエイトパートナー',s:'2016 - 2020',d:'テクノロジープラクティス'},{t:'MIT Sloan School MBA',s:'2014 - 2016',d:''},{t:'京都大学 工学部',s:'2010 - 2014',d:''}],deals:4,port:2,util:79},
+  {name:'伊藤 大輔',short:'伊藤',role:'シニア・アソシエイト',color:'#737373',email:'ito@taigacapital.jp',phone:'+81-3-6xxx-7894',joined:'2021-04',bio:'東京大学法学部卒。西村あさひ法律事務所でM&A・PE案件を5年間担当。法務DDのエキスパート。',career:[{t:'Taiga Capital シニアアソシエイト',s:'2021 - 現在',d:'法務DD・契約交渉'},{t:'西村あさひ法律事務所 アソシエイト',s:'2016 - 2021',d:'M&A / PE担当'}],deals:5,port:2,util:96},
+  {name:'佐藤 遥',short:'佐藤',role:'アソシエイト',color:'#404040',email:'sato@taigacapital.jp',phone:'+81-3-6xxx-7895',joined:'2022-04',bio:'早稲田大学政治経済学部卒。KPMG FAS（3年）でバリュエーション・財務DDに従事。',career:[{t:'Taiga Capital アソシエイト',s:'2022 - 現在',d:'財務DD・バリュエーション'},{t:'KPMG FAS アソシエイト',s:'2019 - 2022',d:'DD / バリュエーション'}],deals:3,port:1,util:85},
+  {name:'高橋 翔太',short:'高橋',role:'アソシエイト',color:'#525252',email:'takahashi@taigacapital.jp',phone:'+81-3-6xxx-7896',joined:'2022-10',bio:'東北大学経済学部卒。みずほ銀行法人営業部（3年）を経て参画。ソーシング・リレーションシップ構築を担当。',career:[{t:'Taiga Capital アソシエイト',s:'2022 - 現在',d:'ソーシング・銀行リレーション'},{t:'みずほ銀行 法人営業部',s:'2019 - 2022',d:'中堅企業カバレッジ'}],deals:3,port:0,util:74},
+  {name:'渡辺 真理',short:'渡辺',role:'アナリスト',color:'#737373',email:'watanabe@taigacapital.jp',phone:'+81-3-6xxx-7897',joined:'2023-04',bio:'大阪大学経済学部卒。新卒入社。財務モデリング・市場分析を担当。CFA Level II 合格。',career:[{t:'Taiga Capital アナリスト',s:'2023 - 現在',d:'財務モデリング・市場分析'},{t:'大阪大学 経済学部',s:'2019 - 2023',d:''}],deals:2,port:1,util:80},
+  {name:'中村 陽介',short:'中村',role:'アナリスト',color:'#404040',email:'nakamura@taigacapital.jp',phone:'+81-3-6xxx-7898',joined:'2023-10',bio:'名古屋大学情報学部卒。データサイエンス・AI分析を担当。Python / R / SQL専門。',career:[{t:'Taiga Capital アナリスト',s:'2023 - 現在',d:'データサイエンス・AI'},{t:'名古屋大学 情報学部',s:'2019 - 2023',d:'機械学習研究室'}],deals:2,port:0,util:72},
+  {name:'小林 美月',short:'小林',role:'オペレーション・マネージャー',color:'#525252',email:'kobayashi@taigacapital.jp',phone:'+81-3-6xxx-7899',joined:'2019-04',bio:'上智大学外国語学部卒。JPモルガン・アセットマネジメント（8年）でファンドオペレーション・IR管理を担当。',career:[{t:'Taiga Capital オペレーション・マネージャー',s:'2019 - 現在',d:'ファンド管理・LP IR'},{t:'JPモルガンAM オペレーションVP',s:'2011 - 2019',d:'ファンドオペレーション'}],deals:0,port:0,util:88},
+  {name:'松田 健',short:'松田',role:'コンプライアンス・オフィサー',color:'#737373',email:'matsuda@taigacapital.jp',phone:'+81-3-6xxx-7900',joined:'2020-01',bio:'中央大学法学部卒。金融庁（10年）で投資ファンド規制を担当後、Taiga Capitalに参画。',career:[{t:'Taiga Capital CCO',s:'2020 - 現在',d:'コンプライアンス・規制対応'},{t:'金融庁 課長補佐',s:'2010 - 2020',d:'投資ファンド規制'}],deals:0,port:0,util:70}
+];
 
 const fundData={
-  fund3:{label:'Taiga Capital Fund III',aum:'¥248.5億',deals:23,irr:'18.7%',tvpi:'1.67x',insights:47,dd:5,
-    aumChg:'+12.3%',dealsChg:'+4',irrChg:'+2.1pt',tvpiChg:'+0.05',insChg:'+15%',ddChg:'-1',
-    nav:'¥441億',dpi:'0.32x',netIrr:'18.7%',vintage:2023,
-    sectors:[{n:'テクノロジー',p:28,c:'#2563eb'},{n:'ヘルスケア',p:22,c:'#6366f1'},{n:'製造業',p:20,c:'#404040'},{n:'物流',p:15,c:'#737373'},{n:'化学',p:10,c:'#a3a3a3'},{n:'食品',p:5,c:'#d4d4d4'}],
-    pipeline:[45,40,45,25,20,15]},
-  fund2:{label:'Taiga Capital Fund II',aum:'¥185.2億',deals:15,irr:'24.8%',tvpi:'2.35x',insights:31,dd:2,
-    aumChg:'+8.7%',dealsChg:'+2',irrChg:'+1.5pt',tvpiChg:'+0.12',insChg:'+8%',ddChg:'+1',
-    nav:'¥272億',dpi:'1.22x',netIrr:'24.8%',vintage:2020,
-    sectors:[{n:'物流',p:32,c:'#2563eb'},{n:'化学',p:25,c:'#6366f1'},{n:'製造業',p:18,c:'#404040'},{n:'建設',p:15,c:'#737373'},{n:'テクノロジー',p:10,c:'#a3a3a3'}],
-    pipeline:[30,35,25,20,15,10]},
-  fund1:{label:'Taiga Capital Fund I',aum:'¥52.8億',deals:4,irr:'22.1%',tvpi:'2.82x',insights:8,dd:0,
-    aumChg:'+2.1%',dealsChg:'0',irrChg:'+0.3pt',tvpiChg:'+0.04',insChg:'+5%',ddChg:'0',
-    nav:'¥18億',dpi:'2.45x',netIrr:'22.1%',vintage:2017,
-    sectors:[{n:'製造業',p:40,c:'#2563eb'},{n:'サービス',p:35,c:'#6366f1'},{n:'小売',p:25,c:'#404040'}],
-    pipeline:[10,8,5,3,2,1]},
-  all:{label:'全ファンド',aum:'¥486.5億',deals:42,irr:'21.2%',tvpi:'2.04x',insights:86,dd:7,
-    aumChg:'+9.8%',dealsChg:'+6',irrChg:'+1.8pt',tvpiChg:'+0.08',insChg:'+12%',ddChg:'0',
-    nav:'¥731億',dpi:'0.95x',netIrr:'21.2%',vintage:'-',
-    sectors:[{n:'テクノロジー',p:25,c:'#2563eb'},{n:'ヘルスケア',p:18,c:'#6366f1'},{n:'製造業',p:22,c:'#404040'},{n:'物流',p:16,c:'#737373'},{n:'化学',p:12,c:'#a3a3a3'},{n:'その他',p:7,c:'#d4d4d4'}],
-    pipeline:[85,83,75,48,37,26]}
+  fund3:{label:'Taiga Capital Fund III',aum:'248.5',deals:32,irr:'18.7',tvpi:'1.67',insights:47,dd:5,nav:'441',dpi:'0.32',netIrr:'18.7',vintage:2023,
+    sectors:[{n:'テクノロジー',p:28,c:'#2563eb'},{n:'ヘルスケア',p:22,c:'#404040'},{n:'製造業',p:20,c:'#737373'},{n:'物流',p:15,c:'#a3a3a3'},{n:'化学',p:10,c:'#d4d4d4'},{n:'食品',p:5,c:'#e5e5e5'}]},
+  fund2:{label:'Taiga Capital Fund II',aum:'185.2',deals:22,irr:'24.8',tvpi:'2.35',insights:31,dd:2,nav:'272',dpi:'1.22',netIrr:'24.8',vintage:2020,
+    sectors:[{n:'物流',p:32,c:'#2563eb'},{n:'化学',p:25,c:'#404040'},{n:'製造業',p:18,c:'#737373'},{n:'建設',p:15,c:'#a3a3a3'},{n:'テクノロジー',p:10,c:'#d4d4d4'}]},
+  fund1:{label:'Taiga Capital Fund I',aum:'52.8',deals:8,irr:'22.1',tvpi:'2.82',insights:8,dd:0,nav:'18',dpi:'2.45',netIrr:'22.1',vintage:2017,
+    sectors:[{n:'製造業',p:40,c:'#2563eb'},{n:'サービス',p:35,c:'#404040'},{n:'小売',p:25,c:'#737373'}]},
+  all:{label:'全ファンド',aum:'486.5',deals:62,irr:'21.2',tvpi:'2.04',insights:86,dd:7,nav:'731',dpi:'0.95',netIrr:'21.2',vintage:'-',
+    sectors:[{n:'テクノロジー',p:25,c:'#2563eb'},{n:'ヘルスケア',p:18,c:'#404040'},{n:'製造業',p:22,c:'#737373'},{n:'物流',p:16,c:'#a3a3a3'},{n:'化学',p:12,c:'#d4d4d4'},{n:'その他',p:7,c:'#e5e5e5'}]}
 };
 
-const portfolioCompanies=[
-  {id:'atlas',name:'Atlas Industrial Services',sector:'産業サービス',fund:'fund3',date:'2024-06',status:'on',statusLabel:'順調',
-    inv:52,val:89,moic:1.71,irr:28.5,rev:182,ebitda:27,metric1L:'売上高',metric2L:'EBITDA',
-    entryEq:52,exitEq:89,entryEV:140,exitEV:189,entryDebt:88,exitDebt:100,entryEbitda:20,exitEbitda:27,entryMult:7.0,exitMult:7.0,
-    factors:{ebitdaGrowth:{pct:42,val:'+¥49億',detail:'EBITDA: ¥20億→¥27億, +35%成長'},
-             multipleExp:{pct:0,val:'±0',detail:'7.0x → 7.0x, マルチプル変動なし'},
-             debtPaydown:{pct:58,val:'-¥12億',detail:'純有利子負債: ¥88億→¥100億（レバレッジ増加をEBITDAが吸収）'}},
-    sparks:{rev:[60,68,76,84,92,100],ebitda:[55,64,72,80,90,100]},
-    alerts:[],
-    exit:{moic:'2.1x',grossIrr:'35.2%',netIrr:'28.8%',dpi:'+0.18x',candidates:[
-      {n:'三菱商事',t:'戦略的買収（産業サービス強化）',ev:'¥110-130億',fit:'高',fitClass:'badge-ok'},
-      {n:'Bain Capital / CVC',t:'セカンダリーバイアウト',ev:'¥100-120億',fit:'中',fitClass:'badge-a'},
-      {n:'東京証券取引所 IPO',t:'グロース市場上場',ev:'¥140-160億',fit:'中',fitClass:'badge-a'}
-    ]}},
-  {id:'horizon',name:'Horizon Medical Devices',sector:'ヘルスケア',fund:'fund3',date:'2023-09',status:'watch',statusLabel:'要注意',
-    inv:78,val:112,moic:1.44,irr:16.2,rev:245,ebitda:39,metric1L:'売上高',metric2L:'EBITDA',
-    entryEq:78,exitEq:112,entryEV:195,exitEV:324,entryDebt:117,exitDebt:212,entryEbitda:33,exitEbitda:39,entryMult:5.9,exitMult:8.3,
-    factors:{ebitdaGrowth:{pct:31,val:'+¥35億',detail:'EBITDA: ¥33億→¥39億, +18%成長'},
-             multipleExp:{pct:55,val:'+¥94億',detail:'5.9x → 8.3x, マルチプル+2.4x拡大'},
-             debtPaydown:{pct:14,val:'-¥5億',detail:'EV増加分をレバレッジが部分吸収'}},
-    sparks:{rev:[80,85,90,82,88,95],ebitda:[80,85,92,72,80,88]},
-    alerts:['Q3 2025に売上減少を検知','主要顧客の契約更新が未完了'],
-    exit:{moic:'1.65x',grossIrr:'22.1%',netIrr:'17.5%',dpi:'+0.26x',candidates:[
-      {n:'テルモ株式会社',t:'製品ライン拡充（医療機器）',ev:'¥130-150億',fit:'高',fitClass:'badge-ok'},
-      {n:'Stryker / Medtronic',t:'日本市場参入（クロスボーダー）',ev:'¥150-180億',fit:'中',fitClass:'badge-a'}
-    ]}},
-  {id:'digital',name:'Digital Frontier Inc.',sector:'SaaS',fund:'fund3',date:'2024-01',status:'on',statusLabel:'順調',
-    inv:35,val:68,moic:1.94,irr:42.1,rev:22,ebitda:5.2,metric1L:'ARR',metric2L:'NRR: 128%',
-    entryEq:35,exitEq:68,entryEV:52,exitEV:83,entryDebt:17,exitDebt:15,entryEbitda:3.5,exitEbitda:5.2,entryMult:14.9,exitMult:16.0,
-    factors:{ebitdaGrowth:{pct:55,val:'+¥25億',detail:'EBITDA: ¥3.5億→¥5.2億, +49%成長'},
-             multipleExp:{pct:33,val:'+¥6億',detail:'14.9x → 16.0x, SaaSプレミアム'},
-             debtPaydown:{pct:12,val:'+¥2億',detail:'純有利子負債: ¥17億→¥15億'}},
-    sparks:{rev:[30,42,55,68,82,100],ebitda:[18,30,44,60,78,100]},
-    alerts:[],
-    exit:{moic:'2.8x',grossIrr:'58.3%',netIrr:'45.1%',dpi:'+0.20x',candidates:[
-      {n:'Salesforce Japan',t:'日本市場SaaS事業強化',ev:'¥95-120億',fit:'高',fitClass:'badge-ok'},
-      {n:'富士通',t:'DXソリューション拡充',ev:'¥80-100億',fit:'高',fitClass:'badge-ok'},
-      {n:'東証グロース IPO',t:'高成長SaaS銘柄として上場',ev:'¥120-150億',fit:'中',fitClass:'badge-a'}
-    ]}},
-  {id:'kanto',name:'関東化学工業 (Kanto Chemical)',sector:'化学',fund:'fund2',date:'2022-12',status:'risk',statusLabel:'要対応',
-    inv:92,val:101,moic:1.10,irr:3.2,rev:310,ebitda:28,metric1L:'売上高',metric2L:'EBITDA',
-    entryEq:92,exitEq:101,entryEV:230,exitEV:168,entryDebt:138,exitDebt:67,entryEbitda:35,exitEbitda:28,entryMult:6.6,exitMult:6.0,
-    factors:{ebitdaGrowth:{pct:-75,val:'-¥46億',detail:'EBITDA: ¥35億→¥28億, -20%減少'},
-             multipleExp:{pct:-35,val:'-¥17億',detail:'6.6x → 6.0x, マルチプル縮小'},
-             debtPaydown:{pct:110,val:'+¥71億',detail:'デレバレッジ: ¥138億→¥67億（唯一のプラス寄与）'}},
-    sparks:{rev:[100,92,96,88,84,78],ebitda:[100,88,92,82,76,68]},
-    alerts:['EBITDAが3四半期連続で低下','原材料コストが前年比+18%上昇','コベナンツ抵触リスク: Net Debt/EBITDAが5.0x接近中'],
-    exit:{moic:'0.95x',grossIrr:'-1.8%',netIrr:'-5.2%',dpi:'+0.00x',candidates:[
-      {n:'住友化学',t:'セグメント統合',ev:'¥90-110億',fit:'中',fitClass:'badge-a'},
-      {n:'BASF Japan',t:'日本市場拡大',ev:'¥85-105億',fit:'低',fitClass:'badge-w'}
-    ]}},
-  {id:'premier',name:'Premier Logistics Group',sector:'物流',fund:'fund2',date:'2023-04',status:'on',statusLabel:'順調',
-    inv:60,val:93,moic:1.55,irr:20.8,rev:380,ebitda:48,metric1L:'売上高',metric2L:'EBITDA',
-    entryEq:60,exitEq:93,entryEV:165,exitEV:326,entryDebt:105,exitDebt:233,entryEbitda:38,exitEbitda:48,entryMult:4.3,exitMult:6.8,
-    factors:{ebitdaGrowth:{pct:28,val:'+¥68億',detail:'EBITDA: ¥38億→¥48億, +26%成長'},
-             multipleExp:{pct:58,val:'+¥120億',detail:'4.3x → 6.8x, マルチプル+2.5x拡大'},
-             debtPaydown:{pct:14,val:'-¥27億',detail:'レバレッジ増加分を成長が補填'}},
-    sparks:{rev:[70,78,84,88,94,100],ebitda:[65,72,80,86,92,100]},
-    alerts:[],
-    exit:{moic:'1.85x',grossIrr:'24.5%',netIrr:'19.8%',dpi:'+0.22x',candidates:[
-      {n:'日本通運 (Nippon Express)',t:'ラストマイル物流強化',ev:'¥110-130億',fit:'高',fitClass:'badge-ok'},
-      {n:'KKR / Carlyle',t:'セカンダリーバイアウト',ev:'¥100-115億',fit:'中',fitClass:'badge-a'}
-    ]}}
+// Generate 50+ pipeline deals
+const sectors=['製造業','テクノロジー','ヘルスケア','SaaS','物流','化学','食品・飲料','建設','半導体','ロボティクス','フィンテック','環境','小売','教育','不動産','エネルギー','通信','メディア','自動車部品','バイオ'];
+const stages=['sourcing','screening','dd','valuation','ic','execution','closed'];
+const stageLabels={sourcing:'ソーシング',screening:'スクリーニング',dd:'デューデリジェンス',valuation:'バリュエーション',ic:'投資委員会',execution:'エグゼキューション',closed:'クローズ済'};
+const stageColors={sourcing:'#a3a3a3',screening:'#737373',dd:'#2563eb',valuation:'#1d4ed8',ic:'#111',execution:'#2563eb',closed:'#404040'};
+const companyNames=['Nexus Precision Manufacturing','CloudBridge Solutions','Sakura Healthcare Group','GreenLogix Corp','Tokyo Food Technologies','Aether Semiconductors','Matic Robotics','Zenith Software','Pacific Building Materials','Wellness Connect','Nihon Packaging','Atlas Industrial Services','Horizon Dynamics','Kaizen Chemicals','FutureWave Technologies','Yamato Precision Parts','OceanView Logistics','MedTech Japan','SkyBridge Analytics','EcoSmart Solutions','NipponAI Corp','CrystalVision Optics','TerraGreen Energy','AquaPure Technologies','SmartFactory Japan','DigiHealth Corp','PharmaSync Labs','CloudNative Systems','AutoDrive Japan','RoboWorks Inc','NanoTech Japan','BioGenesis Corp','UrbanConnect Inc','AgriTech Japan','EdgeCompute Ltd','QuantumLeap Systems','CyberShield Japan','DataMesh Corp','CleanEnergy Japan','MicroPrecision Corp','VitalCare Medical','LogiNext Japan','FinBridge Corp','EduTech Japan','PropTech Tokyo','GreenChem Industries','TeleConnect Japan','MediaWave Corp','AutoParts Japan','BioFrontier Inc','SmartGrid Japan','NeuroScience Corp'];
+const tagPool=['高成長','事業承継','DXテーマ','ニッチトップ','顧客集中リスク','高マージン','輸出比率高','規制リスク','オーナー高齢','環境配慮','人手不足テーマ','リカーリング収益','SPA交渉中','独占的ポジション','M&Aロールアップ','CAGR 20%超','特許保有','海外展開余地','安定キャッシュフロー','コスト削減余地'];
+const fundOptions=['fund3','fund2','fund1'];
+const leadPool=[0,1,2,3,4,5,6,7];
+
+function genDeals(){
+  var deals=[];
+  for(var i=0;i<companyNames.length;i++){
+    var name=companyNames[i];
+    var sec=sectors[i%sectors.length];
+    var fund=i<28?fundOptions[i%3]:fundOptions[Math.floor(Math.random()*3)];
+    var stage=stages[i<7?i:Math.floor(Math.random()*7)];
+    var score=Math.floor(Math.random()*30)+65;
+    var ev=Math.floor(Math.random()*250)+20;
+    var ebitda=Math.max(Math.floor(ev/(5+Math.random()*5)),2);
+    var mult=(ev/ebitda).toFixed(1);
+    var lead=leadPool[i%leadPool.length];
+    var tags=[];for(var t=0;t<2+Math.floor(Math.random()*2);t++){var tag=tagPool[Math.floor(Math.random()*tagPool.length)];if(!tags.includes(tag))tags.push(tag);}
+    var month=Math.floor(Math.random()*3)+1;var day=Math.floor(Math.random()*28)+1;
+    deals.push({name:name,sector:sec,fund:fund,stage:stage,score:score,ev:'¥'+ev+'億',evN:ev,ebitda:'¥'+ebitda+'億',mult:mult+'x',lead:accounts[lead].short,date:(month<10?'0':'')+month+'/'+(day<10?'0':'')+day,tags:tags,
+      detail:'<strong>'+name+'</strong>（'+sec+'）<br><br>EV: ¥'+ev+'億 / EBITDA: ¥'+ebitda+'億 / EV/EBITDA: '+mult+'x<br>AIスコア: '+score+'/100<br>ファンド: '+fund.replace('fund','Fund ')+'<br>ステージ: '+stageLabels[stage]+'<br>リード: '+accounts[lead].name+'<br><br><strong>投資テーマ:</strong> '+tags.join(', ')+'<br><br><strong>概要:</strong><br>'+name+'は'+sec+'セクターにおいて、'+tags[0]+'の特徴を持つ企業。EBITDAマージン'+(ebitda/ev*100).toFixed(1)+'%で、同業比較において'+(score>=80?'魅力的':'標準的')+'な投資機会。'+
+      (stage==='dd'?'<br><br><strong>DD進捗:</strong> 財務DD 80% / 法務DD 55% / 事業DD 40%':'')+(stage==='execution'?'<br><br><strong>エグゼキューション:</strong> SPA最終交渉中。Q2クロージング見込み。':'')
+    });
+  }
+  return deals;
+}
+var pipelineDeals=genDeals();
+// Portfolio companies (50+)
+function genPortfolio(){
+  var base=[
+    {id:'atlas',name:'Atlas Industrial Services',sector:'産業サービス',fund:'fund3',date:'2024-06',status:'on',inv:52,val:89,moic:1.71,irr:28.5,rev:182,ebitda:27,
+      f:{eg:{pct:42,d:'EBITDA: ¥20億→¥27億'},me:{pct:0,d:'7.0x → 7.0x'},dp:{pct:58,d:'デレバレッジ効果'}},entryEq:52,exitEq:89},
+    {id:'horizon',name:'Horizon Medical Devices',sector:'ヘルスケア',fund:'fund3',date:'2023-09',status:'watch',inv:78,val:112,moic:1.44,irr:16.2,rev:245,ebitda:39,
+      f:{eg:{pct:31,d:'EBITDA: ¥33億→¥39億'},me:{pct:55,d:'5.9x → 8.3x'},dp:{pct:14,d:'部分デレバレッジ'}},entryEq:78,exitEq:112},
+    {id:'digital',name:'Digital Frontier Inc.',sector:'SaaS',fund:'fund3',date:'2024-01',status:'on',inv:35,val:68,moic:1.94,irr:42.1,rev:22,ebitda:5.2,
+      f:{eg:{pct:55,d:'EBITDA: ¥3.5億→¥5.2億'},me:{pct:33,d:'14.9x → 16.0x'},dp:{pct:12,d:'¥17億→¥15億'}},entryEq:35,exitEq:68},
+    {id:'kanto',name:'関東化学工業',sector:'化学',fund:'fund2',date:'2022-12',status:'risk',inv:92,val:101,moic:1.10,irr:3.2,rev:310,ebitda:28,
+      f:{eg:{pct:-75,d:'EBITDA: ¥35億→¥28億 減少'},me:{pct:-35,d:'6.6x → 6.0x 縮小'},dp:{pct:110,d:'¥138億→¥67億（唯一のプラス）'}},entryEq:92,exitEq:101},
+    {id:'premier',name:'Premier Logistics Group',sector:'物流',fund:'fund2',date:'2023-04',status:'on',inv:60,val:93,moic:1.55,irr:20.8,rev:380,ebitda:48,
+      f:{eg:{pct:28,d:'EBITDA: ¥38億→¥48億'},me:{pct:58,d:'4.3x → 6.8x'},dp:{pct:14,d:'レバレッジ増を成長で補填'}},entryEq:60,exitEq:93}
+  ];
+  // Generate more portfolio companies
+  var extra=[
+    ['TerraGreen Energy','再生エネルギー','fund3','2024-03','on',45,72,1.60,25.3,95,14,{eg:{pct:48,d:'+35%成長'},me:{pct:38,d:'6.5x→8.2x'},dp:{pct:14,d:'安定'}}],
+    ['NipponAI Corp','AIソリューション','fund3','2024-08','on',28,52,1.86,55.2,18,4.8,{eg:{pct:62,d:'急成長'},me:{pct:30,d:'テックプレミアム'},dp:{pct:8,d:'低レバレッジ'}}],
+    ['SmartFactory Japan','産業IoT','fund3','2023-06','on',42,65,1.55,19.8,120,16,{eg:{pct:40,d:'EBITDA改善'},me:{pct:45,d:'DX評価向上'},dp:{pct:15,d:'着実返済'}}],
+    ['Yamato Precision Parts','精密部品','fund2','2021-09','on',55,98,1.78,18.5,165,24,{eg:{pct:50,d:'自動車EV化恩恵'},me:{pct:25,d:'安定'},dp:{pct:25,d:'積極返済'}}],
+    ['OceanView Logistics','海上物流','fund2','2022-06','on',38,52,1.37,12.8,210,22,{eg:{pct:35,d:'コスト改善'},me:{pct:30,d:'市場回復'},dp:{pct:35,d:'計画的返済'}}],
+    ['AgriTech Japan','農業テック','fund3','2024-10','on',22,30,1.36,28.0,12,2.8,{eg:{pct:65,d:'高成長フェーズ'},me:{pct:25,d:'テーマ評価'},dp:{pct:10,d:'初期段階'}}],
+    ['CleanEnergy Japan','クリーンエネルギー','fund2','2021-03','on',65,115,1.77,15.2,180,28,{eg:{pct:38,d:'安定成長'},me:{pct:32,d:'ESGプレミアム'},dp:{pct:30,d:'計画的返済'}}],
+    ['MedTech Japan','医療機器','fund1','2019-06','on',48,135,2.81,22.8,95,18,{eg:{pct:42,d:'堅調'},me:{pct:28,d:'ヘルスケア評価'},dp:{pct:30,d:'完済間近'}}],
+    ['FutureWave Technologies','通信機器','fund1','2018-09','on',35,88,2.51,20.5,78,12,{eg:{pct:45,d:'5G需要'},me:{pct:30,d:'テック評価'},dp:{pct:25,d:'ほぼ完済'}}],
+    ['CrystalVision Optics','光学機器','fund1','2019-12','watch',42,55,1.31,7.2,65,8,{eg:{pct:20,d:'横ばい'},me:{pct:-15,d:'市場軟調'},dp:{pct:95,d:'返済進捗のみ'}}],
+  ];
+  extra.forEach(function(e,i){
+    base.push({id:'gen'+i,name:e[0],sector:e[1],fund:e[2],date:e[3],status:e[4],inv:e[5],val:e[6],moic:e[7],irr:e[8],rev:e[9],ebitda:e[10],f:e[11],entryEq:e[5],exitEq:e[6]});
+  });
+  // Add 40 more generated
+  var gNames=['DigiHealth Corp','PharmaSync Labs','CloudNative Systems','AutoDrive Japan','RoboWorks Inc','NanoTech Japan','BioGenesis Corp','UrbanConnect Inc','EdgeCompute Ltd','QuantumLeap Systems','CyberShield Japan','DataMesh Corp','MicroPrecision Corp','VitalCare Medical','LogiNext Japan','FinBridge Corp','EduTech Japan','PropTech Tokyo','GreenChem Industries','TeleConnect Japan','MediaWave Corp','AutoParts Japan','BioFrontier Inc','SmartGrid Japan','NeuroScience Corp','NextGen Pharma','SolarTech Japan','DroneLogistics Corp','AI Diagnostics Inc','BlockChain Solutions','SpaceTech Japan','QuantumCompute Ltd','GeneTherapy Corp','SmartCity Solutions','OceanClean Tech','AgriDrone Japan','FoodTech Innovation','CarbonCapture Inc','HydrogenFuel Japan','CircularEconomy Corp','WasteToEnergy Japan','SmartMobility Corp','HealthAI Japan','InsurTech Tokyo','WealthTech Japan'];
+  var gSecs=['デジタルヘルス','製薬','クラウド','自動運転','ロボティクス','ナノテク','バイオ','都市開発','エッジコンピューティング','量子技術','サイバーセキュリティ','データ分析','精密加工','医療','物流テック','フィンテック','EdTech','不動産テック','化学','通信','メディア','自動車部品','バイオテック','スマートグリッド','ニューロサイエンス','製薬','太陽光','ドローン物流','AI診断','ブロックチェーン','宇宙','量子','遺伝子治療','スマートシティ','海洋','農業ドローン','フードテック','炭素回収','水素','循環経済','廃棄物','モビリティ','ヘルスAI','InsurTech','WealthTech'];
+  for(var j=0;j<gNames.length;j++){
+    var f2=fundOptions[j%3];
+    var inv2=Math.floor(Math.random()*80)+15;
+    var moic2=(1+Math.random()*2).toFixed(2);
+    var val2=Math.round(inv2*moic2);
+    var irr2=(Math.random()*40+2).toFixed(1);
+    var stat2=moic2>1.5?'on':moic2>1.1?'watch':'risk';
+    var egPct=Math.floor(Math.random()*60)+10;
+    var mePct=Math.floor(Math.random()*50);
+    var dpPct=100-egPct-mePct;
+    base.push({id:'g'+j,name:gNames[j],sector:gSecs[j%gSecs.length],fund:f2,date:'20'+(20+Math.floor(Math.random()*6))+'-'+(Math.floor(Math.random()*12)+1<10?'0':'')+(Math.floor(Math.random()*12)+1),status:stat2,inv:inv2,val:val2,moic:parseFloat(moic2),irr:parseFloat(irr2),rev:Math.floor(Math.random()*300)+20,ebitda:Math.floor(Math.random()*40)+3,
+      f:{eg:{pct:egPct,d:'EBITDA成長寄与'},me:{pct:mePct,d:'マルチプル変動'},dp:{pct:dpPct,d:'デレバレッジ寄与'}},entryEq:inv2,exitEq:val2});
+  }
+  return base;
+}
+var portfolioCompanies=genPortfolio();
+
+// Recruitment candidates
+var recruitCandidates=[
+  {name:'石井 慎太郎',role:'アソシエイト候補',stage:'offer',source:'ヘッドハンター',school:'慶應義塾大学',current:'デロイトトーマツFAS',yoe:4,skills:['財務DD','バリュエーション','Excel/VBA'],rating:92,detail:'デロイトトーマツFASでバリュエーション・財務DDを4年間担当。PE案件を中心に30件以上のDD実績。即戦力として期待。'},
+  {name:'木村 あかり',role:'アナリスト候補',stage:'final',source:'大学キャリアセンター',school:'東京大学',current:'新卒',yoe:0,skills:['Python','財務モデリング','統計分析'],rating:88,detail:'東京大学経済学部4年。在学中にインターンでPEファンドでの分析経験あり。CFA Level I合格。データ分析スキルが突出。'},
+  {name:'Michael Chen',role:'VP候補',stage:'screening',source:'LinkedIn',school:'Harvard MBA',current:'KKR (Hong Kong)',yoe:8,skills:['クロスボーダーM&A','LBOモデリング','ファンドレイズ'],rating:95,detail:'Harvard MBA。KKR香港オフィスでアジア太平洋地域のミッドキャップ案件を担当。日本語ビジネスレベル。国際的ネットワークとクロスボーダー実績が魅力。'},
+  {name:'田辺 祐一',role:'シニアアソシエイト候補',stage:'interview2',source:'リファラル',school:'一橋大学',current:'ベインキャピタル',yoe:5,skills:['事業DD','オペレーション改善','PMI'],rating:90,detail:'ベインキャピタル東京でポートフォリオ・バリューアップを担当。PMI・オペレーション改善の専門家。リファラルで推薦。'},
+  {name:'松本 玲奈',role:'アソシエイト候補',stage:'interview1',source:'エージェント',school:'早稲田大学',current:'三菱UFJ銀行',yoe:3,skills:['法人営業','財務分析','リレーション構築'],rating:82,detail:'三菱UFJ銀行で中堅・中小企業カバレッジを担当。オーナー企業との信頼関係構築に強み。PE業界への転身を希望。'},
+  {name:'David Park',role:'ディレクター候補',stage:'sourcing',source:'ヘッドハンター',school:'Wharton MBA',current:'Carlyle Group (Tokyo)',yoe:10,skills:['ディール・オリジネーション','チームマネジメント','LP IR'],rating:94,detail:'Wharton MBA。カーライル東京で10年、プリンシパルまで昇進。日本市場での投資実績豊富。チーム構築・LP IRにも精通。'},
+  {name:'吉田 翼',role:'アナリスト候補',stage:'offer_accepted',source:'インターン経由',school:'京都大学',current:'新卒（インターン実績あり）',yoe:0,skills:['財務モデリング','Python','市場分析'],rating:86,detail:'京都大学工学部。2025年夏季インターンで高評価。財務モデリングの精度が高く、Pythonによるデータ分析も得意。4月入社確定。'},
+  {name:'藤田 誠',role:'オペレーション候補',stage:'interview1',source:'エージェント',school:'上智大学',current:'PwCアドバイザリー',yoe:6,skills:['ファンド管理','規制対応','レポーティング'],rating:80,detail:'PwCでオルタナティブ投資ファンドのオペレーション監査を担当。ファンド管理・規制対応の専門知識。'},
+  {name:'Emily Watson',role:'ESGアナリスト候補',stage:'screening',source:'LinkedIn',school:'Oxford MSc',current:'MSCI ESG Research',yoe:4,skills:['ESG評価','サステナビリティ','データ分析'],rating:85,detail:'MSCI ESGリサーチで日本企業のESG評価を担当。日本語堪能。ESG統合投資の知見が豊富。'},
+  {name:'佐々木 健太',role:'IT/DX候補',stage:'sourcing',source:'リファラル',school:'東京工業大学',current:'アクセンチュア',yoe:5,skills:['DX戦略','AI/ML','クラウド'],rating:83,detail:'アクセンチュアでPE投資先のDX支援を担当。AI・クラウド導入によるバリューアップの知見。技術DDにも対応可能。'},
+  {name:'長谷川 美優',role:'アソシエイト候補',stage:'final',source:'エージェント',school:'東京大学',current:'ゴールドマン・サックス証券',yoe:3,skills:['M&Aアドバイザリー','財務分析','プレゼンテーション'],rating:91,detail:'ゴールドマン・サックスIBDでM&Aアドバイザリーを担当。大型クロスボーダー案件の実績あり。分析力とコミュニケーション力の両方が高い。'},
+  {name:'原田 駿',role:'アナリスト候補',stage:'interview2',source:'大学キャリアセンター',school:'大阪大学',current:'新卒',yoe:0,skills:['データサイエンス','機械学習','R/Python'],rating:84,detail:'大阪大学情報科学研究科修士。金融データの機械学習分析を研究。Kaggleコンペ上位入賞実績あり。'},
+];
+var recruitStages={sourcing:'ソーシング',screening:'スクリーニング',interview1:'一次面談',interview2:'二次面談',final:'最終面談',offer:'オファー',offer_accepted:'内定承諾',joined:'入社済'};
+var recruitStageOrder=['sourcing','screening','interview1','interview2','final','offer','offer_accepted','joined'];
+
+// Notifications with detail
+var notifications=[
+  {title:'Aether Semiconductors — SPA最終版受領',desc:'法務チームのレビュー待ち',time:'10分前',unread:true,detail:'SPA最終版がセラー側弁護士から送付されました。主な変更点: ①表明保証の範囲拡大、②補償上限の調整（EV 10%→15%）、③環境関連の特別補償条項追加。伊藤による法務レビューを24時間以内に完了する必要があります。'},
+  {title:'AI分析完了: Sakura Healthcare IM',desc:'信頼度88%のインサイト',time:'1時間前',unread:true,detail:'Sakura Healthcare GroupのIM分析が完了。EBITDAマージン23%（セクター平均18%を5pt上回る）。地域独占ポジションの持続性: 高（参入障壁スコア8.5/10）。設備投資サイクルFY2026終了で今後FCFが大幅改善見込み。DD重点項目: ①主要医師との契約継続性、②介護報酬改定影響、③後継者計画。'},
+  {title:'関東化学工業 — 月次報告書アップロード',desc:'2月度財務データ更新',time:'2時間前',unread:true,detail:'2月度実績: 売上¥24.8億（予算比-5.2%）、EBITDA ¥2.0億（予算比-18.3%）。原材料コスト高止まりが継続。Net Debt/EBITDA: 4.85x（コベナンツ上限5.0x）。経営会議でのコスト削減施策の進捗報告を確認してください。'},
+  {title:'CloudBridge Solutions — バリュエーション更新',desc:'DCFモデル更新完了',time:'3時間前',unread:false,detail:'渡辺による更新。WACC: 12.5%（前回12.8%）、ターミナル成長率: 3.0%。DCF算出レンジ: ¥78-92億（前回¥75-88億）。Comps中央値: ¥82億。推奨バリュエーション: ¥82-85億。投資委員会提出用資料を準備中。'},
+  {title:'チームアラート: 伊藤の稼働率96%',desc:'新規案件アサイン要検討',time:'5時間前',unread:false,detail:'伊藤大輔の直近2週間の稼働率が96%に到達。現在担当: Nexus Precision DD（法務）、Aether Semi SPA交渉、Sakura Healthcare スクリーニング支援。新規案件のアサインを控えるか、佐藤または高橋への一部移管を推奨します。'},
+  {title:'LP通知: GIC四半期ミーティング',desc:'Q1 2026レポート準備依頼',time:'6時間前',unread:false,detail:'GIC（シンガポール政府投資公社）との四半期ミーティングが3月28日に確定。Fund IIIのQ1 2026レポート（ドラフト）を3月20日までに準備する必要があります。特にDigital Frontierの急成長とExit戦略について詳細な説明を求められる見込み。小林が対応中。'},
+  {title:'ESGスコア更新: 関東化学工業',desc:'CO2排出量増加でC+に低下',time:'8時間前',unread:false,detail:'関東化学工業のESGスコアが前四半期のBからC+に低下。主因: ①CO2排出量前年比+5%増（Scope 1: 3,200t, Scope 2: 2,600t）、②廃棄物リサイクル率60%→52%に悪化、③ESGアクションプラン完了率25%。次回取締役会で改善計画の承認を取り付ける必要があります。'},
+  {title:'Nexus Precision — 財務DD完了',desc:'最終レポート提出済み',time:'10時間前',unread:false,detail:'佐藤が担当した財務DDが完了。主要所見: ①過去5年のEBITDA調整項目は軽微（累計¥2.1億）、②運転資本の季節性あり（Q4に約¥8億増加）、③設備投資計画¥15億が今後3年間で必要。品質問題なし。事業DD・法務DDの完了を待って投資委員会に上程予定。'},
+  {title:'マーケットアラート: 半導体セクター',desc:'M&Aマルチプル上昇',time:'12時間前',unread:false,detail:'日本の半導体関連企業のM&Aマルチプルが直近3ヶ月で平均0.8x上昇（8.2x→9.0x）。Aether Semiconductorsの投資に追い風。ただし、米中半導体規制の強化リスクに注意。中村のAI分析によると、規制強化の確率は35%と推定。'},
+  {title:'新規ソーシング: 事業承継案件3件',desc:'AIソーシングが候補を検出',time:'1日前',unread:false,detail:'AIソーシングエンジンが以下の事業承継案件を検出: ①関西精密工業（オーナー72歳、EV推定¥45億、精密部品）、②東海包装（オーナー68歳、EV推定¥30億、食品包装）、③北海道物流サービス（オーナー70歳、EV推定¥55億、冷蔵物流）。高橋がアプローチ準備中。'}
 ];
 
-const pipelineDeals=[
-  {name:'Nexus Precision Mfg',sector:'製造業',fund:'fund3',stage:'dd',score:87,ev:'¥125億',ebitda:'¥18億',mult:'6.9x',lead:'田中',date:'03/08',tags:['オーナー68歳','ニッチトップ','事業承継']},
-  {name:'CloudBridge Solutions',sector:'SaaS',fund:'fund3',stage:'valuation',score:92,ev:'¥82億',ebitda:'¥12億',mult:'6.8x',lead:'山本',date:'03/07',tags:['高成長','リカーリング85%']},
-  {name:'Sakura Healthcare Group',sector:'ヘルスケア',fund:'fund3',stage:'screening',score:74,ev:'¥180億',ebitda:'¥25億',mult:'7.2x',lead:'鈴木',date:'03/09',tags:['高齢化テーマ','地域独占']},
-  {name:'GreenLogix Corp',sector:'物流',fund:'fund2',stage:'sourcing',score:68,ev:'¥68億',ebitda:'¥9億',mult:'7.6x',lead:'伊藤',date:'03/09',tags:['EV化対応','顧客集中リスク']},
-  {name:'Tokyo Food Technologies',sector:'食品・飲料',fund:'fund3',stage:'ic',score:81,ev:'¥153億',ebitda:'¥21億',mult:'7.3x',lead:'田中',date:'03/06',tags:['輸出成長','ブランド力']},
-  {name:'Aether Semiconductors',sector:'半導体',fund:'fund3',stage:'execution',score:90,ev:'¥220億',ebitda:'¥38億',mult:'5.8x',lead:'田中',date:'03/04',tags:['SPA締結済','Q2クロージング']},
-  {name:'Matic Robotics',sector:'ロボティクス',fund:'fund2',stage:'sourcing',score:79,ev:'¥45億',ebitda:'¥6億',mult:'7.5x',lead:'山本',date:'03/08',tags:['人手不足テーマ','高成長']},
-  {name:'Zenith Software',sector:'SaaS / BtoB',fund:'fund3',stage:'sourcing',score:72,ev:'¥35億',ebitda:'¥8億',mult:'4.4x',lead:'山脇',date:'03/10',tags:['DXテーマ','NRR 120%']},
-  {name:'Pacific Building Materials',sector:'建設',fund:'fund2',stage:'screening',score:63,ev:'¥91億',ebitda:'¥13億',mult:'7.0x',lead:'鈴木',date:'03/05',tags:['景気循環リスク','資産価値高']},
-  {name:'Wellness Connect',sector:'デジタルヘルス',fund:'fund3',stage:'dd',score:76,ev:'¥55億',ebitda:'¥7億',mult:'7.9x',lead:'伊藤',date:'03/08',tags:['規制対応中','DXヘルスケア']},
-  {name:'Nihon Packaging',sector:'パッケージング',fund:'fund2',stage:'valuation',score:75,ev:'¥62億',ebitda:'¥9.5億',mult:'6.5x',lead:'伊藤',date:'03/06',tags:['環境配慮包装','安定成長']},
-  {name:'Atlas Industrial Services',sector:'産業サービス',fund:'fund3',stage:'closed',score:85,ev:'¥140億',ebitda:'¥20億',mult:'7.0x',lead:'田中',date:'02/28',tags:[]}
+var insights=[
+  {type:'risk',badge:'badge-ng',label:'リスク',conf:89,title:'コベナンツ抵触リスク — 関東化学工業',desc:'Net Debt/EBITDA比率がQ2 2026までに5.2xに到達見込み。コベナンツ・ウェイバー交渉を推奨。',agent:'財務モニタリングAgent',time:'03-09 08:15',fund:'fund2'},
+  {type:'opp',badge:'badge-ok',label:'機会',conf:76,title:'クロスセル・シナジー: Atlas × Premier Logistics',desc:'共通顧客12社を特定。バンドルサービスにより推定¥3.4億の増分収益見込み。',agent:'シナジー分析Agent',time:'03-09 07:30',fund:'all'},
+  {type:'alert',badge:'badge-w',label:'アラート',conf:82,title:'規制変更 — ヘルスケアセクター',desc:'厚労省が医療機器承認プロセス改定を発表。Horizon Medicalは迅速承認パスの恩恵見込み。',agent:'マーケットインテリジェンスAgent',time:'03-09 06:45',fund:'fund3'},
+  {type:'rec',badge:'badge-vi',label:'推奨',conf:71,title:'最適Exit Window — Digital Frontier',desc:'SaaSマルチプルが24ヶ月来高値（12.3x EV/Revenue）。Exit準備開始を推奨。',agent:'Exit最適化Agent',time:'03-08 22:00',fund:'fund3'},
+  {type:'risk',badge:'badge-ng',label:'リスク',conf:94,title:'顧客集中リスク — GreenLogix',desc:'上位3顧客が売上62%。最大顧客（売上28%）との長期契約未締結。',agent:'DD分析Agent',time:'03-08 18:30',fund:'fund2'},
+  {type:'opp',badge:'badge-ok',label:'機会',conf:68,title:'新規ソーシング — 産業オートメーション',desc:'AIが「人手不足ソリューション」テーマでオーナー65歳以上の3社を特定。',agent:'ソーシングAgent',time:'03-08 14:00',fund:'all'},
+  {type:'alert',badge:'badge-w',label:'アラート',conf:88,title:'IM分析完了 — Sakura Healthcare',desc:'EBITDAマージン23%。DD重点項目3件を特定。',agent:'スクリーニングAgent',time:'03-09 09:00',fund:'fund3'},
+  {type:'rec',badge:'badge-vi',label:'推奨',conf:83,title:'価格最適化 — Atlas Industrial',desc:'847 SKUの分析で15%が過小価格。年間¥1.2-1.8億のEBITDA改善見込み。',agent:'バリューアップAgent',time:'03-08 11:00',fund:'fund3'},
+  {type:'rec',badge:'badge-vi',label:'推奨',conf:79,title:'コスト削減施策 — 関東化学工業',desc:'調達先統合で年間¥4.5億のコスト削減可能。',agent:'バリューアップAgent',time:'03-09 10:30',fund:'fund2'},
+  {type:'opp',badge:'badge-ok',label:'機会',conf:72,title:'M&Aボルトオン — Premier Logistics',desc:'コールドチェーン物流3社を特定。顧客単価20%向上期待。',agent:'M&A戦略Agent',time:'03-09 07:00',fund:'fund2'},
+  {type:'rec',badge:'badge-vi',label:'推奨',conf:85,title:'テクニカルDD — Zenith Software',desc:'技術的負債は低水準。マイクロサービス移行で運用コスト30%削減見込み。',agent:'テクニカルDDAgent',time:'03-10 09:00',fund:'fund3'},
+  {type:'alert',badge:'badge-w',label:'アラート',conf:77,title:'為替ヘッジ推奨 — ポートフォリオ全体',desc:'USD/JPY変動率上昇。輸出比率高企業にヘッジ戦略見直し推奨。',agent:'リスク管理Agent',time:'03-10 07:30',fund:'all'}
 ];
-
-const insights=[
-  {type:'risk',badge:'badge-ng',label:'リスク',conf:89,title:'コベナンツ抵触リスク — 関東化学工業',desc:'Net Debt/EBITDA比率がQ2 2026までに5.2xに到達見込み。レンダーとのコベナンツ・ウェイバー交渉を推奨。',agent:'財務モニタリングAgent',time:'2026-03-09 08:15',fund:'fund2'},
-  {type:'opp',badge:'badge-ok',label:'機会',conf:76,title:'クロスセル・シナジー: Atlas × Premier Logistics',desc:'共通顧客12社を特定。バンドルサービスにより推定¥3.4億の増分収益が見込まれる。',agent:'シナジー分析Agent',time:'2026-03-09 07:30',fund:'all'},
-  {type:'alert',badge:'badge-w',label:'アラート',conf:82,title:'規制変更 — ヘルスケアセクター',desc:'厚労省が医療機器承認プロセスの改定を発表（2026年4月施行）。Horizon Medicalは迅速承認パスの恩恵見込み。',agent:'マーケットインテリジェンスAgent',time:'2026-03-09 06:45',fund:'fund3'},
-  {type:'rec',badge:'badge-a',label:'推奨',conf:71,title:'最適Exit Window — Digital Frontier',desc:'SaaSセクターM&Aマルチプルが24ヶ月来高値（平均12.3x EV/Revenue）。Exit準備の開始を推奨。',agent:'Exit最適化Agent',time:'2026-03-08 22:00',fund:'fund3'},
-  {type:'risk',badge:'badge-ng',label:'リスク',conf:94,title:'顧客集中リスク — GreenLogix',desc:'上位3顧客が売上の62%を占有。DD資料分析により、最大顧客（売上28%）との長期契約が未締結。',agent:'DD分析Agent',time:'2026-03-08 18:30',fund:'fund2'},
-  {type:'opp',badge:'badge-ok',label:'機会',conf:68,title:'新規ソーシング — 産業オートメーション',desc:'AIソーシングが「人手不足ソリューション」テーマで、オーナー65歳以上の3社を特定。推定合計EV: ¥80-120億。',agent:'ソーシングAgent',time:'2026-03-08 14:00',fund:'all'},
-  {type:'alert',badge:'badge-w',label:'アラート',conf:88,title:'IM分析完了 — Sakura Healthcare',desc:'EBITDAマージン23%（セクター平均18%）、強固な地域独占ポジション、設備投資サイクルがFY2026に終了。',agent:'スクリーニングAgent',time:'2026-03-09 09:00',fund:'fund3'},
-  {type:'rec',badge:'badge-a',label:'推奨',conf:83,title:'価格最適化 — Atlas Industrial',desc:'847 SKUの価格弾力性分析の結果、15%の製品が大幅な過小価格設定。推定EBITDA向上効果: 年間¥1.2-1.8億。',agent:'バリューアップAgent',time:'2026-03-08 11:00',fund:'fund3'},
-  {type:'rec',badge:'badge-a',label:'推奨',conf:79,title:'コスト削減施策 — 関東化学工業',desc:'調達先の統合と原材料の代替品検討により、年間¥4.5億のコスト削減が可能と推定。',agent:'バリューアップAgent',time:'2026-03-09 10:30',fund:'fund2'},
-  {type:'opp',badge:'badge-ok',label:'機会',conf:72,title:'M&Aボルトオン候補 — Premier Logistics',desc:'コールドチェーン物流に特化した3社を特定。買収によりサービス領域拡大と顧客単価20%向上が期待。',agent:'M&A戦略Agent',time:'2026-03-09 07:00',fund:'fund2'},
-  {type:'rec',badge:'badge-a',label:'推奨',conf:85,title:'テクニカルDD支援 — Zenith Software',desc:'コードベース分析完了。技術的負債は低水準。マイクロサービス移行により運用コスト30%削減が見込まれる。',agent:'テクニカルDDAgent',time:'2026-03-10 09:00',fund:'fund3'},
-  {type:'alert',badge:'badge-w',label:'アラート',conf:77,title:'為替ヘッジ推奨 — ポートフォリオ全体',desc:'USD/JPYの変動率が上昇。輸出比率の高いAtlas, Premier Logisticsにヘッジ戦略の見直しを推奨。',agent:'リスク管理Agent',time:'2026-03-10 07:30',fund:'all'}
-];
-
-const notifications=[
-  {title:'Aether Semiconductors — SPA最終版受領',desc:'法務チームのレビュー待ち。24時間以内の対応が必要です。',time:'10分前'},
-  {title:'AI分析完了: Sakura Healthcare IM',desc:'信頼度88%のインサイトが生成されました。',time:'1時間前'},
-  {title:'関東化学工業 — 月次報告書アップロード',desc:'2月度の財務データが更新されました。',time:'2時間前'},
-  {title:'CloudBridge Solutions — バリュエーション更新',desc:'DCFモデルが更新されました。EV: ¥82億 → ¥85億',time:'3時間前'},
-  {title:'チームアラート: 伊藤の稼働率98%',desc:'新規案件アサインを控えることを推奨します。',time:'5時間前'},
-  {title:'LP通知: GIC四半期ミーティング',desc:'Q1 2026レポートの準備が必要です。',time:'6時間前'},
-  {title:'ESGスコア更新: 関東化学工業',desc:'CO2排出量増加によりスコアがC+に低下。',time:'8時間前'}
-];
-
 // ========== CORE FUNCTIONS ==========
-let currentFund='fund3';
-
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-i').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
-  var map={dashboard:0,pipeline:1,portfolio:2,ai:3,lp:4,market:5,team:6,esg:7};
-  if(map[id]!==undefined)document.querySelectorAll('.nav-i')[map[id]].classList.add('active');
+  var idx=navItems.findIndex(n=>n.id===id);
+  if(idx>=0)document.querySelectorAll('.nav-i')[idx].classList.add('active');
   closeAllPanels();
 }
-
-function changeFund(){
-  currentFund=document.getElementById('fundSel').value;
-  renderAll();
-}
-
-function closeAllPanels(){
-  document.getElementById('notifPanel').classList.remove('show');
-  document.getElementById('searchResults').classList.remove('show');
-  document.getElementById('acctMenu').classList.remove('show');
-}
-
-function toggleNotifs(){
-  document.getElementById('notifPanel').classList.toggle('show');
-  document.getElementById('searchResults').classList.remove('show');
-  document.getElementById('acctMenu').classList.remove('show');
-}
-
-function clearNotifs(){
-  document.getElementById('notifCount').textContent='0';
-  document.getElementById('notifList').innerHTML='<div style="padding:20px;text-align:center;color:var(--m);font-size:11px">通知はありません</div>';
-}
-
-function toggleAcctMenu(){
-  document.getElementById('acctMenu').classList.toggle('show');
-  document.getElementById('notifPanel').classList.remove('show');
-  document.getElementById('searchResults').classList.remove('show');
-}
-
-function switchAccount(idx){
-  currentAccount=idx;
+function changeFund(){currentFund=document.getElementById('fundSel').value;renderAll();}
+function closeAllPanels(){['notifPanel','searchResults','acctMenu'].forEach(id=>{var e=document.getElementById(id);if(e)e.classList.remove('show')});}
+function toggleNotifs(){document.getElementById('notifPanel').classList.toggle('show');}
+function clearNotifs(){document.getElementById('notifCount').textContent='0';notifications.forEach(n=>n.unread=false);renderNotifications();}
+function toggleAcctMenu(){document.getElementById('acctMenu').classList.toggle('show');}
+function switchAccount(idx){currentAccount=idx;document.getElementById('acctMenu').classList.remove('show');renderAll();}
+function openProfile(idx){
   var a=accounts[idx];
-  document.querySelectorAll('.acct-item').forEach((el,i)=>{el.classList.toggle('active',i===idx)});
-  document.querySelectorAll('[id$="Avatar"],.av').forEach(el=>{
-    if(el.closest('.acct-item')||el.closest('.team-card'))return;
-    el.textContent=a.short;el.style.background=a.color;
-  });
-  document.getElementById('acctMenu').classList.remove('show');
+  document.getElementById('profileContent').innerHTML=
+    '<div class="po-header"><div class="po-av" style="background:'+a.color+'">'+a.short+'</div><div class="po-name">'+a.name+'</div><div class="po-role">'+a.role+'</div><div class="po-status"><div class="dot"></div>オンライン</div></div>'+
+    '<div class="po-section"><div class="po-section-t">連絡先</div><div class="po-row"><span class="po-row-l">メール</span><span class="po-row-v">'+a.email+'</span></div><div class="po-row"><span class="po-row-l">電話</span><span class="po-row-v">'+a.phone+'</span></div><div class="po-row"><span class="po-row-l">入社</span><span class="po-row-v">'+a.joined+'</span></div></div>'+
+    '<div class="po-section"><div class="po-section-t">パフォーマンス</div><div class="po-stats"><div class="po-stat"><div class="po-stat-v">'+(a.deals||0)+'</div><div class="po-stat-l">担当案件</div></div><div class="po-stat"><div class="po-stat-v">'+(a.port||0)+'</div><div class="po-stat-l">ポートフォリオ</div></div><div class="po-stat"><div class="po-stat-v">'+(a.util||0)+'%</div><div class="po-stat-l">稼働率</div></div></div></div>'+
+    '<div class="po-section"><div class="po-section-t">プロフィール</div><div class="po-bio">'+a.bio+'</div></div>'+
+    '<div class="po-section"><div class="po-section-t">キャリア</div><div class="po-career">'+
+    (a.career||[]).map(c=>'<div class="po-career-i"><div class="po-career-dot"></div><div class="po-career-body"><div class="po-career-title">'+c.t+'</div><div class="po-career-sub">'+c.s+(c.d?' — '+c.d:'')+'</div></div></div>').join('')+'</div></div>';
+  document.getElementById('profilePanel').classList.add('show');
 }
-
+function closeProfile(){document.getElementById('profilePanel').classList.remove('show');}
+function openModal(html){document.getElementById('modalContent').innerHTML='<div class="modal-h"><h2></h2><button class="modal-close" onclick="closeModal()">&times;</button></div>'+html;document.getElementById('modalOverlay').classList.add('show');}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('show');}
 function handleSearch(q){
   var sr=document.getElementById('searchResults');
   if(!q||q.length<1){sr.classList.remove('show');return;}
   sr.classList.add('show');
   var results=[];
-  portfolioCompanies.forEach(c=>{if(c.name.toLowerCase().includes(q.toLowerCase())||c.sector.includes(q))results.push({name:c.name,desc:c.sector+' / '+c.fund.replace('fund','Fund ')})});
-  pipelineDeals.forEach(d=>{if(d.name.toLowerCase().includes(q.toLowerCase())||d.sector.includes(q))results.push({name:d.name,desc:d.sector+' / '+d.stage})});
-  sr.innerHTML=results.length?results.map(r=>'<div class="sr-item" onclick="document.getElementById(\'searchResults\').classList.remove(\'show\')"><div class="sr-item-n">'+r.name+'</div><div class="sr-item-d">'+r.desc+'</div></div>').join(''):'<div style="padding:16px;text-align:center;color:var(--m);font-size:11px">結果が見つかりません</div>';
+  portfolioCompanies.slice(0,60).forEach(c=>{if(c.name.toLowerCase().includes(q.toLowerCase())||c.sector.includes(q))results.push({name:c.name,desc:c.sector+' / ポートフォリオ',action:"showPage('portfolio')"})});
+  pipelineDeals.forEach(d=>{if(d.name.toLowerCase().includes(q.toLowerCase())||d.sector.includes(q))results.push({name:d.name,desc:d.sector+' / パイプライン',action:"showPage('pipeline')"})});
+  accounts.forEach((a,i)=>{if(a.name.includes(q)||a.short.includes(q))results.push({name:a.name,desc:a.role,action:'openProfile('+i+')'})});
+  sr.innerHTML=results.length?results.slice(0,10).map(r=>'<div class="sr-item" onclick="'+r.action+';document.getElementById(\'searchResults\').classList.remove(\'show\')"><div class="sr-item-n">'+r.name+'</div><div class="sr-item-d">'+r.desc+'</div></div>').join(''):'<div style="padding:16px;text-align:center;color:var(--m);font-size:11px">結果なし</div>';
 }
-
 document.addEventListener('click',function(e){
   if(!e.target.closest('.acct-sw'))document.getElementById('acctMenu').classList.remove('show');
   if(!e.target.closest('.notif')&&!e.target.closest('.notif-panel'))document.getElementById('notifPanel').classList.remove('show');
   if(!e.target.closest('.srch-w')&&!e.target.closest('.search-results'))document.getElementById('searchResults').classList.remove('show');
 });
-// ========== WATERFALL CHART ==========
-function renderWaterfall(containerId, company){
-  var f=company.factors;
-  var totalChange=company.exitEq-company.entryEq;
-  if(totalChange===0)totalChange=1;
-  var ebitdaPct=f.ebitdaGrowth.pct;
-  var multPct=f.multipleExp.pct;
-  var debtPct=f.debtPaydown.pct;
-  var w=480,h=220,pad=50,barW=56;
-  var maxVal=Math.max(company.entryEq,company.exitEq)*1.3;
-  var scale=function(v){return h-pad-(v/maxVal)*(h-pad*2)};
-  var bars=[
-    {label:'Entry Equity',val:company.entryEq,color:'#6b7280',isBase:true},
-    {label:'EBITDA成長',pct:ebitdaPct,detail:f.ebitdaGrowth.detail,color:ebitdaPct>=0?'#16a34a':'#dc2626'},
-    {label:'マルチプル変動',pct:multPct,detail:f.multipleExp.detail,color:multPct>=0?'#2563eb':'#dc2626'},
-    {label:'デレバレッジ',pct:debtPct,detail:f.debtPaydown.detail,color:debtPct>=0?'#7c3aed':'#dc2626'},
-    {label:'Exit Equity',val:company.exitEq,color:'#111',isBase:true}
-  ];
-  var runningVal=company.entryEq;
-  var positions=[];
-  bars.forEach(function(b,i){
-    if(b.isBase){
-      positions.push({y:scale(b.val),h:scale(0)-scale(b.val),bottom:scale(0),val:b.val});
-    }else{
-      var delta=totalChange*b.pct/100;
-      var startVal=runningVal;
-      runningVal+=delta;
-      var y1=scale(Math.max(startVal,runningVal));
-      var y2=scale(Math.min(startVal,runningVal));
-      positions.push({y:y1,h:y2-y1,bottom:scale(startVal),val:delta,startVal:startVal});
-    }
-  });
-  var spacing=(w-pad*2)/(bars.length);
-  var svg='<svg width="100%" viewBox="0 0 '+w+' '+h+'" style="max-width:100%">';
-  // Grid lines
-  for(var g=0;g<=maxVal;g+=Math.ceil(maxVal/5)){
-    svg+='<line x1="'+pad+'" y1="'+scale(g)+'" x2="'+(w-20)+'" y2="'+scale(g)+'" stroke="#e5e7eb" stroke-width="0.5"/>';
-    svg+='<text x="'+(pad-4)+'" y="'+(scale(g)+3)+'" font-size="8" fill="#9ca3af" text-anchor="end">¥'+g+'億</text>';
-  }
-  bars.forEach(function(b,i){
-    var x=pad+spacing*i+(spacing-barW)/2;
-    var p=positions[i];
-    // Connector line
-    if(i>0&&i<bars.length-1&&!b.isBase){
-      svg+='<line x1="'+(x-4)+'" y1="'+p.bottom+'" x2="'+(x+barW+4)+'" y2="'+p.bottom+'" stroke="#d4d4d4" stroke-width="0.5" stroke-dasharray="2,2"/>';
-    }
-    // Bar
-    svg+='<rect x="'+x+'" y="'+p.y+'" width="'+barW+'" height="'+Math.max(p.h,2)+'" fill="'+b.color+'" rx="3" opacity="0.85"/>';
-    // Value label
-    var valLabel=b.isBase?'¥'+b.val+'億':(b.pct>=0?'+':'')+b.pct+'%';
-    svg+='<text x="'+(x+barW/2)+'" y="'+(p.y-6)+'" font-size="10" font-weight="700" fill="'+b.color+'" text-anchor="middle">'+valLabel+'</text>';
-    // Bottom label
-    svg+='<text x="'+(x+barW/2)+'" y="'+(h-4)+'" font-size="8" fill="#6b7280" text-anchor="middle">'+b.label+'</text>';
-  });
-  // Connector from entry to exit
-  var x0=pad+spacing*0+(spacing-barW)/2+barW;
-  var x4=pad+spacing*4+(spacing-barW)/2;
-  svg+='<line x1="'+x0+'" y1="'+positions[0].y+'" x2="'+(pad+spacing*1+(spacing-barW)/2)+'" y2="'+positions[0].y+'" stroke="#d4d4d4" stroke-width="0.5" stroke-dasharray="2,2"/>';
-  svg+='</svg>';
-  document.getElementById(containerId).innerHTML=
-    '<div class="wf-title">リターン要因分解ウォーターフォール <a class="wf-ref" href="https://www.wallstreetprep.com/knowledge/lbo-returns-attribution-analysis-value-creation/" target="_blank">WSP参照 ↗</a></div>'+
-    '<div class="wf-subtitle">Entry Equity → EBITDA成長 / マルチプル変動 / デレバレッジ → Exit Equity（各要素の%貢献）</div>'+svg+
-    '<div style="display:flex;gap:16px;margin-top:8px;font-size:9px;flex-wrap:wrap">'+
-    '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#16a34a;border-radius:2px"></span>EBITDA成長: '+ebitdaPct+'%</span>'+
-    '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#2563eb;border-radius:2px"></span>マルチプル変動: '+multPct+'%</span>'+
-    '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#7c3aed;border-radius:2px"></span>デレバレッジ: '+debtPct+'%</span>'+
-    '</div>';
+
+// ========== HEADER ==========
+function hdr(title,extra){
+  var a=accounts[currentAccount];
+  return '<div class="hdr"><h1>'+title+'</h1><div class="hdr-r">'+
+    (extra||'')+
+    '<div class="srch-w"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="srch" placeholder="検索..." oninput="handleSearch(this.value)"></div>'+
+    '<div class="ai-b"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI稼働中<div class="ai-d"></div></div>'+
+    '<button class="notif" onclick="toggleNotifs()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-n" id="notifCount">'+notifications.filter(n=>n.unread).length+'</span></button>'+
+    '<div class="acct-sw" onclick="toggleAcctMenu()"><div class="av" style="background:'+a.color+'">'+a.short+'</div>'+
+    '<div class="acct-dd" id="acctMenu">'+accounts.map((ac,i)=>'<div class="acct-item'+(i===currentAccount?' active':'')+'" onclick="event.stopPropagation();switchAccount('+i+')"><div class="av" style="background:'+ac.color+'">'+ac.short+'</div><div><div style="font-weight:600;font-size:11px">'+ac.name+'</div><div style="font-size:9px;color:var(--m)">'+ac.role+'</div></div></div>').join('')+'</div></div></div></div>';
 }
 
-// ========== RENDER DASHBOARD ==========
+// ========== SIDEBAR ==========
+function renderSidebar(){
+  var pipeCount=currentFund==='all'?pipelineDeals.length:pipelineDeals.filter(d=>d.fund===currentFund).length;
+  document.getElementById('sidebarNav').innerHTML=navItems.map((n,i)=>{
+    var badge='';
+    if(n.id==='pipeline')badge='<span class="nav-badge">'+pipeCount+'</span>';
+    if(n.id==='recruit')badge='<span class="nav-badge">'+recruitCandidates.length+'</span>';
+    return '<div class="nav-i'+(i===0?' active':'')+'" onclick="showPage(\''+n.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+n.icon+'</svg>'+n.label+badge+'</div>';
+  }).join('');
+}
+
+// ========== NOTIFICATIONS ==========
+function renderNotifications(){
+  document.getElementById('notifList').innerHTML=notifications.map((n,i)=>
+    '<div class="notif-item'+(n.unread?' unread':'')+'" onclick="toggleNotifDetail('+i+')"><div class="notif-item-t">'+n.title+'</div><div class="notif-item-d">'+n.desc+'</div><div class="notif-item-time">'+n.time+'</div></div><div class="notif-detail" id="notif-detail-'+i+'">'+n.detail+'</div>'
+  ).join('');
+}
+function toggleNotifDetail(idx){
+  var el=document.getElementById('notif-detail-'+idx);
+  el.style.display=el.style.display==='block'?'none':'block';
+  notifications[idx].unread=false;
+  document.getElementById('notifCount').textContent=notifications.filter(n=>n.unread).length;
+}
+
+// ========== WATERFALL ==========
+function renderWaterfall(id,c){
+  var f=c.f,totalChg=c.exitEq-c.entryEq;if(!totalChg)totalChg=1;
+  var eg=f.eg.pct,me=f.me.pct,dp=f.dp.pct;
+  var w=520,h=240,pad=55,barW=64;
+  var maxV=Math.max(c.entryEq,c.exitEq)*1.4;
+  var sc=function(v){return h-pad-(v/maxV)*(h-pad*2)};
+  var bars=[{l:'Entry Equity',v:c.entryEq,col:'#737373',base:true},{l:'EBITDA成長',pct:eg,col:eg>=0?'#2563eb':'#dc2626'},{l:'マルチプル変動',pct:me,col:me>0?'#404040':me<0?'#dc2626':'#a3a3a3'},{l:'デレバレッジ',pct:dp,col:dp>=0?'#111':'#dc2626'},{l:'Exit Equity',v:c.exitEq,col:'#111',base:true}];
+  var run=c.entryEq,positions=[];
+  bars.forEach(function(b){
+    if(b.base){positions.push({y:sc(b.v),h:sc(0)-sc(b.v),bot:sc(0),v:b.v});}
+    else{var delta=totalChg*b.pct/100;var s=run;run+=delta;var y1=sc(Math.max(s,run));var y2=sc(Math.min(s,run));positions.push({y:y1,h:Math.max(y2-y1,2),bot:sc(s),v:delta});}
+  });
+  var sp=(w-pad*2)/bars.length;
+  var svg='<svg width="100%" viewBox="0 0 '+w+' '+h+'" style="max-width:100%">';
+  bars.forEach(function(b,i){
+    var x=pad+sp*i+(sp-barW)/2,p=positions[i];
+    if(i>0&&i<4)svg+='<line x1="'+(x-2)+'" y1="'+p.bot+'" x2="'+(x+barW+2)+'" y2="'+p.bot+'" stroke="#d4d4d4" stroke-width="0.5" stroke-dasharray="2,2"/>';
+    svg+='<rect x="'+x+'" y="'+p.y+'" width="'+barW+'" height="'+Math.max(p.h,2)+'" fill="'+b.col+'" rx="3"/>';
+    // Large % label on chart
+    var lbl=b.base?'¥'+b.v+'億':(b.pct>=0?'+':'')+b.pct+'%';
+    svg+='<text x="'+(x+barW/2)+'" y="'+(p.y-8)+'" font-size="14" font-weight="800" fill="'+b.col+'" text-anchor="middle" font-family="Arial">'+lbl+'</text>';
+    svg+='<text x="'+(x+barW/2)+'" y="'+(h-4)+'" font-size="9" fill="#737373" text-anchor="middle" font-family="Noto Sans JP,sans-serif">'+b.l+'</text>';
+  });
+  svg+='</svg>';
+  document.getElementById(id).innerHTML=
+    '<div class="wf-title">リターン要因分解ウォーターフォール <a class="wf-ref" href="https://www.wallstreetprep.com/knowledge/lbo-returns-attribution-analysis-value-creation/" target="_blank">WSP準拠 ↗</a></div>'+
+    '<div class="wf-subtitle">LBO Returns Attribution: Entry Equity → 3要素 → Exit Equity</div>'+svg+
+    '<div class="wf-legend">'+
+    '<div class="wf-legend-i"><div class="wf-legend-d" style="background:#2563eb"></div>EBITDA成長: '+eg+'%</div>'+
+    '<div class="wf-legend-i"><div class="wf-legend-d" style="background:#404040"></div>マルチプル変動: '+me+'%</div>'+
+    '<div class="wf-legend-i"><div class="wf-legend-d" style="background:#111"></div>デレバレッジ: '+dp+'%</div></div>';
+}
+// ========== DASHBOARD ==========
 function renderDashboard(){
   var fd=fundData[currentFund];
-  document.getElementById('dash-fund-label').textContent=fd.label;
-  // KPIs
   var kpis=[
-    {l:'運用資産総額 (AUM)',v:fd.aum,c:fd.aumChg,d:'up'},
-    {l:'アクティブ案件',v:fd.deals+'件',c:fd.dealsChg,d:'up'},
-    {l:'ポートフォリオ IRR',v:fd.irr,c:fd.irrChg,d:'up'},
-    {l:'TVPI',v:fd.tvpi,c:fd.tvpiChg,d:'up'},
-    {l:'本日のAIインサイト',v:fd.insights+'件',c:fd.insChg,d:'up'},
-    {l:'DD進行中',v:fd.dd+'件',c:fd.ddChg,d:fd.ddChg.startsWith('-')?'dn':'up'}
+    {l:'運用資産総額 (AUM)',v:'¥'+fd.aum+'億',c:'+12.3%',d:'up'},
+    {l:'アクティブ案件',v:fd.deals+'件',c:'+4',d:'up'},
+    {l:'ポートフォリオ IRR',v:fd.irr+'%',c:'+2.1pt',d:'up'},
+    {l:'TVPI',v:fd.tvpi+'x',c:'+0.05',d:'up'},
+    {l:'AIインサイト',v:fd.insights+'件',c:'+15%',d:'up'},
+    {l:'DD進行中',v:fd.dd+'件',c:'-1',d:'dn'}
   ];
-  document.getElementById('dash-kpis').innerHTML=kpis.map(k=>'<div class="kpi"><div class="kpi-l">'+k.l+'</div><div class="kpi-v">'+k.v+'</div><div class="kpi-c '+k.d+'"><span>'+(k.d==='up'?'&#9650;':'&#9660;')+' '+k.c+'</span><span>前四半期比</span></div></div>').join('');
-  // Charts
-  var pipeH=fd.pipeline;var labels=['ソーシング','スクリーニング','DD','バリュエーション','投資委員会','エグゼキューション'];
-  var opacities=[.25,.4,.55,.7,.85,1];
-  var barChart='<div class="cd"><div class="cd-t">パイプライン（ステージ別）</div><div class="cd-s">アクティブ案件の分布</div><div class="bar-c">'+
-    pipeH.map((v,i)=>'<div class="bar-col"><div class="bar" style="height:'+v+'%;background:rgba(37,99,235,'+opacities[i]+')"></div><div class="bar-lb">'+labels[i]+'</div></div>').join('')+'</div></div>';
-  // Donut
+  var deals=currentFund==='all'?pipelineDeals:pipelineDeals.filter(d=>d.fund===currentFund);
+  var filtered=currentFund==='all'?insights:insights.filter(i=>i.fund===currentFund||i.fund==='all');
   var secs=fd.sectors;var total=secs.reduce((a,s)=>a+s.p,0);var offset=0;
-  var donutSvg='<svg width="140" height="140" viewBox="0 0 160 160">';
+  var donutSvg='<svg width="130" height="130" viewBox="0 0 160 160">';
   secs.forEach(s=>{var dash=s.p/total*377;donutSvg+='<circle cx="80" cy="80" r="60" fill="none" stroke="'+s.c+'" stroke-width="22" stroke-dasharray="'+dash+' '+(377-dash)+'" stroke-dashoffset="'+(-offset)+'" transform="rotate(-90 80 80)"/>';offset+=dash;});
   donutSvg+='<circle cx="80" cy="80" r="46" fill="var(--surface)"/></svg>';
-  var donutChart='<div class="cd"><div class="cd-t">セクター配分</div><div class="cd-s">現在のポートフォリオ構成</div><div class="donut-w" style="margin-top:8px">'+donutSvg+'<div class="d-leg">'+secs.map(s=>'<div class="d-leg-i"><div class="d-leg-d" style="background:'+s.c+'"></div>'+s.n+' '+s.p+'%</div>').join('')+'</div></div></div>';
-  // TVPI chart
-  var tvpiChart='<div class="cd"><div class="cd-t">TVPI推移</div><div class="cd-s">四半期ごとのTVPI</div><div style="height:160px;display:flex;align-items:center;justify-content:center"><svg width="100%" height="160" viewBox="0 0 400 160" preserveAspectRatio="none"><polyline points="10,140 50,128 100,112 150,96 200,84 250,74 300,62 350,50 390,42" fill="none" stroke="#2563eb" stroke-width="2.5"/><polyline points="10,60 50,48 100,38 150,32 200,28 250,24 300,18 350,14 390,10" fill="none" stroke="#111" stroke-width="2"/><polyline points="10,152 50,148 100,144 150,140 200,136 250,132 300,128 350,124 390,120" fill="none" stroke="#a3a3a3" stroke-width="1.5" stroke-dasharray="4 4"/><text x="390" y="40" font-size="9" fill="#2563eb" text-anchor="end">'+fd.tvpi+'</text><text x="10" y="155" font-size="8" fill="#a3a3a3">Q1\'24</text><text x="390" y="155" font-size="8" fill="#a3a3a3">Q1\'26</text></svg></div><div style="display:flex;gap:16px;font-size:9px;color:var(--m);margin-top:4px;justify-content:center"><span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:2px;background:#2563eb;display:inline-block"></span>'+fd.label+'</span><span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:2px;background:#a3a3a3;display:inline-block"></span>ベンチマーク</span></div></div>';
-  document.getElementById('dash-charts').innerHTML=barChart+tvpiChart+donutChart;
-  // Insights (top 4)
-  var filtered=currentFund==='all'?insights:insights.filter(i=>i.fund===currentFund||i.fund==='all');
-  document.getElementById('dash-insights').innerHTML=filtered.slice(0,4).map(renderInsightCard).join('');
-  // Deals table
-  var filteredDeals=currentFund==='all'?pipelineDeals:pipelineDeals.filter(d=>d.fund===currentFund);
-  document.getElementById('dash-deals-table').innerHTML='<table><thead><tr><th>企業名</th><th>セクター</th><th>ファンド</th><th>ステージ</th><th>AIスコア</th><th>EV</th><th>更新日</th></tr></thead><tbody>'+
-    filteredDeals.slice(0,7).map(d=>{
-      var sc=d.score>=85?'hi':d.score>=70?'mi':'lo';
-      var fundBadge=d.fund==='fund3'?'badge-a':d.fund==='fund2'?'badge-vi':'badge-w';
-      var stageMap={sourcing:'ソーシング',screening:'スクリーニング',dd:'DD',valuation:'バリュエーション',ic:'投資委員会',execution:'エグゼキューション',closed:'クローズ済'};
-      return '<tr><td style="font-weight:500">'+d.name+'</td><td style="font-size:10px;color:var(--m)">'+d.sector+'</td><td><span class="badge '+fundBadge+'">'+d.fund.replace('fund','Fund ')+'</span></td><td><span class="badge badge-a">'+stageMap[d.stage]+'</span></td><td><div class="sc-bar"><div class="sc-track"><div class="sc-fill" style="width:'+d.score+'%"></div></div><span class="sc-v">'+d.score+'</span></div></td><td>'+d.ev+'</td><td style="color:var(--m)">'+d.date+'</td></tr>';
-    }).join('')+'</tbody></table>';
-  // Notifications
-  document.getElementById('notifList').innerHTML=notifications.map(n=>'<div class="notif-item"><div class="notif-item-t">'+n.title+'</div><div class="notif-item-d">'+n.desc+'</div><div class="notif-item-time">'+n.time+'</div></div>').join('');
+
+  document.getElementById('page-dashboard').innerHTML=hdr('ダッシュボード')+
+    '<div class="ct"><div style="font-size:11px;color:var(--m);margin-bottom:8px">'+fd.label+'</div>'+
+    '<div class="kpi-g">'+kpis.map(k=>'<div class="kpi"><div class="kpi-l">'+k.l+'</div><div class="kpi-v">'+k.v+'</div><div class="kpi-c '+k.d+'"><span>'+(k.d==='up'?'&#9650;':'&#9660;')+' '+k.c+'</span></div></div>').join('')+'</div>'+
+    '<div class="cg cg3">'+
+    '<div class="cd"><div class="cd-t">パイプライン（ステージ別）</div><div class="cd-s">アクティブ案件分布</div><div class="bar-c">'+
+    Object.keys(stageLabels).filter(s=>s!=='closed').map((s,i)=>{var cnt=deals.filter(d=>d.stage===s).length;var h=Math.max(cnt/Math.max(...Object.keys(stageLabels).map(st=>deals.filter(d=>d.stage===st).length))*100,5);return '<div class="bar-col"><div class="bar" style="height:'+h+'%;background:rgba(37,99,235,'+(0.2+i*0.13)+')"></div><div class="bar-lb">'+stageLabels[s]+'</div><div style="font-size:9px;font-weight:700;color:var(--fg);font-family:Arial">'+cnt+'</div></div>'}).join('')+'</div></div>'+
+    '<div class="cd"><div class="cd-t">TVPI推移</div><div class="cd-s">四半期ごと</div><div style="height:150px"><svg width="100%" height="150" viewBox="0 0 400 150" preserveAspectRatio="none"><polyline points="10,130 60,118 120,104 180,90 240,78 300,62 360,48 390,38" fill="none" stroke="#2563eb" stroke-width="2.5"/><polyline points="10,140 60,138 120,136 180,134 240,132 300,130 360,128 390,126" fill="none" stroke="#a3a3a3" stroke-width="1.5" stroke-dasharray="4 4"/><text x="390" y="36" font-size="10" fill="#2563eb" text-anchor="end" font-family="Arial" font-weight="700">'+fd.tvpi+'x</text><text x="10" y="146" font-size="8" fill="#a3a3a3" font-family="Arial">Q1\'24</text><text x="390" y="146" font-size="8" fill="#a3a3a3" font-family="Arial">Q1\'26</text></svg></div></div>'+
+    '<div class="cd"><div class="cd-t">セクター配分</div><div class="cd-s">ポートフォリオ構成</div><div class="donut-w">'+donutSvg+'<div class="d-leg">'+secs.map(s=>'<div class="d-leg-i"><div class="d-leg-d" style="background:'+s.c+'"></div>'+s.n+' '+s.p+'%</div>').join('')+'</div></div></div></div>'+
+    '<div style="margin-top:16px"><div class="sh"><div class="st">最新AIインサイト</div><a class="sl" href="#" onclick="showPage(\'ai\');return false">すべて表示 →</a></div><div class="ig">'+filtered.slice(0,4).map(renderInsightCard).join('')+'</div></div>'+
+    '<div style="margin-top:16px"><div class="sh"><div class="st">直近の案件動向</div><a class="sl" href="#" onclick="showPage(\'pipeline\');return false">パイプライン →</a></div>'+
+    '<div class="tw"><table><thead><tr><th>企業名</th><th>セクター</th><th>ファンド</th><th>ステージ</th><th>AIスコア</th><th>EV</th><th>リード</th><th>更新日</th></tr></thead><tbody>'+
+    deals.slice(0,10).map(d=>{var sc=d.score>=85?'hi':d.score>=70?'mi':'lo';return '<tr onclick="openModal(\''+d.detail.replace(/'/g,"\\'")+'\')" style="cursor:pointer"><td style="font-weight:500">'+d.name+'</td><td style="font-size:10px;color:var(--m)">'+d.sector+'</td><td><span class="badge badge-a">'+d.fund.replace('fund','Fund ')+'</span></td><td><span class="badge badge-a">'+stageLabels[d.stage]+'</span></td><td><div class="sc-bar"><div class="sc-track"><div class="sc-fill" style="width:'+d.score+'%"></div></div><span class="sc-v">'+d.score+'</span></div></td><td>'+d.ev+'</td><td>'+d.lead+'</td><td style="color:var(--m)">'+d.date+'</td></tr>'}).join('')+'</tbody></table></div></div></div>';
 }
 
 function renderInsightCard(ins){
-  return '<div class="ic '+ins.type+'"><div class="ic-h"><div class="ic-icon '+ins.type+'">'+(ins.type==='risk'?'&#9888;':ins.type==='opp'?'&#8599;':ins.type==='alert'?'&#128276;':'&#128161;')+'</div><div><div><span class="badge '+ins.badge+'">'+ins.label+'</span><span class="ic-conf">信頼度: '+ins.conf+'%</span></div><div class="ic-tt">'+ins.title+'</div><div class="ic-d">'+ins.desc+'</div><div class="ic-m"><span>'+ins.agent+'</span><span>&middot;</span><span>'+ins.time+'</span></div></div></div></div>';
+  return '<div class="ic '+ins.type+'"><div class="ic-h"><div class="ic-icon '+ins.type+'">'+(ins.type==='risk'?'&#9888;':ins.type==='opp'?'&#8599;':ins.type==='alert'?'&#9679;':'&#9733;')+'</div><div><div><span class="badge '+ins.badge+'">'+ins.label+'</span><span class="ic-conf">信頼度: '+ins.conf+'%</span></div><div class="ic-tt">'+ins.title+'</div><div class="ic-d">'+ins.desc+'</div><div class="ic-m"><span>'+ins.agent+'</span><span>'+ins.time+'</span></div></div></div></div>';
 }
 
-// ========== RENDER PIPELINE ==========
+// ========== PIPELINE ==========
 function renderPipeline(){
-  var fd=fundData[currentFund];
   var deals=currentFund==='all'?pipelineDeals:pipelineDeals.filter(d=>d.fund===currentFund);
-  var totalEV=deals.reduce((a,d)=>a+parseFloat(d.ev.replace(/[¥億,]/g,'')),0);
+  var totalEV=deals.reduce((a,d)=>a+d.evN,0);
   var avgScore=deals.length?Math.round(deals.reduce((a,d)=>a+d.score,0)/deals.length):0;
-  document.getElementById('pipe-summary').innerHTML=
-    '<span><span style="color:var(--m)">全案件:</span> <strong>'+deals.length+'件</strong></span>'+
-    '<span><span style="color:var(--m)">パイプライン総額:</span> <strong>¥'+Math.round(totalEV)+'億</strong></span>'+
-    '<span><span style="color:var(--m)">平均AIスコア:</span> <strong style="color:var(--a)">'+avgScore+'</strong></span>'+
-    '<span><span style="color:var(--m)">ファンド:</span> <strong>'+fd.label+'</strong></span>';
-  var stages=[
-    {key:'sourcing',label:'ソーシング',color:'var(--m2)'},
-    {key:'screening',label:'スクリーニング',color:'var(--m)'},
-    {key:'dd',label:'デューデリジェンス',color:'var(--a)'},
-    {key:'valuation',label:'バリュエーション',color:'var(--a2)'},
-    {key:'ic',label:'投資委員会',color:'var(--fg)'},
-    {key:'execution',label:'エグゼキューション',color:'var(--ok)'},
-    {key:'closed',label:'クローズ済',color:'var(--fg)'}
-  ];
-  document.getElementById('pipe-kanban').innerHTML=stages.map(s=>{
-    var sDeals=deals.filter(d=>d.stage===s.key);
-    return '<div class="k-col"><div class="k-col-h"><div class="k-col-d" style="background:'+s.color+'"></div><div class="k-col-t">'+s.label+'</div><div class="k-col-c">'+sDeals.length+'</div></div><div class="k-cards">'+
-      sDeals.map(d=>{
-        var sc=d.score>=85?'hi':d.score>=70?'mi':'lo';
-        var fb=d.fund==='fund3'?'badge-a':'badge-vi';
-        return '<div class="dc"'+(s.key==='closed'?' style="opacity:.6"':'')+'><div class="dc-h"><div class="dc-n">'+d.name+'</div><div class="dc-sc '+sc+'">&#9733; '+d.score+'</div></div><div class="dc-sec">'+d.sector+' &middot; <span class="badge '+fb+'" style="font-size:7px">'+d.fund.replace('fund','Fund ')+'</span></div><div class="dc-ms"><div class="dc-m"><span class="l">EV</span><span class="v">'+d.ev+'</span></div><div class="dc-m"><span class="l">EBITDA</span><span class="v">'+d.ebitda+'</span></div><div class="dc-m"><span class="l">EV/EBITDA</span><span class="v">'+d.mult+'</span></div></div>'+(d.tags.length?'<div class="dc-fl">'+d.tags.map(t=>'<span class="dc-f">'+t+'</span>').join('')+'</div>':'')+'<div class="dc-ft"><span>'+d.lead+'</span><span>2026-'+d.date+'</span></div></div>';
-      }).join('')+'</div></div>';
-  }).join('');
+  var stageFlow=['sourcing','screening','dd','valuation','ic','execution','closed'];
+  var funnelData=stageFlow.map(s=>({label:stageLabels[s],count:deals.filter(d=>d.stage===s).length}));
+
+  document.getElementById('page-pipeline').innerHTML=hdr('案件パイプライン')+
+    '<div class="ct">'+
+    '<div class="funnel">'+funnelData.map((f,i)=>{
+      var rate=i>0&&funnelData[i-1].count>0?Math.round(f.count/funnelData[0].count*100)+'%':'100%';
+      return '<div class="funnel-step"><div class="funnel-v">'+f.count+'</div><div class="funnel-l">'+f.label+'</div>'+(i>0?'<div class="funnel-rate">'+rate+'</div>':'')+'</div>';
+    }).join('')+'</div>'+
+    '<div style="display:flex;gap:20px;margin-bottom:16px;font-size:12px"><span><span style="color:var(--m)">全案件:</span> <strong>'+deals.length+'</strong></span><span><span style="color:var(--m)">総額:</span> <strong>¥'+Math.round(totalEV)+'億</strong></span><span><span style="color:var(--m)">平均スコア:</span> <strong style="color:var(--a)">'+avgScore+'</strong></span></div>'+
+    '<div class="kanban">'+stageFlow.map(s=>{
+      var sDeals=deals.filter(d=>d.stage===s);
+      return '<div class="k-col"><div class="k-col-h"><div class="k-col-d" style="background:'+stageColors[s]+'"></div><div class="k-col-t">'+stageLabels[s]+'</div><div class="k-col-c">'+sDeals.length+'</div></div><div class="k-cards">'+
+        sDeals.map(d=>{
+          var sc=d.score>=85?'hi':d.score>=70?'mi':'lo';
+          return '<div class="dc" onclick="openModal(\''+d.detail.replace(/'/g,"\\'")+'\')"'+(s==='closed'?' style="opacity:.5"':'')+'><div class="dc-h"><div class="dc-n">'+d.name+'</div><div class="dc-sc '+sc+'">'+d.score+'</div></div><div class="dc-sec">'+d.sector+'</div><div class="dc-ms"><div class="dc-m"><span class="l">EV</span><span class="v">'+d.ev+'</span></div><div class="dc-m"><span class="l">EBITDA</span><span class="v">'+d.ebitda+'</span></div><div class="dc-m"><span class="l">倍率</span><span class="v">'+d.mult+'</span></div></div>'+(d.tags.length?'<div class="dc-fl">'+d.tags.slice(0,2).map(t=>'<span class="dc-f">'+t+'</span>').join('')+'</div>':'')+'<div class="dc-ft"><span>'+d.lead+'</span><span>'+d.date+'</span></div></div>';
+        }).join('')+'</div></div>';
+    }).join('')+'</div></div>';
 }
-// ========== RENDER PORTFOLIO ==========
+
+// ========== PORTFOLIO ==========
 function renderPortfolio(){
-  var companies=currentFund==='all'?portfolioCompanies:portfolioCompanies.filter(c=>c.fund===currentFund);
+  var companies=currentFund==='all'?portfolioCompanies.slice(0,20):portfolioCompanies.filter(c=>c.fund===currentFund).slice(0,20);
   var totalInv=companies.reduce((a,c)=>a+c.inv,0);
   var totalVal=companies.reduce((a,c)=>a+c.val,0);
   var avgMoic=companies.length?(companies.reduce((a,c)=>a+c.moic,0)/companies.length).toFixed(2):0;
-  var alertCount=companies.reduce((a,c)=>a+c.alerts.length,0);
-  document.getElementById('port-summary').innerHTML=[
-    {l:'投資先企業数',v:companies.length+'社'},
-    {l:'投資総額',v:'¥'+totalInv+'億'},
-    {l:'現在評価額',v:'¥'+totalVal+'億',s:'color:var(--ok)'},
-    {l:'平均 MOIC',v:avgMoic+'x',s:'color:var(--a)'},
-    {l:'アクティブアラート',v:alertCount+'件',s:alertCount>0?'color:var(--ng)':''}
-  ].map(k=>'<div class="ps"><div class="ps-l">'+k.l+'</div><div class="ps-v"'+(k.s?' style="'+k.s+'"':'')+'>'+k.v+'</div></div>').join('');
+  var alertCount=0;
 
-  // Tabs
-  var tabs=['全社表示','Fund III','Fund II','Fund I'];
-  var tabVals=['all','fund3','fund2','fund1'];
-  document.getElementById('port-tabs').innerHTML=tabs.map((t,i)=>'<button class="tab'+(tabVals[i]===currentFund||currentFund==='all'&&i===0?' active':'')+'" onclick="filterPortfolio(\''+tabVals[i]+'\',this)">'+t+'</button>').join('');
-
-  renderPortfolioCards(companies);
+  document.getElementById('page-portfolio').innerHTML=hdr('ポートフォリオ モニタリング')+
+    '<div class="ct">'+
+    '<div class="p-sum"><div class="ps"><div class="ps-l">投資先</div><div class="ps-v">'+companies.length+'社</div></div><div class="ps"><div class="ps-l">投資総額</div><div class="ps-v">¥'+totalInv+'億</div></div><div class="ps"><div class="ps-l">評価額</div><div class="ps-v" style="color:var(--a)">¥'+totalVal+'億</div></div><div class="ps"><div class="ps-l">平均MOIC</div><div class="ps-v">'+avgMoic+'x</div></div><div class="ps"><div class="ps-l">リターン倍率</div><div class="ps-v" style="color:var(--a)">'+(totalVal/totalInv).toFixed(2)+'x</div></div></div>'+
+    '<div class="tabs" style="margin-top:16px"><button class="tab active" onclick="filterPort(\'all\',this)">全社</button><button class="tab" onclick="filterPort(\'fund3\',this)">Fund III</button><button class="tab" onclick="filterPort(\'fund2\',this)">Fund II</button><button class="tab" onclick="filterPort(\'fund1\',this)">Fund I</button></div>'+
+    '<div class="p-grid" id="port-grid">'+renderPortCards(companies)+'</div></div>';
+  setTimeout(()=>{companies.forEach(c=>{var el=document.getElementById('wf-'+c.id);if(el)renderWaterfall('wf-'+c.id,c)})},50);
 }
-
-function filterPortfolio(fund,btn){
-  document.querySelectorAll('#port-tabs .tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  var companies=fund==='all'?portfolioCompanies:portfolioCompanies.filter(c=>c.fund===fund);
-  renderPortfolioCards(companies);
+function filterPort(fund,btn){
+  document.querySelectorAll('#page-portfolio .tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');
+  var companies=fund==='all'?portfolioCompanies.slice(0,20):portfolioCompanies.filter(c=>c.fund===fund).slice(0,20);
+  document.getElementById('port-grid').innerHTML=renderPortCards(companies);
+  setTimeout(()=>{companies.forEach(c=>{var el=document.getElementById('wf-'+c.id);if(el)renderWaterfall('wf-'+c.id,c)})},50);
 }
-
-function renderPortfolioCards(companies){
-  document.getElementById('port-grid').innerHTML=companies.map(function(c,idx){
-    var wfId='wf-'+c.id;
+function renderPortCards(companies){
+  return companies.map(c=>{
     var fb=c.fund==='fund3'?'badge-a':c.fund==='fund2'?'badge-vi':'badge-w';
-    var html='<div class="pc '+c.status+'">'+
-      '<div class="pc-h"><div><div class="pc-n">'+c.name+'</div><div class="pc-info"><span>'+c.sector+'</span><span>投資日: '+c.date+'</span><span class="badge '+fb+'">'+c.fund.replace('fund','Fund ')+'</span></div></div><span class="sb '+c.status+'">'+(c.status==='on'?'&#10003; ':c.status==='watch'?'&#9673; ':'&#9888; ')+c.statusLabel+'</span></div>'+
-      '<div class="pm">'+
-        '<div><div class="pm-l">投資額</div><div class="pm-v">¥'+c.inv+'億</div></div>'+
-        '<div><div class="pm-l">現在評価額</div><div class="pm-v">¥'+c.val+'億</div></div>'+
-        '<div><div class="pm-l">MOIC</div><div class="pm-v" style="color:'+(c.moic>=1.2?'var(--ok)':c.moic>=1?'var(--w)':'var(--ng)')+'">'+c.moic.toFixed(2)+'x</div></div>'+
-        '<div><div class="pm-l">Gross IRR</div><div class="pm-v" style="color:'+(c.irr>=15?'var(--ok)':c.irr>=5?'var(--w)':'var(--ng)')+'">'+c.irr+'%</div></div>'+
-        '<div><div class="pm-l">'+c.metric1L+'</div><div class="pm-v">¥'+c.rev+'億</div></div>'+
-        '<div><div class="pm-l">'+c.metric2L+'</div><div class="pm-v">¥'+c.ebitda+'億</div></div>'+
-      '</div>'+
-      // Factor cards
-      '<div class="sh"><div class="st" style="font-size:11px">リターン3要素分解（LBO Returns Attribution）</div></div>'+
-      '<div class="factor-grid">'+
-        '<div class="factor-card"><div class="factor-card-l">EBITDA成長</div><div class="factor-card-v '+(c.factors.ebitdaGrowth.pct>=0?'pos':'neg')+'">'+c.factors.ebitdaGrowth.pct+'%</div><div class="factor-card-d">'+c.factors.ebitdaGrowth.detail.split(',')[0]+'</div></div>'+
-        '<div class="factor-card"><div class="factor-card-l">マルチプル変動</div><div class="factor-card-v '+(c.factors.multipleExp.pct>0?'pos':c.factors.multipleExp.pct<0?'neg':'neu')+'">'+c.factors.multipleExp.pct+'%</div><div class="factor-card-d">'+c.factors.multipleExp.detail.split(',')[0]+'</div></div>'+
-        '<div class="factor-card"><div class="factor-card-l">デレバレッジ</div><div class="factor-card-v '+(c.factors.debtPaydown.pct>=0?'pos':'neg')+'">'+c.factors.debtPaydown.pct+'%</div><div class="factor-card-d">'+c.factors.debtPaydown.detail.split(',')[0]+'</div></div>'+
-      '</div>'+
-      // Waterfall container
-      '<div id="'+wfId+'" class="wf-container"></div>'+
-      // Sparklines
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-        '<div class="sp-box"><div class="sp-l">売上推移（四半期）</div><div class="sp-row">'+c.sparks.rev.map(function(v,i){var prev=i>0?c.sparks.rev[i-1]:v;return '<div class="sp-b '+(v>=prev?'u':'d')+'" style="height:'+v+'%"></div>'}).join('')+'</div></div>'+
-        '<div class="sp-box"><div class="sp-l">EBITDA推移（四半期）</div><div class="sp-row">'+c.sparks.ebitda.map(function(v,i){var prev=i>0?c.sparks.ebitda[i-1]:v;return '<div class="sp-b '+(v>=prev?'n':'d')+'" style="height:'+v+'%"></div>'}).join('')+'</div></div>'+
-      '</div>';
-    // Alerts
-    if(c.alerts.length){
-      html+='<div class="p-alerts">'+c.alerts.map(a=>'<div class="p-alert"><span>&#9888;</span>'+a+'</div>').join('')+'</div>';
-    }
-    // Exit box
-    html+='<div class="exit-box">'+
-      '<div class="exit-h"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Exit分析シミュレーション</div>'+
-      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">'+
-        '<div class="factor-card"><div class="factor-card-l">想定Exit MOIC</div><div class="factor-card-v '+(parseFloat(c.exit.moic)>=1?'pos':'neg')+'">'+c.exit.moic+'</div></div>'+
-        '<div class="factor-card"><div class="factor-card-l">想定Gross IRR</div><div class="factor-card-v '+(parseFloat(c.exit.grossIrr)>=0?'pos':'neg')+'">'+c.exit.grossIrr+'</div></div>'+
-        '<div class="factor-card"><div class="factor-card-l">想定Net IRR</div><div class="factor-card-v '+(parseFloat(c.exit.netIrr)>=0?'pos':'neg')+'">'+c.exit.netIrr+'</div></div>'+
-        '<div class="factor-card"><div class="factor-card-l">想定DPI寄与</div><div class="factor-card-v neu">'+c.exit.dpi+'</div></div>'+
-      '</div>'+
-      '<div style="font-size:10px;font-weight:600;margin-bottom:8px;color:var(--vi)">&#127919; 想定Exit先候補</div>'+
-      '<div class="exit-cands">'+c.exit.candidates.map(x=>'<div class="exit-cand"><div><div class="exit-cand-n">'+x.n+'</div><div class="exit-cand-t">'+x.t+'</div></div><div class="exit-cand-r"><span>'+x.ev+'</span><span class="badge '+x.fitClass+'">適合度: '+x.fit+'</span></div></div>').join('')+'</div></div>';
-    html+='</div>';
-    return html;
+    return '<div class="pc '+c.status+'"><div class="pc-h"><div><div class="pc-n">'+c.name+'</div><div class="pc-info"><span>'+c.sector+'</span><span>'+c.date+'</span><span class="badge '+fb+'">'+c.fund.replace('fund','Fund ')+'</span></div></div><span class="sb '+c.status+'">'+(c.status==='on'?'&#10003; 順調':c.status==='watch'?'&#9673; 要注意':'&#9888; 要対応')+'</span></div>'+
+    '<div class="pm"><div><div class="pm-l">投資額</div><div class="pm-v">¥'+c.inv+'億</div></div><div><div class="pm-l">評価額</div><div class="pm-v">¥'+c.val+'億</div></div><div><div class="pm-l">MOIC</div><div class="pm-v" style="color:'+(c.moic>=1.3?'var(--a)':c.moic>=1?'var(--m)':'var(--ng)')+'">'+c.moic.toFixed(2)+'x</div></div><div><div class="pm-l">IRR</div><div class="pm-v" style="color:'+(c.irr>=15?'var(--a)':c.irr>=5?'var(--m)':'var(--ng)')+'">'+c.irr+'%</div></div><div><div class="pm-l">売上高</div><div class="pm-v">¥'+c.rev+'億</div></div><div><div class="pm-l">EBITDA</div><div class="pm-v">¥'+c.ebitda+'億</div></div></div>'+
+    '<div class="sh"><div class="st" style="font-size:11px">リターン3要素分解（LBO Returns Attribution）</div></div>'+
+    '<div class="factor-grid"><div class="factor-card"><div class="factor-card-l">EBITDA成長</div><div class="factor-card-v '+(c.f.eg.pct>=0?'pos':'neg')+'">'+c.f.eg.pct+'%</div><div class="factor-card-d">'+c.f.eg.d+'</div></div><div class="factor-card"><div class="factor-card-l">マルチプル変動</div><div class="factor-card-v '+(c.f.me.pct>0?'pos':c.f.me.pct<0?'neg':'neu')+'">'+c.f.me.pct+'%</div><div class="factor-card-d">'+c.f.me.d+'</div></div><div class="factor-card"><div class="factor-card-l">デレバレッジ</div><div class="factor-card-v '+(c.f.dp.pct>=0?'pos':'neg')+'">'+c.f.dp.pct+'%</div><div class="factor-card-d">'+c.f.dp.d+'</div></div></div>'+
+    '<div id="wf-'+c.id+'" class="wf-container"></div></div>';
   }).join('');
-  // Render waterfalls after DOM update
-  setTimeout(function(){
-    companies.forEach(function(c){renderWaterfall('wf-'+c.id,c)});
-  },50);
 }
-
-// ========== CHATBOT ==========
-var chatResponses={
-  'nexus':{q:'Nexus Precisionについて教えて',a:'<strong>Nexus Precision Manufacturing — AIスコア: 87/100</strong><br><br>&#128202; <strong>主要指標</strong><br>&bull; EV: ¥125億 / EBITDA: ¥18億 / EV/EBITDA: 6.9x<br>&bull; EBITDAマージン: 14.2%（5年間安定）<br>&bull; 半導体製造装置向け精密部品で国内シェア32%<br><br>&#9888; <strong>リスク要因</strong><br>&bull; 顧客集中: 上位3社で売上の45%<br>&bull; 設備老朽化: 主要工場の設備年齢が平均15年<br>&bull; オーナー（68歳）の後継者計画が未確定<br><br>&#10003; <strong>推奨</strong>: DD継続。顧客契約の持続性と設備投資計画に重点を。'},
-  '3要素':{q:'3要素分解',a:'<strong>投資リターン3要素分解 — Wall Street Prep準拠</strong><br><br>LBOリターンの帰属分析は以下3要素で構成されます：<br><br>1. <strong>EBITDA成長</strong>: 売上成長とマージン改善による営業利益の増加<br>→ (Exit EBITDA - Entry EBITDA) × Entry Multiple<br><br>2. <strong>マルチプル拡大</strong>: Exit時のバリュエーション改善<br>→ (Exit Multiple - Entry Multiple) × Exit EBITDA<br><br>3. <strong>デレバレッジ（負債返済）</strong>: 投資期間中の純有利子負債の削減<br>→ Entry Net Debt - Exit Net Debt<br><br>各ポートフォリオ企業でウォーターフォールチャートを確認できます。<br><br>&#128279; <a href="https://www.wallstreetprep.com/knowledge/lbo-returns-attribution-analysis-value-creation/" target="_blank">Wall Street Prep参照</a>'},
-  'atlas':{q:'Atlas Industrial',a:'<strong>Atlas Industrial Services — 順調 &#10003;</strong><br><br>&#128200; MOIC: 1.71x / Gross IRR: 28.5%<br><br><strong>3要素分解:</strong><br>&bull; EBITDA成長: 42%（主要ドライバー）<br>&bull; マルチプル変動: 0%（変動なし）<br>&bull; デレバレッジ: 58%<br><br>&#128161; <strong>AIバリューアップ推奨</strong>: 847 SKUの価格弾力性分析で15%の製品が過小価格設定。年間¥1.2-1.8億のEBITDA向上が見込まれます。'},
-  'cloudbridge':{q:'CloudBridge',a:'<strong>CloudBridge Solutions — バリュエーション段階</strong><br><br>&#128200; AIスコア: 92/100（最高評価）<br>&bull; EV: ¥82億 / EBITDA: ¥12億<br>&bull; リカーリング収益比率: 85%<br><br>SaaSセクターで最も高い投資魅力度。DCFとComps両手法で¥80-90億のフェアバリューレンジ。投資委員会への上程を推奨します。'},
-  '関東':{q:'関東化学',a:'<strong>関東化学工業 — 要対応 &#9888;</strong><br><br>&#128308; MOIC: 1.10x / Gross IRR: 3.2%<br><br><strong>3要素分解:</strong><br>&bull; EBITDA成長: -75%（マイナス寄与）<br>&bull; マルチプル変動: -35%<br>&bull; デレバレッジ: +110%（唯一のプラス）<br><br>&#9888; <strong>アラート</strong><br>&bull; EBITDA 3四半期連続低下<br>&bull; 原材料コスト+18%<br>&bull; コベナンツ抵触リスク（5.0x接近）<br><br>&#128161; コスト削減施策で年間¥4.5億の改善が可能。レンダーとの早期交渉を推奨。'},
-  'exit':{q:'Exit分析',a:'<strong>Exit分析サマリー — ポートフォリオ全体</strong><br><br>&#128293; <strong>Exit推奨（今すぐ）</strong><br>&bull; Digital Frontier: SaaSマルチプル高値圏、想定MOIC 2.8x<br><br>&#128994; <strong>Exit準備可能</strong><br>&bull; Atlas Industrial: 想定MOIC 2.1x、戦略的バイヤー候補あり<br>&bull; Premier Logistics: 想定MOIC 1.85x<br><br>&#128308; <strong>Exit非推奨</strong><br>&bull; 関東化学工業: MOIC 0.95x、改善施策実行後に再評価<br>&bull; Horizon Medical: 要注意事項の解消が先決'},
-  'im分析':{q:'IM分析',a:'<strong>IM分析機能</strong><br><br>IMドキュメントをアップロードいただければ、以下の分析を自動実行します：<br><br>1. &#128202; 財務データの抽出と検証<br>2. &#9888; レッドフラグの自動検出<br>3. &#128200; 業界ベンチマークとの比較<br>4. &#128176; バリュエーションレンジの算出<br>5. &#128221; DDチェックリストの自動生成<br><br>対応形式: PDF, Excel, PowerPoint<br>最新分析: Sakura Healthcare IM（信頼度88%）'},
-  'comps':{q:'Comps分析',a:'<strong>Comparable企業分析 — パイプライン案件</strong><br><br>Nexus Precision vs 類似企業：<br>&bull; THK: 8.5x EV/EBITDA（マージン12.8%）<br>&bull; ミスミ: 9.2x（マージン16.5%）<br>&bull; CKD: 7.8x（マージン13.1%）<br><br>→ Nexus 6.9xはディスカウント水準。事業承継プレミアム込みで7.5-8.0xが適正と判断。<br><br>CloudBridge vs SaaS Comps：<br>&bull; Sansan: 15.2x<br>&bull; freee: 18.5x<br>→ 6.8x EV/EBITDAはバリュー水準。高成長プレミアムを考慮し12-15xが適正。'},
-  'レッドフラグ':{q:'レッドフラグ',a:'<strong>レッドフラグチェック — 全案件サマリー</strong><br><br>&#128308; <strong>高リスク</strong><br>&bull; 関東化学工業: コベナンツ抵触リスク、EBITDA継続低下<br>&bull; GreenLogix: 顧客集中62%、最大顧客の長期契約未締結<br><br>&#128992; <strong>中リスク</strong><br>&bull; Horizon Medical: Q3売上減少、主要顧客契約更新未完了<br>&bull; Nexus Precision: オーナー68歳、後継者計画未確定<br><br>&#128994; <strong>低リスク</strong><br>&bull; Digital Frontier、Atlas Industrial、Premier Logistics: 重大なレッドフラグなし'}
-};
-
-function sendChat(){
-  var input=document.getElementById('chatInput');
-  var msg=input.value.trim();
-  if(!msg)return;
-  var msgs=document.getElementById('chatMessages');
-  msgs.innerHTML+='<div class="ch-msg user">'+msg+'</div>';
-  input.value='';
-  msgs.innerHTML+='<div class="ch-msg typing" id="typingIndicator">AI分析中...</div>';
-  msgs.scrollTop=msgs.scrollHeight;
-  setTimeout(function(){
-    var ti=document.getElementById('typingIndicator');
-    if(ti)ti.remove();
-    var response=generateChatResponse(msg);
-    msgs.innerHTML+='<div class="ch-msg ai">'+response+'</div>';
-    msgs.scrollTop=msgs.scrollHeight;
-  },800+Math.random()*1200);
-}
-
-function chatQuickAction(action){
-  document.getElementById('chatInput').value=action+'について教えてください';
-  sendChat();
-}
-
-function generateChatResponse(msg){
-  var lower=msg.toLowerCase();
-  for(var key in chatResponses){
-    if(lower.includes(key.toLowerCase()))return chatResponses[key].a;
-  }
-  if(lower.includes('digital')||lower.includes('frontier'))return chatResponses['exit'].a.replace('Exit分析サマリー','Digital Frontier重点分析');
-  if(lower.includes('premier')||lower.includes('物流'))return '<strong>Premier Logistics Group</strong><br><br>MOIC: 1.55x / IRR: 20.8%<br><br>3要素分解:<br>&bull; EBITDA成長: 28%<br>&bull; マルチプル変動: 58%（主要ドライバー）<br>&bull; デレバレッジ: 14%<br><br>ボルトオン候補としてコールドチェーン物流3社を特定。M&A実行により顧客単価20%向上が期待されます。';
-  if(lower.includes('市場')||lower.includes('マーケット'))return '<strong>日本PE市場動向 — 2026年Q1</strong><br><br>&bull; 取引件数: 142件（YTD、+18%）<br>&bull; 平均EV/EBITDA: 8.2x（+0.4x）<br>&bull; 平均ディールサイズ: ¥85億<br>&bull; 事業承継案件が全体の35%を占有<br><br>マクロ環境: 日銀0.75%、10年債1.42%、USD/JPY 148.5<br>金利上昇環境下でもPE取引は堅調に推移。';
-  if(lower.includes('esg'))return '<strong>ESGモニタリング — ポートフォリオ</strong><br><br>全体スコア: B+（改善傾向）<br>&bull; 環境(E): A- / 社会(S): B+ / ガバナンス(G): A<br><br>&#9888; 関東化学工業がC+に低下。CO2排出量+5%増加。<br>&#128161; TCFD開示準備を推奨（2027年義務化対応）。';
-  return '<strong>分析結果</strong><br><br>ご質問「'+msg+'」について分析しました。<br><br>現在のポートフォリオ状況:<br>&bull; 順調: Atlas, Digital Frontier, Premier Logistics<br>&bull; 要注意: Horizon Medical<br>&bull; 要対応: 関東化学工業<br><br>より詳しい分析が必要な場合は、具体的な企業名やトピック（3要素分解、Exit分析、Comps分析など）をお伝えください。';
-}
-
-// ========== INSIGHTS ==========
-function renderInsights(){
+// ========== AI INSIGHTS ==========
+function renderAI(){
   var filtered=currentFund==='all'?insights:insights.filter(i=>i.fund===currentFund||i.fund==='all');
-  document.getElementById('insightCount').textContent='('+filtered.length+'件)';
-  document.getElementById('insightFeed').innerHTML=filtered.map(renderInsightCard).join('');
-  // DD tracker
-  document.getElementById('ddTracker').innerHTML='<h3>DD進捗 — Nexus Precision</h3><div class="sub">AI支援によるデューデリジェンス管理</div><div class="dd-items">'+
-    [{n:'財務DD',p:100,s:'done'},{n:'法務DD',p:72,s:'prog'},{n:'事業DD',p:58,s:'prog'},{n:'税務DD',p:45,s:'prog'},{n:'IT / サイバーDD',p:10,s:'pend'},{n:'ESG DD',p:0,s:'pend'},{n:'人事DD',p:0,s:'pend'}].map(d=>
-    '<div class="dd-i"><div class="dd-i-ic '+d.s+'">'+(d.s==='done'?'&#10003;':d.s==='prog'?'&#9679;':'')+'</div><div class="dd-i-body"><div class="dd-i-h"><span class="dd-i-n">'+d.n+'</span><span class="dd-i-p">'+d.p+'%</span></div><div class="dd-pg"><div class="dd-pg-f '+d.s+'" style="width:'+d.p+'%"></div></div></div></div>'
-    ).join('')+'</div>';
+  document.getElementById('page-ai').innerHTML=hdr('AIインサイト')+
+    '<div class="ct"><div class="ai-ly"><div class="ch-box"><div class="ch-hd"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--a)" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4c0 2 2 3 2 6H14c0-3 2-4 2-6a4 4 0 0 0-4-4z"/></svg>AI DDアシスタント<div class="dot"></div></div>'+
+    '<div class="ch-msgs" id="chatMessages"><div class="ch-msg ai">こんにちは。AI DDアシスタントです。案件の質問、IM分析、3要素分解、Exit分析など対応します。</div></div>'+
+    '<div class="ch-acts"><button class="ch-act" onclick="chatQ(\'IM分析\')">IM分析</button><button class="ch-act" onclick="chatQ(\'3要素分解\')">3要素分解</button><button class="ch-act" onclick="chatQ(\'レッドフラグ\')">レッドフラグ</button><button class="ch-act" onclick="chatQ(\'Comps分析\')">Comps分析</button><button class="ch-act" onclick="chatQ(\'Exit分析\')">Exit分析</button><button class="ch-act" onclick="chatQ(\'市場動向\')">市場動向</button></div>'+
+    '<div class="ch-in-w"><input class="ch-in" id="chatInput" placeholder="質問を入力..." onkeydown="if(event.key===\'Enter\')sendChat()"><button class="ch-send" onclick="sendChat()">&#10148;</button></div></div>'+
+    '<div class="dd-tr"><h3>DD進捗 — Nexus Precision</h3><div class="sub">AI支援デューデリジェンス管理</div><div class="dd-items">'+
+    [{n:'財務DD',p:100,s:'done'},{n:'法務DD',p:72,s:'prog'},{n:'事業DD',p:58,s:'prog'},{n:'税務DD',p:45,s:'prog'},{n:'IT DD',p:10,s:'pend'},{n:'ESG DD',p:0,s:'pend'},{n:'人事DD',p:0,s:'pend'}].map(d=>
+    '<div class="dd-i"><div class="dd-i-ic '+d.s+'">'+(d.s==='done'?'&#10003;':d.s==='prog'?'&#9679;':'')+'</div><div class="dd-i-body"><div class="dd-i-h"><span class="dd-i-n">'+d.n+'</span><span class="dd-i-p">'+d.p+'%</span></div><div class="dd-pg"><div class="dd-pg-f '+d.s+'" style="width:'+d.p+'%"></div></div></div></div>').join('')+'</div></div></div>'+
+    '<div style="margin-top:16px"><div class="sh"><div class="st">AIインサイトフィード <span style="font-weight:400;color:var(--m);font-size:10px">('+filtered.length+'件)</span></div>'+
+    '<div class="flt"><button class="flt-b active" onclick="filterIns(\'all\',this)">すべて</button><button class="flt-b" onclick="filterIns(\'risk\',this)">リスク</button><button class="flt-b" onclick="filterIns(\'opp\',this)">機会</button><button class="flt-b" onclick="filterIns(\'alert\',this)">アラート</button><button class="flt-b" onclick="filterIns(\'rec\',this)">推奨</button></div></div>'+
+    '<div class="ig" id="insFeed">'+filtered.map(renderInsightCard).join('')+'</div></div></div>';
 }
-
-function filterInsights(type,btn){
-  document.querySelectorAll('#insightFilter .flt-b').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+function filterIns(type,btn){
+  document.querySelectorAll('#page-ai .flt-b').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
   var filtered=currentFund==='all'?insights:insights.filter(i=>i.fund===currentFund||i.fund==='all');
   if(type!=='all')filtered=filtered.filter(i=>i.type===type);
-  document.getElementById('insightCount').textContent='('+filtered.length+'件)';
-  document.getElementById('insightFeed').innerHTML=filtered.map(renderInsightCard).join('');
+  document.getElementById('insFeed').innerHTML=filtered.map(renderInsightCard).join('');
 }
-// ========== LP REPORT ==========
+function sendChat(){
+  var input=document.getElementById('chatInput');var msg=input.value.trim();if(!msg)return;
+  var msgs=document.getElementById('chatMessages');
+  msgs.innerHTML+='<div class="ch-msg user">'+msg+'</div>';input.value='';
+  msgs.innerHTML+='<div class="ch-msg typing" id="typing">分析中...</div>';msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(function(){var t=document.getElementById('typing');if(t)t.remove();msgs.innerHTML+='<div class="ch-msg ai">'+genResponse(msg)+'</div>';msgs.scrollTop=msgs.scrollHeight;},600+Math.random()*800);
+}
+function chatQ(topic){document.getElementById('chatInput').value=topic+'について教えて';sendChat();}
+function genResponse(msg){
+  var m=msg.toLowerCase();
+  if(m.includes('3要素')||m.includes('分解'))return '<strong>LBO Returns Attribution — 3要素分解</strong><br><br>Wall Street Prep準拠の分析手法:<br><br>1. <strong>EBITDA成長</strong>: 売上成長+マージン改善<br>→ (Exit EBITDA - Entry EBITDA) × Entry Multiple<br><br>2. <strong>マルチプル拡大</strong>: Exit時の評価改善<br>→ (Exit Mult - Entry Mult) × Exit EBITDA<br><br>3. <strong>デレバレッジ</strong>: 負債返済による株主価値増加<br>→ Entry Net Debt - Exit Net Debt<br><br>ポートフォリオ画面で各企業のウォーターフォールチャートを確認できます。<br><a href="https://www.wallstreetprep.com/knowledge/lbo-returns-attribution-analysis-value-creation/" target="_blank">WSP参照 ↗</a>';
+  if(m.includes('atlas'))return '<strong>Atlas Industrial — MOIC 1.71x / IRR 28.5%</strong><br><br>3要素: EBITDA成長 42% / マルチプル 0% / デレバレッジ 58%<br><br>価格最適化により年間¥1.2-1.8億のEBITDA改善余地。';
+  if(m.includes('exit'))return '<strong>Exit分析</strong><br><br>&#128308; Exit推奨: Digital Frontier（MOIC 2.8x想定）<br>&#128994; 準備可: Atlas（2.1x）、Premier（1.85x）<br>&#9898; 非推奨: 関東化学（0.95x）';
+  if(m.includes('関東')||m.includes('kanto'))return '<strong>関東化学工業 — 要対応</strong><br>MOIC 1.10x / IRR 3.2%<br><br>3要素: EBITDA -75% / マルチプル -35% / デレバレッジ +110%<br><br>コスト削減で年間¥4.5億改善可能。コベナンツ交渉が急務。';
+  if(m.includes('im')||m.includes('分析'))return '<strong>IM分析</strong>: ドキュメントをアップロードすると、財務データ抽出・レッドフラグ検出・ベンチマーク比較・バリュエーション算出を自動実行します。';
+  if(m.includes('comps'))return '<strong>Comps分析</strong><br>Nexus vs 類似: THK 8.5x / ミスミ 9.2x / CKD 7.8x<br>→ Nexus 6.9xはディスカウント水準。7.5-8.0xが適正。';
+  if(m.includes('レッドフラグ'))return '<strong>レッドフラグ</strong><br>&#128308; 高: 関東化学（コベナンツ）、GreenLogix（顧客集中62%）<br>&#128992; 中: Horizon Medical（売上減少）、Nexus（後継者未定）<br>&#128994; 低: Digital Frontier、Atlas、Premier';
+  if(m.includes('市場'))return '<strong>日本PE市場 2026 Q1</strong><br>取引件数: 142件（+18%）/ 平均EV/EBITDA: 8.2x / 事業承継案件が35%。';
+  return '「'+msg+'」について分析しました。ポートフォリオは順調3社、要注意1社、要対応1社です。詳細は企業名やトピック（3要素分解、Exit、Comps等）をご指定ください。';
+}
+
+// ========== LP ==========
 function renderLP(){
   var fd=fundData[currentFund];
-  var html='<div class="lp-bn"><div class="lp-bn-l"><div class="lp-bn-ic">&#10024;</div><div><h3>AIレポート自動生成</h3><p>ポートフォリオデータからILPA準拠の四半期LPレポートを自動生成。</p></div></div><button class="lp-bn-btn" onclick="alert(\'Q1 2026レポートを生成中...AI分析とナラティブ草案を作成します。\')">&#8635; Q1 2026レポートを生成</button></div>';
-  if(currentFund==='all'){
-    html+='<div class="lp-st"><div class="lp-s"><div class="lp-s-l">Fund III NAV</div><div class="lp-s-v">'+fundData.fund3.nav+'</div></div><div class="lp-s"><div class="lp-s-l">Fund III TVPI</div><div class="lp-s-v" style="color:var(--ok)">'+fundData.fund3.tvpi+'</div></div><div class="lp-s"><div class="lp-s-l">Fund II NAV</div><div class="lp-s-v">'+fundData.fund2.nav+'</div></div><div class="lp-s"><div class="lp-s-l">Fund II TVPI</div><div class="lp-s-v" style="color:var(--ok)">'+fundData.fund2.tvpi+'</div></div></div>';
-  }else{
-    html+='<div class="lp-st"><div class="lp-s"><div class="lp-s-l">NAV</div><div class="lp-s-v">'+fd.nav+'</div></div><div class="lp-s"><div class="lp-s-l">TVPI</div><div class="lp-s-v" style="color:var(--ok)">'+fd.tvpi+'</div></div><div class="lp-s"><div class="lp-s-l">DPI</div><div class="lp-s-v">'+fd.dpi+'</div></div><div class="lp-s"><div class="lp-s-l">Net IRR</div><div class="lp-s-v" style="color:var(--ok)">'+fd.netIrr+'</div></div></div>';
-  }
   var reports=[
-    {fund:'Fund III',period:'Q4 2025',status:'sent',statusLabel:'&#10003; 送付済',nav:'¥428億',dpi:'0.32x',tvpi:'1.62x',irr:'18.2%',f:'fund3'},
-    {fund:'Fund III',period:'Q1 2026',status:'draft',statusLabel:'&#9998; 下書き',nav:'¥441億',dpi:'0.32x',tvpi:'1.67x',irr:'18.7%',f:'fund3'},
-    {fund:'Fund II',period:'Q4 2025',status:'sent',statusLabel:'&#10003; 送付済',nav:'¥285億',dpi:'1.15x',tvpi:'2.31x',irr:'24.5%',f:'fund2'},
-    {fund:'Fund II',period:'Q1 2026',status:'review',statusLabel:'&#9200; レビュー中',nav:'¥272億',dpi:'1.22x',tvpi:'2.35x',irr:'24.8%',f:'fund2'},
-    {fund:'Fund I',period:'Q4 2025',status:'sent',statusLabel:'&#10003; 送付済',nav:'¥18億',dpi:'2.45x',tvpi:'2.82x',irr:'22.1%',f:'fund1'}
+    {fund:'Fund III',period:'Q4 2025',status:'sent',sl:'&#10003; 送付済',nav:'¥428億',dpi:'0.32x',tvpi:'1.62x',irr:'18.2%',f:'fund3'},
+    {fund:'Fund III',period:'Q1 2026',status:'draft',sl:'&#9998; 下書き',nav:'¥441億',dpi:'0.32x',tvpi:'1.67x',irr:'18.7%',f:'fund3'},
+    {fund:'Fund II',period:'Q4 2025',status:'sent',sl:'&#10003; 送付済',nav:'¥285億',dpi:'1.15x',tvpi:'2.31x',irr:'24.5%',f:'fund2'},
+    {fund:'Fund II',period:'Q1 2026',status:'review',sl:'&#9200; レビュー',nav:'¥272億',dpi:'1.22x',tvpi:'2.35x',irr:'24.8%',f:'fund2'},
+    {fund:'Fund I',period:'Q4 2025',status:'sent',sl:'&#10003; 送付済',nav:'¥18億',dpi:'2.45x',tvpi:'2.82x',irr:'22.1%',f:'fund1'}
   ];
-  var filtReports=currentFund==='all'?reports:reports.filter(r=>r.f===currentFund);
-  html+='<div class="lp-bot"><div class="lp-tc"><div class="lp-tc-h">四半期レポート一覧</div><table><thead><tr><th>ファンド</th><th>期間</th><th>ステータス</th><th>NAV</th><th>DPI</th><th>TVPI</th><th>Net IRR</th></tr></thead><tbody>'+
-    filtReports.map(r=>'<tr><td style="font-weight:500;font-size:11px">'+r.fund+'</td><td>'+r.period+'</td><td><span class="rs '+r.status+'">'+r.statusLabel+'</span></td><td>'+r.nav+'</td><td>'+r.dpi+'</td><td style="font-weight:600;color:var(--a)">'+r.tvpi+'</td><td>'+r.irr+'</td></tr>').join('')+
-    '</tbody></table></div>';
-  var lpData={fund3:[{n:'年金積立金管理運用独立行政法人 (GPIF)',t:'年金基金',a:'¥150億'},{n:'第一生命保険',t:'保険会社',a:'¥80億'},{n:'東京大学基金',t:'エンダウメント',a:'¥30億'},{n:'みずほ銀行',t:'銀行',a:'¥50億'},{n:'GIC (シンガポール)',t:'政府系ファンド',a:'¥100億'}],fund2:[{n:'日本生命保険',t:'保険会社',a:'¥100億'},{n:'三菱UFJ信託銀行',t:'銀行',a:'¥60億'},{n:'CalPERS',t:'年金基金',a:'¥80億'},{n:'Temasek',t:'政府系ファンド',a:'¥50億'}],fund1:[{n:'大和証券グループ',t:'証券会社',a:'¥40億'},{n:'野村アセットマネジメント',t:'運用会社',a:'¥30億'},{n:'三井住友信託銀行',t:'銀行',a:'¥25億'}]};
-  var lps=currentFund==='all'?lpData.fund3:lpData[currentFund]||lpData.fund3;
-  var totalCommit=lps.reduce((a,l)=>a+parseInt(l.a.replace(/[¥億]/g,'')),0);
-  html+='<div class="lp-inv"><h3>LP一覧 — '+fd.label+'</h3><div class="lp-il">'+
-    lps.map(l=>'<div class="lp-ii"><div><div class="lp-ii-n">'+l.n+'</div><div class="lp-ii-t">'+l.t+'</div></div><div class="lp-ii-a">'+l.a+'</div></div>').join('')+
-    '</div><div class="lp-tot"><span style="color:var(--m)">コミットメント総額</span><span style="font-weight:700">¥'+totalCommit+'億</span></div></div></div>';
-  document.getElementById('lpContent').innerHTML=html;
+  var filtR=currentFund==='all'?reports:reports.filter(r=>r.f===currentFund);
+  var lpData={fund3:[{n:'GPIF',t:'年金基金',a:'¥150億'},{n:'第一生命保険',t:'保険会社',a:'¥80億'},{n:'東京大学基金',t:'エンダウメント',a:'¥30億'},{n:'みずほ銀行',t:'銀行',a:'¥50億'},{n:'GIC',t:'政府系ファンド',a:'¥100億'}],fund2:[{n:'日本生命保険',t:'保険',a:'¥100億'},{n:'三菱UFJ信託',t:'銀行',a:'¥60億'},{n:'CalPERS',t:'年金基金',a:'¥80億'},{n:'Temasek',t:'政府系',a:'¥50億'}],fund1:[{n:'大和証券',t:'証券',a:'¥40億'},{n:'野村AM',t:'運用',a:'¥30億'},{n:'三井住友信託',t:'銀行',a:'¥25億'}]};
+  var lps=lpData[currentFund]||lpData.fund3;
+  document.getElementById('page-lp').innerHTML=hdr('LPレポート')+
+    '<div class="ct"><div class="lp-bn"><div class="lp-bn-l"><div class="lp-bn-ic">&#10024;</div><div><h3>AIレポート自動生成</h3><p>ILPA準拠の四半期LPレポートを自動生成</p></div></div><button class="lp-bn-btn" onclick="alert(\'Q1 2026レポート生成中...\')">Q1 2026レポート生成</button></div>'+
+    '<div class="lp-st"><div class="lp-s"><div class="lp-s-l">NAV</div><div class="lp-s-v">¥'+fd.nav+'億</div></div><div class="lp-s"><div class="lp-s-l">TVPI</div><div class="lp-s-v" style="color:var(--a)">'+fd.tvpi+'x</div></div><div class="lp-s"><div class="lp-s-l">DPI</div><div class="lp-s-v">'+fd.dpi+'x</div></div><div class="lp-s"><div class="lp-s-l">Net IRR</div><div class="lp-s-v" style="color:var(--a)">'+fd.netIrr+'%</div></div></div>'+
+    '<div class="lp-bot"><div class="lp-tc"><div class="lp-tc-h">レポート一覧</div><table><thead><tr><th>ファンド</th><th>期間</th><th>ステータス</th><th>NAV</th><th>DPI</th><th>TVPI</th><th>IRR</th></tr></thead><tbody>'+filtR.map(r=>'<tr><td style="font-weight:500">'+r.fund+'</td><td>'+r.period+'</td><td><span class="rs '+r.status+'">'+r.sl+'</span></td><td>'+r.nav+'</td><td>'+r.dpi+'</td><td style="font-weight:600;color:var(--a)">'+r.tvpi+'</td><td>'+r.irr+'</td></tr>').join('')+'</tbody></table></div>'+
+    '<div class="lp-inv"><h3>LP一覧</h3><div class="lp-il">'+lps.map(l=>'<div class="lp-ii"><div><div class="lp-ii-n">'+l.n+'</div><div class="lp-ii-t">'+l.t+'</div></div><div class="lp-ii-a">'+l.a+'</div></div>').join('')+'</div></div></div></div>';
 }
 
 // ========== MARKET ==========
 function renderMarket(){
-  document.getElementById('marketContent').innerHTML=
-    '<div class="kpi-g" style="grid-template-columns:repeat(4,1fr)">'+
-    '<div class="kpi"><div class="kpi-l">日本PE取引件数（YTD）</div><div class="kpi-v">142件</div><div class="kpi-c up"><span>&#9650; +18%</span><span>前年同期比</span></div></div>'+
-    '<div class="kpi"><div class="kpi-l">平均EV/EBITDA</div><div class="kpi-v">8.2x</div><div class="kpi-c up"><span>&#9650; +0.4x</span><span>前年比</span></div></div>'+
-    '<div class="kpi"><div class="kpi-l">平均ディールサイズ</div><div class="kpi-v">¥85億</div><div class="kpi-c up"><span>&#9650; +12%</span><span>前年比</span></div></div>'+
-    '<div class="kpi"><div class="kpi-l">日経平均</div><div class="kpi-v">42,850</div><div class="kpi-c up"><span>&#9650; +8.2%</span><span>YTD</span></div></div></div>'+
-    '<div class="mkt-grid" style="margin-top:16px">'+
-    '<div class="mkt-card"><div class="mkt-card-h">&#128200; セクター別マルチプル</div>'+
-    [['テクノロジー / SaaS','12.3x'],['ヘルスケア','9.8x'],['製造業','7.2x'],['物流','7.5x'],['化学','6.8x'],['食品・飲料','8.1x'],['建設','5.9x']].map(m=>'<div class="mkt-item"><span>'+m[0]+'</span><span style="font-weight:600">'+m[1]+'</span></div>').join('')+'</div>'+
-    '<div class="mkt-card"><div class="mkt-card-h">&#128240; 直近のPE取引</div>'+
-    [['Bain → 東芝テック','¥2,800億'],['KKR → 日立物流子会社','¥1,200億'],['CVC → パナソニックHD子会社','¥850億'],['Carlyle → 大塚家具','¥420億'],['J-STAR → 中堅化学メーカー','¥180億']].map(m=>'<div class="mkt-item"><span style="font-weight:500">'+m[0]+'</span><span>'+m[1]+'</span></div>').join('')+'</div>'+
-    '<div class="mkt-card"><div class="mkt-card-h">&#127760; マクロ環境</div>'+
-    [['日銀政策金利','0.75%'],['10年国債利回り','1.42%'],['USD/JPY','148.5'],['CPI（前年比）','+2.8%'],['GDP成長率（実質）','+1.4%'],['有効求人倍率','1.28']].map(m=>'<div class="mkt-item"><span>'+m[0]+'</span><span style="font-weight:600">'+m[1]+'</span></div>').join('')+'</div></div>'+
-    '<div class="cg cg2" style="margin-top:16px"><div class="cd"><div class="cd-t">Comparable分析 — Nexus Precision Mfg</div><div class="cd-s">類似企業との比較</div><div class="tw" style="border:none"><table><thead><tr><th>企業名</th><th>EV/EBITDA</th><th>EBITDAマージン</th><th>成長率</th><th>ステータス</th></tr></thead><tbody>'+
-    '<tr><td style="font-weight:500;color:var(--a)">Nexus Precision（対象）</td><td>6.9x</td><td>14.2%</td><td>+12.5%</td><td><span class="badge badge-a">DD中</span></td></tr>'+
-    '<tr><td>THK株式会社</td><td>8.5x</td><td>12.8%</td><td>+8.2%</td><td><span class="badge badge-ok">上場</span></td></tr>'+
-    '<tr><td>ミスミグループ</td><td>9.2x</td><td>16.5%</td><td>+10.1%</td><td><span class="badge badge-ok">上場</span></td></tr>'+
-    '<tr><td>CKD株式会社</td><td>7.8x</td><td>13.1%</td><td>+15.3%</td><td><span class="badge badge-ok">上場</span></td></tr>'+
-    '<tr><td>先端精密（PE取引）</td><td>7.2x</td><td>11.5%</td><td>+9.8%</td><td><span class="badge badge-vi">PE</span></td></tr>'+
-    '</tbody></table></div></div>'+
-    '<div class="cd"><div class="cd-t">日本PE市場トレンド</div><div class="cd-s">四半期ごとの取引件数推移</div><div class="bar-c" style="height:140px">'+
-    [[52,'Q1\'24',.3],[58,'Q2\'24',.4],[62,'Q3\'24',.5],[68,'Q4\'24',.6],[75,'Q1\'25',.7],[80,'Q2\'25',.8],[85,'Q3\'25',.85],[92,'Q4\'25',.9],[100,'Q1\'26',1]].map(b=>'<div class="bar-col"><div class="bar" style="height:'+b[0]+'%;background:rgba(37,99,235,'+b[2]+')"></div><div class="bar-lb">'+b[1]+'</div></div>').join('')+'</div></div></div>';
+  document.getElementById('page-market').innerHTML=hdr('マーケット動向')+
+    '<div class="ct"><div class="kpi-g" style="grid-template-columns:repeat(4,1fr)"><div class="kpi"><div class="kpi-l">PE取引件数(YTD)</div><div class="kpi-v">142</div><div class="kpi-c up"><span>&#9650; +18%</span></div></div><div class="kpi"><div class="kpi-l">平均EV/EBITDA</div><div class="kpi-v">8.2x</div><div class="kpi-c up"><span>&#9650; +0.4x</span></div></div><div class="kpi"><div class="kpi-l">平均ディールサイズ</div><div class="kpi-v">¥85億</div><div class="kpi-c up"><span>&#9650; +12%</span></div></div><div class="kpi"><div class="kpi-l">日経平均</div><div class="kpi-v">42,850</div><div class="kpi-c up"><span>&#9650; +8.2%</span></div></div></div>'+
+    '<div class="mkt-grid" style="margin-top:16px"><div class="mkt-card"><div class="mkt-card-h">セクター別マルチプル</div>'+[['テクノロジー','12.3x'],['ヘルスケア','9.8x'],['製造業','7.2x'],['物流','7.5x'],['化学','6.8x'],['食品','8.1x'],['建設','5.9x']].map(m=>'<div class="mkt-item"><span>'+m[0]+'</span><span style="font-weight:600;font-family:Arial">'+m[1]+'</span></div>').join('')+'</div>'+
+    '<div class="mkt-card"><div class="mkt-card-h">直近のPE取引</div>'+[['Bain → 東芝テック','¥2,800億'],['KKR → 日立物流','¥1,200億'],['CVC → パナソニック子会社','¥850億'],['Carlyle → 大塚家具','¥420億'],['J-STAR → 中堅化学','¥180億']].map(m=>'<div class="mkt-item"><span style="font-weight:500">'+m[0]+'</span><span style="font-family:Arial">'+m[1]+'</span></div>').join('')+'</div>'+
+    '<div class="mkt-card"><div class="mkt-card-h">マクロ環境</div>'+[['日銀政策金利','0.75%'],['10年国債','1.42%'],['USD/JPY','148.5'],['CPI','+2.8%'],['GDP成長率','+1.4%'],['有効求人倍率','1.28']].map(m=>'<div class="mkt-item"><span>'+m[0]+'</span><span style="font-weight:600;font-family:Arial">'+m[1]+'</span></div>').join('')+'</div></div></div>';
 }
 
 // ========== TEAM ==========
 function renderTeam(){
-  var members=[
-    {short:'田中',name:'田中 健太',role:'マネージング・ディレクター',color:'var(--a)',deals:4,port:3,util:85},
-    {short:'鈴木',name:'鈴木 美咲',role:'ディレクター',color:'var(--vi)',deals:3,port:2,util:92},
-    {short:'山本',name:'山本 拓也',role:'ヴァイス・プレジデント',color:'var(--ok)',deals:3,port:1,util:78},
-    {short:'伊藤',name:'伊藤 大輔',role:'アソシエイト',color:'var(--w)',deals:4,port:2,util:98},
-    {short:'山脇',name:'山脇 大河',role:'アナリスト',color:'#e11d48',deals:2,port:1,util:65}
-  ];
-  document.getElementById('teamContent').innerHTML=
-    '<div class="team-grid">'+members.map(m=>{
-      var utilColor=m.util>=95?'var(--ng)':m.util>=85?'var(--w)':'var(--ok)';
-      return '<div class="team-card"><div class="team-av" style="background:'+m.color+'">'+m.short+'</div><div class="team-name">'+m.name+'</div><div class="team-role">'+m.role+'</div><div class="team-stat"><div class="team-stat-i"><div class="team-stat-v">'+m.deals+'</div><div class="team-stat-l">担当案件</div></div><div class="team-stat-i"><div class="team-stat-v">'+m.port+'</div><div class="team-stat-l">ポートフォリオ</div></div><div class="team-stat-i"><div class="team-stat-v" style="color:'+utilColor+'">'+m.util+'%</div><div class="team-stat-l">稼働率</div></div></div></div>';
+  document.getElementById('page-team').innerHTML=hdr('チーム')+
+    '<div class="ct"><div class="team-grid">'+accounts.map((a,i)=>{
+      var uC=a.util>=95?'var(--ng)':a.util>=85?'var(--m)':'var(--a)';
+      return '<div class="team-card" onclick="openProfile('+i+')"><div class="team-av" style="background:'+a.color+'">'+a.short+'</div><div class="team-name">'+a.name+'</div><div class="team-role">'+a.role+'</div><div class="team-stat"><div class="team-stat-i"><div class="team-stat-v">'+(a.deals||0)+'</div><div class="team-stat-l">案件</div></div><div class="team-stat-i"><div class="team-stat-v">'+(a.port||0)+'</div><div class="team-stat-l">PF</div></div><div class="team-stat-i"><div class="team-stat-v" style="color:'+uC+'">'+(a.util||0)+'%</div><div class="team-stat-l">稼働率</div></div></div></div>';
     }).join('')+'</div>'+
-    '<div class="cg cg2" style="margin-top:16px"><div class="cd"><div class="cd-t">案件アサイン状況</div><div class="cd-s">チームメンバーと担当案件の対応表</div><div class="tw" style="border:none"><table><thead><tr><th>案件</th><th>リード</th><th>サポート</th><th>ステージ</th><th>負荷</th></tr></thead><tbody>'+
-    '<tr><td style="font-weight:500">Nexus Precision</td><td>田中</td><td>伊藤, 山脇</td><td><span class="badge badge-a">DD</span></td><td><span class="badge badge-ng">高</span></td></tr>'+
-    '<tr><td style="font-weight:500">CloudBridge</td><td>山本</td><td>鈴木</td><td><span class="badge badge-a">バリュエーション</span></td><td><span class="badge badge-w">中</span></td></tr>'+
-    '<tr><td style="font-weight:500">Aether Semi</td><td>田中</td><td>山本</td><td><span class="badge badge-ok">エグゼキューション</span></td><td><span class="badge badge-ng">高</span></td></tr>'+
-    '<tr><td style="font-weight:500">Sakura Healthcare</td><td>鈴木</td><td>伊藤</td><td><span class="badge badge-a">スクリーニング</span></td><td><span class="badge badge-ok">低</span></td></tr>'+
-    '<tr><td style="font-weight:500">Tokyo Food Tech</td><td>田中</td><td>鈴木, 山脇</td><td><span class="badge badge-a">投資委員会</span></td><td><span class="badge badge-w">中</span></td></tr>'+
-    '<tr><td style="font-weight:500">Zenith Software</td><td>山脇</td><td>山本</td><td><span class="badge badge-a">ソーシング</span></td><td><span class="badge badge-ok">低</span></td></tr>'+
-    '</tbody></table></div></div>'+
-    '<div class="cd"><div class="cd-t">&#9888; リソースアラート</div><div class="cd-s">AIが検知した負荷・リスク</div><div class="p-alerts" style="margin-top:0">'+
-    '<div class="p-alert"><span>&#9888;</span>伊藤の稼働率が98%に到達。新規案件アサインを控えることを推奨。</div>'+
-    '<div class="p-alert"><span>&#9888;</span>鈴木の稼働率が92%。Sakura HealthcareのDD開始時にはリソース再配分が必要。</div>'+
-    '<div class="p-alert" style="background:var(--ws);color:var(--w)"><span>&#128276;</span>Nexus PrecisionとAether Semiの並行DD/エグゼキューションにより、田中の負荷が集中。</div>'+
-    '<div class="p-alert" style="background:var(--oks);color:var(--ok)"><span>&#10003;</span>山脇の稼働率65%。追加案件のアサインが可能です。</div>'+
-    '</div></div></div>';
+    '<div class="cg cg2" style="margin-top:16px"><div class="cd"><div class="cd-t">案件アサイン</div><div class="tw" style="border:none"><table><thead><tr><th>案件</th><th>リード</th><th>サポート</th><th>ステージ</th></tr></thead><tbody>'+
+    pipelineDeals.slice(0,10).map(d=>'<tr><td style="font-weight:500">'+d.name+'</td><td>'+d.lead+'</td><td>'+accounts[Math.floor(Math.random()*5)+5].short+'</td><td><span class="badge badge-a">'+stageLabels[d.stage]+'</span></td></tr>').join('')+'</tbody></table></div></div>'+
+    '<div class="cd"><div class="cd-t">リソースアラート</div><div class="p-alerts" style="margin-top:0">'+
+    '<div class="p-alert"><span>&#9888;</span>伊藤の稼働率96%。新規アサインを控えることを推奨。</div>'+
+    '<div class="p-alert"><span>&#9888;</span>鈴木の稼働率91%。DD開始時にリソース再配分が必要。</div>'+
+    '<div class="p-alert" style="background:var(--al);color:var(--a)"><span>&#10003;</span>中村・渡辺は追加アサイン可能（稼働率72-80%）。</div></div></div></div></div>';
+}
+
+// ========== DIAGNOSIS ==========
+function renderDiagnosis(){
+  var a=accounts[currentAccount];
+  var myDeals=pipelineDeals.filter(d=>d.lead===a.short).slice(0,8);
+  var tasks=[
+    {t:'Nexus Precision — 法務DDレビュー完了',pri:'high',due:'03/14'},
+    {t:'Aether Semi — SPA最終確認',pri:'high',due:'03/15'},
+    {t:'CloudBridge — バリュエーション資料作成',pri:'med',due:'03/18'},
+    {t:'Q1 2026 LPレポート草案',pri:'med',due:'03/20'},
+    {t:'Sakura Healthcare — DD計画策定',pri:'med',due:'03/22'},
+    {t:'GIC四半期ミーティング準備',pri:'low',due:'03/28'},
+    {t:'ESG年次レビュー — 関東化学工業',pri:'low',due:'03/30'},
+    {t:'新規ソーシング候補レビュー（3件）',pri:'low',due:'04/01'}
+  ];
+  document.getElementById('page-diagnosis').innerHTML=hdr('業務診断 — '+a.name)+
+    '<div class="ct"><div style="display:flex;gap:16px;align-items:center;margin-bottom:20px"><div class="av" style="width:48px;height:48px;font-size:18px;background:'+a.color+'">'+a.short+'</div><div><div style="font-size:16px;font-weight:700">'+a.name+'</div><div style="font-size:11px;color:var(--m)">'+a.role+'</div></div><div style="margin-left:auto;text-align:right"><div style="font-size:24px;font-weight:800;font-family:Arial;color:'+(a.util>=90?'var(--ng)':'var(--a)')+'">'+(a.util||0)+'%</div><div style="font-size:9px;color:var(--m)">現在稼働率</div></div></div>'+
+    '<div class="diag-grid"><div class="diag-card"><div class="diag-card-l">担当案件</div><div class="diag-card-v">'+(a.deals||0)+'</div></div><div class="diag-card"><div class="diag-card-l">ポートフォリオ</div><div class="diag-card-v">'+(a.port||0)+'</div></div><div class="diag-card"><div class="diag-card-l">今週の予定タスク</div><div class="diag-card-v">'+tasks.length+'</div></div><div class="diag-card"><div class="diag-card-l">完了タスク（月間）</div><div class="diag-card-v">'+Math.floor(Math.random()*15+10)+'</div></div></div>'+
+    '<div class="cg cg2" style="margin-top:16px"><div class="cd"><div class="cd-t">タスク一覧</div><div class="cd-s">優先度順</div><div class="task-list">'+
+    tasks.map(t=>'<div class="task-item"><div class="task-pri '+t.pri+'"></div>'+t.t+'<span class="task-due">'+t.due+'</span></div>').join('')+'</div></div>'+
+    '<div class="cd"><div class="cd-t">担当案件</div><div class="cd-s">パイプライン</div><div class="tw" style="border:none"><table><thead><tr><th>案件</th><th>ステージ</th><th>スコア</th></tr></thead><tbody>'+
+    myDeals.map(d=>'<tr><td style="font-weight:500">'+d.name+'</td><td><span class="badge badge-a">'+stageLabels[d.stage]+'</span></td><td><span class="sc-v">'+d.score+'</span></td></tr>').join('')+'</tbody></table></div></div></div>'+
+    '<div class="cd" style="margin-top:16px"><div class="cd-t">AI業務診断</div><div class="cd-s">AIによる業務効率化の推奨事項</div><div class="ig">'+
+    '<div class="ic rec"><div class="ic-h"><div class="ic-icon rec">&#9733;</div><div><div class="ic-tt">業務負荷の最適化提案</div><div class="ic-d">現在の稼働率'+(a.util||0)+'%は'+(a.util>=90?'高水準です。一部タスクの委譲を推奨します。中村・渡辺への分析業務の移管で15%の負荷軽減が見込まれます。':'適正範囲内です。追加のアサインが可能です。')+'</div></div></div></div>'+
+    '<div class="ic rec"><div class="ic-h"><div class="ic-icon rec">&#9733;</div><div><div class="ic-tt">スキルアップ推奨</div><div class="ic-d">直近の案件分析パターンから、'+(['財務モデリングの高度化','クロスボーダーM&A知識','ESG統合分析','AI/MLツール活用','LP IR・コミュニケーション'][currentAccount%5])+'の強化が効果的と判断されます。</div></div></div></div></div></div></div>';
+}
+
+// ========== RECRUITMENT ==========
+function renderRecruit(){
+  var stageCounts={};recruitStageOrder.forEach(s=>stageCounts[s]=recruitCandidates.filter(c=>c.stage===s).length);
+  document.getElementById('page-recruit').innerHTML=hdr('採用パイプライン')+
+    '<div class="ct">'+
+    '<div class="funnel">'+recruitStageOrder.map((s,i)=>{
+      var rate=i>0&&stageCounts[recruitStageOrder[0]]>0?Math.round(stageCounts[s]/recruitCandidates.length*100)+'%':'';
+      return '<div class="funnel-step"><div class="funnel-v">'+(stageCounts[s]||0)+'</div><div class="funnel-l">'+recruitStages[s]+'</div>'+(rate?'<div class="funnel-rate">'+rate+'</div>':'')+'</div>';
+    }).join('')+'</div>'+
+    '<div class="kpi-g" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px"><div class="kpi"><div class="kpi-l">候補者総数</div><div class="kpi-v">'+recruitCandidates.length+'</div></div><div class="kpi"><div class="kpi-l">オファー承諾率</div><div class="kpi-v">85%</div></div><div class="kpi"><div class="kpi-l">平均採用リードタイム</div><div class="kpi-v">45日</div></div><div class="kpi"><div class="kpi-l">入社確定</div><div class="kpi-v" style="color:var(--a)">'+recruitCandidates.filter(c=>c.stage==='offer_accepted'||c.stage==='joined').length+'</div></div></div>'+
+    '<div class="kanban" style="grid-template-columns:repeat('+Math.min(recruitStageOrder.length,8)+',1fr)">'+
+    recruitStageOrder.map(s=>{
+      var cands=recruitCandidates.filter(c=>c.stage===s);
+      return '<div class="k-col"><div class="k-col-h"><div class="k-col-d" style="background:'+(s==='offer_accepted'||s==='joined'?'var(--a)':'var(--m)')+'"></div><div class="k-col-t">'+recruitStages[s]+'</div><div class="k-col-c">'+cands.length+'</div></div><div class="k-cards">'+
+      cands.map(c=>'<div class="cand-card" onclick="openModal(\''+c.detail.replace(/'/g,"\\'")+'<br><br><strong>スキル:</strong> '+c.skills.join(", ")+'<br><strong>評価:</strong> '+c.rating+'/100<br><strong>ソース:</strong> '+c.source+'\')"><div class="cand-name">'+c.name+'</div><div class="cand-role">'+c.role+'</div><div class="cand-tags"><span class="badge badge-a">'+c.school+'</span><span class="badge badge-vi">'+c.current+'</span></div><div class="cand-meta"><span>YoE: '+c.yoe+'年</span><span style="font-weight:600;color:var(--a)">'+c.rating+'</span></div></div>').join('')+'</div></div>';
+    }).join('')+'</div></div>';
 }
 
 // ========== ESG ==========
 function renderESG(){
-  document.getElementById('esgContent').innerHTML=
-    '<div class="kpi-g" style="grid-template-columns:repeat(4,1fr)">'+
-    '<div class="kpi"><div class="kpi-l">ポートフォリオ ESGスコア</div><div class="kpi-v" style="color:var(--ok)">B+</div><div class="kpi-c up"><span>&#9650; 改善</span><span>前四半期比</span></div></div>'+
-    '<div class="kpi"><div class="kpi-l">CO2排出量（Scope 1+2）</div><div class="kpi-v">12,450t</div><div class="kpi-c up"><span>&#9660; -8.2%</span><span>前年比</span></div></div>'+
-    '<div class="kpi"><div class="kpi-l">女性管理職比率</div><div class="kpi-v">24.5%</div><div class="kpi-c up"><span>&#9650; +3.2pt</span><span>前年比</span></div></div>'+
-    '<div class="kpi"><div class="kpi-l">ESGアクション完了率</div><div class="kpi-v">72%</div><div class="kpi-c up"><span>&#9650; +15pt</span><span>前四半期比</span></div></div></div>'+
-    '<div class="esg-grid" style="margin-top:16px">'+
-    '<div class="esg-card"><div class="esg-l">Environment（環境）</div><div class="esg-score" style="color:var(--ok)">A-</div><div class="esg-l">CO2削減目標: 2030年までに50%削減</div><div class="esg-bar"><div class="esg-fill" style="width:78%;background:var(--ok)"></div></div></div>'+
-    '<div class="esg-card"><div class="esg-l">Social（社会）</div><div class="esg-score" style="color:var(--a)">B+</div><div class="esg-l">D&I指標・労働安全衛生</div><div class="esg-bar"><div class="esg-fill" style="width:68%;background:var(--a)"></div></div></div>'+
-    '<div class="esg-card"><div class="esg-l">Governance（ガバナンス）</div><div class="esg-score" style="color:var(--ok)">A</div><div class="esg-l">取締役会構成・内部統制</div><div class="esg-bar"><div class="esg-fill" style="width:85%;background:var(--ok)"></div></div></div></div>'+
-    '<div class="tw" style="margin-top:16px"><table><thead><tr><th>企業名</th><th>ESGスコア</th><th>E</th><th>S</th><th>G</th><th>CO2(t)</th><th>女性管理職</th><th>アクション</th></tr></thead><tbody>'+
-    '<tr><td style="font-weight:500">Atlas Industrial</td><td><span class="badge badge-ok">A-</span></td><td>A</td><td>B+</td><td>A</td><td>2,100</td><td>28%</td><td>8/10完了</td></tr>'+
-    '<tr><td style="font-weight:500">Horizon Medical</td><td><span class="badge badge-ok">B+</span></td><td>B+</td><td>A-</td><td>B+</td><td>1,850</td><td>32%</td><td>6/9完了</td></tr>'+
-    '<tr><td style="font-weight:500">Digital Frontier</td><td><span class="badge badge-ok">A</span></td><td>A</td><td>A</td><td>A-</td><td>320</td><td>35%</td><td>7/8完了</td></tr>'+
-    '<tr><td style="font-weight:500">関東化学工業</td><td><span class="badge badge-w">C+</span></td><td>C</td><td>B</td><td>C+</td><td>5,800</td><td>12%</td><td>3/12完了</td></tr>'+
-    '<tr><td style="font-weight:500">Premier Logistics</td><td><span class="badge badge-a">B</span></td><td>B</td><td>B+</td><td>B</td><td>2,380</td><td>18%</td><td>5/8完了</td></tr>'+
-    '</tbody></table></div>'+
-    '<div class="ig" style="margin-top:16px">'+
-    '<div class="ic alert"><div class="ic-h"><div class="ic-icon alert">&#128276;</div><div><div><span class="badge badge-w">ESGアラート</span></div><div class="ic-tt">関東化学工業 — ESGスコア低下</div><div class="ic-d">CO2排出量が前年比+5%増加。廃棄物処理プロセスの改善が必要。ESGアクション完了率が25%に留まる。</div></div></div></div>'+
-    '<div class="ic rec"><div class="ic-h"><div class="ic-icon rec">&#128161;</div><div><div><span class="badge badge-a">ESG推奨</span></div><div class="ic-tt">ポートフォリオ全体 — TCFD開示準備</div><div class="ic-d">2027年のTCFD義務化に向け、全投資先のシナリオ分析と開示準備を推奨。Digital Frontierをパイロットケースとして提案。</div></div></div></div></div>';
+  document.getElementById('page-esg').innerHTML=hdr('ESGモニタリング')+
+    '<div class="ct"><div class="kpi-g" style="grid-template-columns:repeat(4,1fr)"><div class="kpi"><div class="kpi-l">ESGスコア</div><div class="kpi-v" style="color:var(--a)">B+</div><div class="kpi-c up"><span>&#9650; 改善</span></div></div><div class="kpi"><div class="kpi-l">CO2排出(Scope 1+2)</div><div class="kpi-v">12,450t</div><div class="kpi-c up"><span>&#9660; -8.2%</span></div></div><div class="kpi"><div class="kpi-l">女性管理職比率</div><div class="kpi-v">24.5%</div><div class="kpi-c up"><span>&#9650; +3.2pt</span></div></div><div class="kpi"><div class="kpi-l">アクション完了率</div><div class="kpi-v">72%</div><div class="kpi-c up"><span>&#9650; +15pt</span></div></div></div>'+
+    '<div class="esg-grid" style="margin-top:16px"><div class="esg-card"><div class="esg-l">Environment</div><div class="esg-score" style="color:var(--a)">A-</div><div class="esg-bar"><div class="esg-fill" style="width:78%;background:var(--a)"></div></div></div><div class="esg-card"><div class="esg-l">Social</div><div class="esg-score" style="color:var(--fg)">B+</div><div class="esg-bar"><div class="esg-fill" style="width:68%;background:var(--fg)"></div></div></div><div class="esg-card"><div class="esg-l">Governance</div><div class="esg-score" style="color:var(--a)">A</div><div class="esg-bar"><div class="esg-fill" style="width:85%;background:var(--a)"></div></div></div></div>'+
+    '<div class="tw" style="margin-top:16px"><table><thead><tr><th>企業名</th><th>ESG</th><th>E</th><th>S</th><th>G</th><th>CO2(t)</th><th>女性管理職</th><th>進捗</th></tr></thead><tbody>'+
+    [['Atlas Industrial','A-','A','B+','A','2,100','28%','8/10'],['Horizon Medical','B+','B+','A-','B+','1,850','32%','6/9'],['Digital Frontier','A','A','A','A-','320','35%','7/8'],['関東化学工業','C+','C','B','C+','5,800','12%','3/12'],['Premier Logistics','B','B','B+','B','2,380','18%','5/8']].map(r=>'<tr><td style="font-weight:500">'+r[0]+'</td><td><span class="badge '+(r[1][0]==='A'?'badge-a':r[1][0]==='B'?'badge-vi':'badge-ng')+'">'+r[1]+'</span></td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td><td style="font-family:Arial">'+r[5]+'</td><td style="font-family:Arial">'+r[6]+'</td><td>'+r[7]+'</td></tr>').join('')+'</tbody></table></div></div>';
 }
 
-// ========== RENDER ALL ==========
-function renderAll(){
-  renderDashboard();
-  renderPipeline();
-  renderPortfolio();
-  renderInsights();
-  renderLP();
-  renderMarket();
-  renderTeam();
-  renderESG();
-}
-
-// Init
+// ========== INIT ==========
+function renderAll(){renderSidebar();renderDashboard();renderPipeline();renderPortfolio();renderAI();renderLP();renderMarket();renderTeam();renderDiagnosis();renderRecruit();renderESG();renderNotifications();}
 renderAll();
 </script>
 </body>
