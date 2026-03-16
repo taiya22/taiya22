@@ -1,0 +1,61 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@anthropic-ai/mcp-server-filesystem",
+        "/home/user/taiya22/ai-management"
+      ],
+      "description": "ai-management配下のファイル管理"
+    },
+    "google-drive": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-server-google-drive"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "<YOUR_GOOGLE_CLIENT_ID>",
+        "GOOGLE_CLIENT_SECRET": "<YOUR_GOOGLE_CLIENT_SECRET>"
+      },
+      "disabled": true,
+      "description": "Google Drive連携（CIM・データルーム・財務モデル）"
+    },
+    "google-calendar": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-server-google-calendar"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "<YOUR_GOOGLE_CLIENT_ID>",
+        "GOOGLE_CLIENT_SECRET": "<YOUR_GOOGLE_CLIENT_SECRET>"
+      },
+      "disabled": true,
+      "description": "Googleカレンダー連携（DD・クロージングスケジュール）"
+    },
+    "slack": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-server-slack"],
+      "env": {
+        "SLACK_BOT_TOKEN": "<YOUR_SLACK_BOT_TOKEN>"
+      },
+      "disabled": true,
+      "description": "Slack連携（チーム連絡・ディール通知）"
+    },
+    "notion": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-server-notion"],
+      "env": {
+        "NOTION_API_KEY": "<YOUR_NOTION_API_KEY>"
+      },
+      "disabled": true,
+      "description": "Notion連携（パイプライン管理・議事録・タスク）"
+    },
+    "gmail": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-server-gmail"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "<YOUR_GOOGLE_CLIENT_ID>",
+        "GOOGLE_CLIENT_SECRET": "<YOUR_GOOGLE_CLIENT_SECRET>"
+      },
+      "disabled": true,
+      "description": "Gmail連携（クライアント連絡・プロセスレター送付）"
+    }
+  }
+}
