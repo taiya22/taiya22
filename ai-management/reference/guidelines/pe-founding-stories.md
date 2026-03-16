@@ -136,11 +136,17 @@ ParkerGaleは採用とポートフォリオ企業の経営の両方において�
 
 DavisとMillerはFirst Chicago Equity Capital（現JP Morgan One Equity Partners）で共に働く中で、ヘルスケア領域の特殊性を痛感した。**FDA規制、HIPAA準拠、医療機器の承認プロセス、病院システムとの関係構築**——これらは汎用的なPEファンドのスキルセットでは対応できない領域であった。
 
-2002年、Davis、Miller、Eric Larson、Mary Beth Pieprzyca（Bristol Myers Squibb 18年のベテラン）の4名でLinden LLCを設立。2004年にLinden Capital Partners LPとしてFund Iを組成した。
+DavisのヘルスケアPEへの関心は個人的な原体験にも根ざしている。**父親がヘルスケア業界で働いていた**ことから、幼少期より医療産業の複雑さと社会的意義を肌で感じていた。
+
+2002年、Davis、Miller、**Eric Larson**（第三の共同創業者）、Mary Beth Pieprzyca（Bristol Myers Squibb 18年のベテラン）の4名でLinden LLCを設立。2004年にLinden Capital Partners LPとしてFund Iを組成した。
 
 **「ヘルスケアしかやらない」という純粋性**
 
 LindenはDay 1からヘルスケア・ライフサイエンスに完全特化した。大企業の非中核事業のカーブアウト、規制環境の変化による再編機会、元医療系CEOのOperating Partner配置——この「ヘルスケアのことだけを20年考え続けた」蓄積が最大の参入障壁となった。
+
+**代表的ディール: Specialty Networks → Cardinal Health（約1,800億円 / $1.2B）**
+
+Lindenの代表的な成功事例が**Specialty Networks**の投資である。専門医療分野のネットワーク事業をBuy-and-Build戦略で統合し、最終的にCardinal Healthに約1,800億円（$1.2B）で売却した。ヘルスケア特化の規制知見とオペレーション能力が生んだ象徴的なディールである。
 
 ---
 
@@ -452,18 +458,21 @@ VSOPは100項目超のプレイブックであり、ソフトウェア企業の�
 
 | 項目 | 内容 |
 |------|------|
-| キャリア | **Buy-and-Build戦略の発明者**として知られる |
-| 設立 | 1980年、Golder Thomaを設立（シカゴ） |
-| 功績 | ニッチ産業のプラットフォーム企業を買収し、同業の小規模企業を統合して規模を拡大する手法を体系化 |
+| 学歴 | オクラホマ州立大学（BS, 会計学・農業経済学）→ スタンフォード大学GSB（MBA） |
+| 前職 | First Chicago Equity Group（PE業界初期からのキャリア） |
+| 設立 | 1980年、Stanley GolderとGolder Thoma & Co.を共同設立（シカゴ）。米国最初期のバイアウトファームの一つ |
+| 功績 | **Buy-and-Build戦略の発明者**。Paging Networkを世界最大のページング会社に育成。Global Imagingを10年間で50件超の買収により統合し、Xeroxに約1,500億円（$1B+）で売却 |
 
 #### Orlando Bravo（オーランド・ブラーヴォ）— Managing Partner
 
 | 項目 | 内容 |
 |------|------|
-| 出身 | **プエルトリコ** |
-| 学歴 | ブラウン大学（**Phi Beta Kappa** — 全米最古・最高権威の学術名誉協会）→ スタンフォード大学（**JD + MBA ダブルディグリー**） |
-| Thoma入社 | **28歳**。100社にコールドコール（電話営業）をかけて入社を勝ち取る |
+| 出身 | **プエルトリコ・マヤグエス**。母はキューバ移民。10代でフロリダの**Nick Bollettieri Tennis Academy**（Agassi、Sharapova輩出）でテニスを学ぶ |
+| 学歴 | ブラウン大学（経済学・政治学, **Phi Beta Kappa** — 成績上位2%, テニス奨学金で入学）→ スタンフォード大学（**JD + MBA ダブルディグリー**） |
+| 就活 | **500通以上の履歴書を郵送、約100件のコールドコール**。TPG等の名門PEからはオファーなし。卒業2週間前にCarl Thomaと出会う |
+| Thoma入社 | **28歳**（1998年） |
 | パートナー | **30歳** |
+| 資産 | 推定約1.9兆円（$12.8B, Bloomberg 2025年8月）。**Forbes史上初のプエルトリコ出身ビリオネア** |
 
 ---
 
@@ -489,7 +498,7 @@ Buy-and-Build の基本構造:
 
 **$1億の失敗 — そしてピボット**
 
-Bravoは入社後、テクノロジー・ソフトウェア分野への投資を推進した。しかし初期の投資で**約150億円（$100M）規模の損失**を出す大失敗を経験する。
+Bravoは入社後、テクノロジー・ソフトウェア分野への投資を推進した。しかし初期の投資——**NerveWire**（ITコンサルティング）や**Eclipse Networks**（ネットワーク企業）等——で**約150億円（$100M）規模の損失**を出す大失敗を経験する。
 
 この失敗がBravoの投資哲学を決定的に研ぎ澄ませた：
 
@@ -499,7 +508,27 @@ Bravoは入社後、テクノロジー・ソフトウェア分野への投資を
 - 顧客のスイッチングコストが高く、契約が安定しているSaaSモデル
 - 利益率改善の余地が大きい、経営が洗練されていないニッチB2Bソフトウェア
 
-**30歳でパートナー昇進**。その後、Thoma Cressey → Thoma Bravoへと社名変更が行われ、Bravoの名前が冠された。
+**Prophet 21 — 最初のソフトウェアディール**
+
+失敗からのピボット後、Bravoが手がけた最初の本格的ソフトウェア投資が**Prophet 21**（流通業向けERPソフトウェア）であった。この「退屈な」業務ソフトウェアへの投資は**4.7倍のリターン**を実現し、Bravoの新戦略の正しさを証明した。
+
+**30歳でパートナー昇進**。その後、ファームの社名は時代と共に変遷した：
+
+```
+社名の変遷:
+1980年 Golder Thoma & Co.（Stanley GolderとCarl Thomaの設立）
+      ↓
+      Golder, Thoma, Cressey, Rauner（パートナー追加に伴い改名）
+      ↓
+1998年 GTCR（Golder退任後に略称化）
+      → Bravoの入社に伴い、Thoma CresseyがGTCRからスピンアウト
+      ↓
+      Thoma Cressey
+      ↓
+2005年 Thoma Cressey Bravo（Bravoの功績を反映し改名）
+      ↓
+2008年 Thoma Bravo（現在の社名）
+```
 
 ---
 
