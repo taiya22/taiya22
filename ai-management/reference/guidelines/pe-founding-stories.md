@@ -77,6 +77,10 @@ ParkerGaleは2014年、Chicago Growth Partners（CGP）のテクノロジーチ�
 
 ParkerGaleは採用とポートフォリオ企業の経営の両方において、**EQ（感情的知性）をIQ（知的能力）より重視する**と明言している。秘密主義のPE業界で「人間味のある投資家」であることを差別化の核に据えた。
 
+> 「脆弱さ、透明性、信頼について多く語る。それが成果を出す唯一の方法だ」（*We talk a lot about vulnerability, transparency, and trust. That's really the only way to get results.*） — Devin Mathews
+
+**「PEはスケールしない」という信念**: Mathewsは「我々は小さなチームであり、PEはスケールしにくいと考えている」と公言する。資金が増えれば投資先が増えるか1件あたりの額が増え、それは人員増またはアップマーケット移行を意味する——彼らはそのどちらも選ばない。**Quality, not quantity.**
+
 ---
 
 ### コアコンセプト分析
@@ -97,8 +101,14 @@ ParkerGaleは採用とポートフォリオ企業の経営の両方において�
 
 | ファンド | クローズ年 | 金額 |
 |---------|----------|------|
-| Fund I | 2015年 | 約360億円（$240M） |
-| Fund II | 2019年 | 約563億円（$375M） |
+| Fund I | 2016年 | 約360億円（$240M）— 目標$200M超過 |
+| Fund II | 2018年 | 約563億円（$375M）— ハードキャップでクローズ |
+| Fund III | — | 非公開（Wisconsin Investment Board出資） |
+| **累計実績** | — | **投資60件・Exit 13件** |
+
+**Big Band Software パートナーシップ（2023年〜）**: ARR $1-10Mの超小型B2B SaaS企業を買収・長期保有する持株会社。$100Mの初期投資プールで年間5-8件の買収を目標とし、「従来のPEの逆を行く」モデルで各社のCEOと独立性を維持する。
+
+**受賞**: BluWave「Top Private Equity Innovator of the Year 2023」
 
 ---
 
@@ -232,13 +242,18 @@ MITの電気工学・CSエンジニアが、なぜ消費者ブランドのPEを�
 
 ### 経営哲学
 
-**「ブランドの錬金術師」**
+**「ブランドの錬金術師」× ゴールデンルール**
 
 Essermanのアプローチは一貫している：**次に来る消費者ブランドを見極め、製品・流通・マーケティングの3軸で成長を加速させる**。
+
+> 「我々の文化はあらゆる関係においてゴールデンルールを適用することに基づいている。それは社内外のあらゆるパートナーシップの基盤であり、信頼構築の根幹である」（*Our culture is based upon applying the golden rule in every relationship.*） — Chuck Esserman
+
+> 「ゼロサムの投資には一切関心がない。我々は組織内に良心的で協調的な文化を慎重に構築してきた。パートナー企業が勝つとき、我々も勝つ」（*We have no interest in zero sum investments.*） — Chuck Esserman
 
 - **非景気循環セクターへの集中**: 食品・飲料・家庭用品・美容など、景気に左右されにくいカテゴリー
 - **創業者とのパートナーシップ**: マイノリティ〜マジョリティまで柔軟な出資比率。平均5年間の伴走
 - **ジェンダーバランス**: 従業員の50%が女性（PE業界平均13.7%）。Esserman曰く「我々のポートフォリオ企業の購買決定の多くは女性が行っている。チームの多様な視点は当然のこと」
+- **TSG Vantage（2024年設置）**: ポートフォリオ・オペレーション＆バリュークリエーション専門チーム。成長加速を専任でサポート
 
 ---
 
@@ -252,7 +267,9 @@ Essermanのアプローチは一貫している：**次に来る消費者ブラ�
 | **出資スタイル** | マイノリティ〜マジョリティまで柔軟。創業者の裁量を最大限尊重 |
 | **実績** | ネットリターン: 30年間で24%超 → 直近3ファンドで30%近く → 最新ファンドで35%超。業界平均の約2倍 |
 
-**代表的ポートフォリオ企業**: Famous Amos、vitaminwater（Glacéau）、Planet Fitness、Pabst Blue Ribbon、Stumptown Coffee、e.l.f. Cosmetics、Smashbox Cosmetics、Dutch Bros、MET-Rx、Muscle Milk（CytoSport）、Yard House
+**代表的ポートフォリオ企業**: Famous Amos、vitaminwater（Glacéau）、Planet Fitness、Pabst Blue Ribbon、Stumptown Coffee、e.l.f. Cosmetics、IT Cosmetics、Smashbox Cosmetics、Dutch Bros、MET-Rx、Muscle Milk（CytoSport）、Yard House、Robinhood、Revolut
+
+**Glacéau（vitaminwater）の詳細**: 2003年に30%持分を約22.5億円（$15M）で取得 → 2006年にTata Groupに約1,016億円（$677M）で売却（**約12倍リターン、3年間**）→ その後2007年にCoca-Colaが約6,150億円（$4.1B）で全社取得
 
 ---
 
@@ -261,9 +278,13 @@ Essermanのアプローチは一貫している：**次に来る消費者ブラ�
 | ファンド | 金額（推定） | 備考 |
 |---------|------------|------|
 | TSG1-5 | — | 初期ファンド群 |
-| TSG6 | 約1,950億円（$1.3B） | 2011年クローズ |
-| TSG9 | 約9,000億円（$6.0B） | 2023年1月クローズ |
-| **累計AUM** | **約2.8兆円（$18.7B）** | 2023年3月時点 |
+| TSG6 | 約1,950億円（$1.3B） | 2011年クローズ。ネットIRR **35%超** |
+| TSG7A+7B | 約3,750億円（$2.5B） | 2015年クローズ。応募額$6Bに迫る |
+| TSG8 | 約6,000億円（$4.0B） | 2019年クローズ |
+| TSG9 | 約9,000億円（$6.0B） | 2023年1月クローズ。目標$5B超過 |
+| **累計AUM** | **約3.0兆円（~$20B）** | |
+
+**パフォーマンス**: 30年超のネットIRR約24%、直近3ファンド約30%、最新ファンド約50%。業界平均の**約2倍**を一貫して上回る。
 
 ---
 
@@ -283,7 +304,7 @@ Essermanのアプローチは一貫している：**次に来る消費者ブラ�
 |------|------|
 | 出身 | オハイオ州郊外 |
 | 学歴 | プリンストン大学（BS, 工学, **最優等卒** *highest honors*、全米軽量級ボートレース優勝チームのキャプテン）→ スタンフォード大学GSB（MBA, 1999年卒） |
-| 前職 | ウォール・ストリート（投資銀行、約2-3年） |
+| 前職 | Morgan Stanley Capital Partners（PE部門アナリスト）→ American Securities Capital Partners → Oak Hill Capital Management（Robert BassのPE部門、VP） |
 | 創業年齢 | 25歳（1997年に投資活動開始、2001年正式設立） |
 | 教育活動 | スタンフォードGSBで戦略経営の人気講座を担当。**2024年MBA Distinguished Teaching Award受賞** |
 
@@ -355,9 +376,25 @@ Weaverの哲学は明確である：**人材こそが最大のアルファの源
 | ファンド | 金額（推定） | 備考 |
 |---------|------------|------|
 | 初期（2001年頃） | 約75億円超（$50M+） | |
-| 2006年頃 | 約180億円超（$120M+） | |
+| Fund IV | 約390億円（$260M） | 2011年 |
+| Fund VI | 約798億円（$532M） | 2017年 |
+| Fund VII | 約1,500億円（$1.0B） | 2019年 — 初の10億ドルファンド |
+| Fund VIII | 約3,375億円（$2.25B） | 2021年 |
 | Fund IX | 約6,750億円（$4.5B） | 2023年6月ハードキャップでクローズ |
-| **AUM** | **約2.7兆円（$18B）** | 2025年時点 |
+| **AUM** | **約2.8兆円（$18.8B）** | 2025年時点 |
+
+**プラットフォーム戦略 — 「オークの木を植える」**
+
+Alpineは単独企業買収ではなく、**プラットフォームを構築して連続的にBuy-and-Buildを実行**する戦略を取る。代表的なプラットフォーム：
+
+| プラットフォーム | 領域 | 規模 |
+|----------------|------|------|
+| **Apex Service Partners** | ホームサービス | 継続ファンド約5,100億円（$3.4B） |
+| **ASG** | Vertical SaaS | 700件超の投資実績 |
+| **Evergreen** | MSP（IT管理） | 100社買収達成 |
+| **Ascend** | 会計事務所統合 | TTM収益約713億円（$475M） |
+
+生涯投資実績: **850件超**。B Corp認証取得、Great Place to Work **7年連続**選出。
 
 ---
 
@@ -582,7 +619,7 @@ Thoma Bravo の投資プレイブック:
 | Mathews | ~20年 | エクイティリサーチ（美術史専攻から転身） | VC未調達の黒字小型SaaSに誰も注目していない | ~45歳 |
 | Davis | ~12年 | 経営コンサル（香港駐在含む） | 汎用PEではヘルスケアの規制に対応できない | ~32歳 |
 | Esserman | ~3-4年 | 経営コンサル（Bain） | LBO全盛時代にセクター特化成長型PEがない | ~27歳 |
-| Weaver | ~2-3年 | 投資銀行（Wall Street） | 人を大切にするPEがない | 25歳 |
+| Weaver | ~5年 | PE（Morgan Stanley CP → American Securities → Oak Hill） | 人を大切にするPEがない | 25歳 |
 | Smith | ~11年 | エンジニア → IB（Goldman） | ソフトウェアの経営標準手法が存在しない | 37歳 |
 | Bravo | 0年（新卒同等） | コールドコール100社 | スタートアップより退屈なSaaSが確実 | 28歳 |
 
@@ -619,8 +656,8 @@ Esserman（3-4年）、Weaver（2-3年）、Bravo（新卒）は驚くほど短�
 |---------|-----|----------|-----------|----------|
 | Thoma Bravo | $181B+ | **約27兆円** | 45年 | メガ（元ブティック） |
 | Vista Equity Partners | $100B+ | **約15兆円** | 25年 | メガ（元ブティック） |
-| TSG Consumer Partners | $18.7B | **約2.8兆円** | 39年 | ラージ・ブティック |
-| Alpine Investors | $18B | **約2.7兆円** | 24年 | ラージ・ブティック |
+| TSG Consumer Partners | $20B | **約3.0兆円** | 39年 | ラージ・ブティック |
+| Alpine Investors | $18.8B | **約2.8兆円** | 24年 | ラージ・ブティック |
 | Linden Capital Partners | $8B | **約1.2兆円** | 21年 | ミドル・ブティック |
 | ParkerGale Capital | ~$700M+ | **約1,050億円** | 11年 | スモール・ブティック |
 
@@ -669,6 +706,13 @@ Esserman（3-4年）、Weaver（2-3年）、Bravo（新卒）は驚くほど短�
 | [26] | Thoma Bravo | Wikipedia / Forbes / Bloomberg | 2026/03/16 |
 | [27] | Orlando Bravo Biography | Forbes / Stanford | 2026/03/16 |
 | [28] | `ai-management/reference/guidelines/gtm-strategy-pe-boutique-research.md` | Taiga内部資料 | 2026/03/16 |
+| [29] | "ParkerGale Closes $240 Million Debut Fund" | GlobeNewsWire | 2026/03/16 |
+| [30] | "Big Band Software Announces Launch" | PR Newswire | 2026/03/16 |
+| [31] | "TSG Consumer Partners Closes Ninth Fund with $6 Billion" | BusinessWire | 2026/03/16 |
+| [32] | "Via SOMA: The Art of Brand Building — Chuck Esserman" | SOMA Magazine | 2026/03/16 |
+| [33] | "Coca-Cola Company to Acquire Glaceau for $4.1 Billion" | Coca-Cola Investors | 2026/03/16 |
+| [34] | Alpine Investors Fund History | alpineinvestors.com | 2026/03/16 |
+| [35] | "2025 HEC-DowJones PE Rankings" | HEC Paris | 2026/03/16 |
 
 ---
 
