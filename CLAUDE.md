@@ -63,6 +63,7 @@ ai-management/
 │   ├── reporting/    # LP報告
 │   └── performance/  # パフォーマンス指標
 ├── case-studies/     # HBS形式ケーススタディ（案件の学びを蓄積）
+│   └── {case-name}.md
 ├── tools/            # 自動化スクリプト
 └── work-log/         # 業務ログ
 ```
@@ -94,6 +95,21 @@ ai-management/
 - 小数点: パーセンテージは小数第1位、マルチプルは小数第1位
 - 日付: YYYY/MM/DD 形式
 - 期間表記: FY2024, 1H2024, 1Q2024
+
+### Case Study（ケーススタディ）
+- HBS形式で構成し、`ai-management/case-studies/` に保存
+- **Source 併記ルール（必須）**: 各セクション冒頭に `> **Source:** ファイルパス or 情報源` を記載すること
+  - 社内資料の場合: `> **Source:** ai-management/deals/rasin/01-screening/deal-overview.md`
+  - 外部公開情報の場合: `> **Source:** ヨンドシHD IR（2024/10/01 適時開示）`
+  - 推定値の場合: `> **Source:** 公開情報に基づくTaiga推定`
+- **参考文献リスト（必須）**: ケーススタディ末尾に `## 参考文献` セクションを設け、全引用元を一覧化
+  - 形式: `[番号] 資料名 — 出所/URL — 参照日`
+- **財務データ（必須）**: Appendixとして以下を含めること
+  - 財務三表（P/L, B/S, C/F）: 最低5年分（Entry前2年 + 保有期間 + Exit年）
+  - ROICツリー（NOPAT / Invested Capital の分解）
+  - 主要KPI推移
+- **推定値の取り扱い**: 公開情報から推定した数値には必ず「推定」「E」等を付記する
+- ケーススタディIDは `TCS-{年}-{連番3桁}` とする（例: TCS-2026-004）
 
 ## taiga_sim プロジェクトとの連携
 
