@@ -62,6 +62,7 @@ ai-management/
 ├── fund/             # ファンド管理
 │   ├── reporting/    # LP報告
 │   └── performance/  # パフォーマンス指標
+├── case-studies/     # HBS形式ケーススタディ（案件の学びを蓄積）
 ├── tools/            # 自動化スクリプト
 └── work-log/         # 業務ログ
 ```
