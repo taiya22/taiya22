@@ -6,18 +6,17 @@
 
 | 指標 | 数値 |
 |---|---|
-| AUM | $18.8B |
+| AUM | 約2.8兆円（$18.8B） |
 | 累計投資件数 | 850件以上 |
 | フラッグシップファンド | 9本 |
-| Fund VII (2019) | $1.0B |
-| Fund VIII (2021) | $2.25B（PEI Wire Best Buyout Fund受賞）|
-| Fund IX (2023) | $4.5B（ハードキャップ、オーバーサブスクライブ）|
-| Apex継続取引 | $3.4B（GP-ledセカンダリー、史上最大級）|
+| Fund VII (2019) | 約1,500億円（$1.0B） |
+| Fund VIII (2021) | 約3,375億円（$2.25B）（PEI Wire Best Buyout Fund受賞）|
+| Fund IX (2023) | 約6,750億円（$4.5B）（ハードキャップ、オーバーサブスクライブ）|
+| Apex継続取引 | 約5,100億円（$3.4B）（GP-ledセカンダリー、史上最大級）|
 | 拠点 | サンフランシスコ、ニューヨーク、オースティン |
 | 社員数 | 160名以上 |
 | 創業 | 2001年（Graham WeaverがStanford GSB在学中に寮室で創業）|
 
----
 
 ## 1. Alpine Manifesto / Core Values
 
@@ -39,7 +38,6 @@ Alpine Investorsは2021年、創業20周年を記念してマニフェストを�
 
 > *"We wanted to show the world that a PE firm can not only put up strong results but also treat people well. We wanted to show that you can win financially because of that philosophy, not in spite of it."* — Graham Weaver
 
----
 
 ## 2. PeopleFirst文化の具体例
 
@@ -56,9 +54,8 @@ Alpine がポートフォリオ企業を買収すると、各CEOにはPeopleFirs
 ### Ascendの事例（CPA業界）
 2023年1月に設立されたAscend（会計プラットフォーム）では、共同創業者のDavid Wurtzbacher（CEO）とErin Stahmer（CPO）がAlpine PeopleFirstコンサルタントAmy Dayと協働し、設立後わずか2ヶ月でビジョン・バリュー・OPPを策定。M&Aプロセスでも有効と判明し、現在は新規パートナー企業を参加後3-6ヶ月以内にPeopleFirstプログラムに体系的に導入している。
 
-注目すべき成果: LMC Advisorsは Ascend参加後1年で売上を$19M→$40Mに倍増、2年目は$60Mに到達見込み（3倍成長）。Ascendは設立6ヶ月で全米Top 100会計事務所に相当する規模に到達した。
+注目すべき成果: LMC Advisorsは Ascend参加後1年で売上を約28.5億円→約60億円（$19M→$40M）に倍増、2年目は約90億円（$60M）に到達見込み（3倍成長）。Ascendは設立6ヶ月で全米Top 100会計事務所に相当する規模に到達した。
 
----
 
 ## 3. CEO-in-Training (CIT) プログラム
 
@@ -94,7 +91,6 @@ Alpine がポートフォリオ企業を買収すると、各CEOにはPeopleFirs
 - 現在は**ASG President**として、バーティカルSaaS CEOの成長を支援
 - アジア系アメリカ人女性、LGBTQ+として、ダイバーシティ推進の象徴的存在
 
----
 
 ## 4. CFO-in-Training、Investor-in-Residence、その他タレントプログラム
 
@@ -120,7 +116,6 @@ Alpine がポートフォリオ企業を買収すると、各CEOにはPeopleFirs
 ### Chief People Officer プログラム
 - 上記を含め、タレントプログラム全体で**80名以上のPeopleFirstリーダー**をポートフォリオ企業のシニアロールに配置
 
----
 
 ## 5. Alpine Operations Group (AOG)
 
@@ -141,7 +136,6 @@ AOGはAlpine Investorsのオペレーション支援組織で、ポートフォ�
 - **フラクショナル・リーダーシップ**: 必要時にCxO機能を一時的に担う
 - **Revenue Fundamentals**: セールス、カスタマーエクスペリエンス、プライシングの各レバーリードと協働
 
----
 
 ## 6. 主要投資案件
 
@@ -150,12 +144,12 @@ AOGはAlpine Investorsのオペレーション支援組織で、ポートフォ�
 - 従業員**8,000名以上**
 - 累計**220件以上**のアドオン買収を完了、全てPeopleFirstチームの支援下
 - 2025年だけで5リージョンにまたがる**60件のアドオン買収**を完了
-- Alpineは**$3.4B（約34億ドル）のシングルアセット・コンティニュエーション取引**を完了し、Apexとのパートナーシップを継続（PE業界最大級のGP-ledセカンダリー）
+- Alpineは**約5,100億円（$3.4B）のシングルアセット・コンティニュエーション取引**を完了し、Apexとのパートナーシップを継続（PE業界最大級のGP-ledセカンダリー）
 - PeopleFirstにより、各買収企業の従業員が単一のミッションに接続され「同じ言語を話す」文化を形成
 
 ### Alpine Software Group (ASG)
 - バーティカルSaaSプラットフォーム: ソフトウェア企業の買収・構築・運営
-- 2025年にASG IVを立ち上げ、ARR $5-50Mの北米・欧州・豪州のB2B SaaSを対象
+- 2025年にASG IVを立ち上げ、ARR 約7.5億〜75億円（$5-50M）の北米・欧州・豪州のB2B SaaSを対象
 - 2025年に9社のエグジットを完了
 - Alice Song（CIT出身）がPresidentとしてCEO群を支援
 
@@ -174,7 +168,6 @@ AOGはAlpine Investorsのオペレーション支援組織で、ポートフォ�
 - 19件のアドオン買収を実施
 - LMC Advisorsの事例: 参加後1年で売上2倍、2年で3倍
 
----
 
 ## 7. B Corp認証
 
@@ -191,7 +184,6 @@ AOGはAlpine Investorsのオペレーション支援組織で、ポートフォ�
 ### Fortune誌の記事（2023年10月）
 > *"To attract A players, this private equity firm became a B Corp"* — PE業界でB Corp認証がタレント戦略と直結していることを詳述
 
----
 
 ## 8. Great Place to Work認証
 
@@ -211,7 +203,6 @@ AOGはAlpine Investorsのオペレーション支援組織で、ポートフォ�
 
 併せて、**Inc. Founder-Friendly Investors**に**6年連続**で選出。**Fast Company Most Innovative Companies 2023**にも選出されている。
 
----
 
 ## 9. Graham Weaverの講演・ポッドキャスト・教え
 
@@ -238,7 +229,7 @@ Stanford GSB Class of 2025に向けた最終講義。人生における「勝て
 - **Lenny's Podcast（2025年1月）**: "How to break out of autopilot and create the life you want" — Genie Methodology、Nine Lives Exercise、Limiting Beliefsの克服、"not now"は"never"と同義
 - **Invest Like the Best（Patrick O'Shaughnessy）**: Alpineの裏側、従来型でないPEファームの構築
 - **Capital Allocators（Ted Seides）**: Alpine創業の経緯とPeopleFirst哲学の起源
-- **Wharton FinTech Podcast**: Stanford寮からAUM $16Bまでの旅路
+- **Wharton FinTech Podcast**: Stanford寮からAUM約2.4兆円（$16B）までの旅路
 
 ### Growth Summitでの教え: 3つの原則
 1. **Psychology（心理）**: 「世界最高」になる許可を自分に与える
@@ -248,7 +239,6 @@ Stanford GSB Class of 2025に向けた最終講義。人生における「勝て
 ### Alpine創業に関する時間軸
 > Weaverは14年間、Alpineが存続するか確信が持てなかった。外部的な成功を感じられたのは18年目だった。成功には想像以上に長い時間がかかることを受け入れつつ、ビジョンへの信念を維持することが鍵。
 
----
 
 ## 10. Alpine Summit / 文化イベント
 
@@ -273,7 +263,6 @@ Stanford GSB Class of 2025に向けた最終講義。人生における「勝て
 - Alpineチーム全体が「ビジネスの中で（in the business）」ではなく「ビジネスについて（on the business）」働く合宿を実施
 - 小グループに分かれ、ポートフォリオ企業・業界間のブライトスポットを共有
 
----
 
 ## Taigaへの示唆
 
@@ -286,11 +275,10 @@ Stanford GSB Class of 2025に向けた最終講義。人生における「勝て
 6. **AOGの体系化**: オペレーション支援のプレイブック化による再現可能な価値創造
 
 ### Alpine vs Taigaの位置付け
-- Alpine: $18.8B AUM、米国ミッドマーケット、ソフトウェア＋サービス特化
+- Alpine: 約2.8兆円（$18.8B）AUM、米国ミッドマーケット、ソフトウェア＋サービス特化
 - Taiga: 日本市場PE/FAS、成長フェーズ
 - Alpineの「人材×文化×長期視点」の哲学は、規模に関わらず適用可能な普遍的フレームワーク
 
----
 
 ## 参考文献
 
