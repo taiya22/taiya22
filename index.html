@@ -124,7 +124,10 @@ h1,h2,h3,h4,h5,h6,.kpi-v,.pm-v,.ps-v,.lp-s-v,.esg-score,.team-stat-v,.factor-car
 /* Table */
 .tw{border:1px solid var(--b);border-radius:10px;overflow:hidden}
 table{width:100%;border-collapse:collapse;font-size:11px}
-th{background:var(--s2);padding:8px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--m);font-weight:600}
+th{background:var(--s2);padding:8px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--m);font-weight:600;cursor:pointer;user-select:none;position:relative}
+th:hover{color:var(--fg)}
+th .sort-arrow{font-size:8px;margin-left:3px;opacity:.4}
+th.sorted .sort-arrow{opacity:1;color:var(--a)}
 td{padding:8px 12px;border-top:1px solid var(--b)}
 tr:hover{background:var(--s2)}
 .sc-bar{display:flex;align-items:center;gap:6px}.sc-track{width:50px;height:5px;background:var(--s2);border-radius:3px;overflow:hidden}.sc-fill{height:100%;background:var(--a);border-radius:3px}.sc-v{font-size:10px;font-weight:600;font-family:Arial}
@@ -265,7 +268,8 @@ tr:hover{background:var(--s2)}
 .tabs{display:flex;gap:2px;margin-bottom:16px}
 .tab{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;background:var(--s2);color:var(--m);border:none;font-family:Arial,'Noto Sans JP',sans-serif;transition:all .15s}
 .tab.active{background:var(--fg);color:#fff}
-.page{display:none}.page.active{display:block}
+.page{display:none;opacity:0;transform:translateY(8px);transition:opacity .25s ease,transform .25s ease}.page.active{display:block;opacity:1;transform:translateY(0)}
+.page.fade-enter{opacity:0;transform:translateY(8px)}
 /* Team */
 .team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .team-card{border:1px solid var(--b);background:var(--surface);border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:all .15s}
@@ -361,6 +365,70 @@ html.dark .theme-toggle{background:var(--surface);border-color:var(--b)}
 /* Toast */
 .toast{position:fixed;bottom:24px;right:24px;background:var(--fg);color:#fff;padding:12px 20px;border-radius:8px;font-size:11px;z-index:999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
 .toast.show{opacity:1;transform:translateY(0)}
+/* Keyboard shortcut hint */
+.kbd-hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 20px;border-radius:10px;font-size:11px;z-index:400;display:none;box-shadow:0 8px 32px rgba(0,0,0,.2);backdrop-filter:blur(8px)}
+.kbd-hint.show{display:flex;gap:16px;align-items:center}
+.kbd-hint kbd{display:inline-block;padding:2px 6px;background:rgba(255,255,255,.15);border-radius:4px;font-size:10px;font-family:monospace;margin:0 2px}
+/* Count-up animation */
+.count-up{display:inline-block}
+/* Table sort hover */
+tr{transition:background .1s}
+/* Breadcrumb */
+.breadcrumb{font-size:10px;color:var(--m);margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.breadcrumb a{color:var(--a);text-decoration:none;font-weight:500}
+/* Pipeline filter bar */
+.pipe-filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--b);border-radius:8px}
+.pipe-filter input{flex:1;min-width:180px;border:1px solid var(--b);border-radius:6px;padding:6px 10px;font-size:11px;background:var(--surface);color:var(--fg);font-family:Arial,'Noto Sans JP',sans-serif;outline:none}
+.pipe-filter input:focus{border-color:var(--a)}
+.pipe-filter select{border:1px solid var(--b);border-radius:6px;padding:5px 8px;font-size:10px;background:var(--surface);color:var(--fg);font-family:Arial,'Noto Sans JP',sans-serif}
+.pipe-stats{display:flex;gap:12px;font-size:10px;color:var(--m);margin-left:auto}
+.pipe-stats strong{color:var(--fg)}
+/* Quick actions */
+.quick-actions{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.qa-btn{display:flex;align-items:center;gap:5px;padding:8px 14px;border:1px solid var(--b);border-radius:8px;background:var(--surface);cursor:pointer;font-size:10px;font-weight:500;font-family:Arial,'Noto Sans JP',sans-serif;color:var(--fg);transition:all .15s}
+.qa-btn:hover{border-color:var(--a);color:var(--a);background:var(--al)}
+.qa-btn svg{width:14px;height:14px}
+/* Live feed dot */
+.live-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite;display:inline-block;margin-right:4px}
+/* Sparkline mini */
+.spark-mini{display:inline-flex;align-items:flex-end;gap:1px;height:20px;vertical-align:middle}
+.spark-mini-bar{width:3px;border-radius:1px 1px 0 0;background:var(--a);transition:height .3s}
+/* Progress ring */
+.progress-ring{display:inline-block;position:relative;width:40px;height:40px}
+.progress-ring svg{transform:rotate(-90deg)}
+.progress-ring-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;font-weight:700;font-family:Arial}
+/* Bar chart animation */
+.bar{height:0!important;animation:barGrow .6s ease forwards}
+@keyframes barGrow{to{height:var(--bar-h)!important}}
+/* Notification badge bounce */
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+.notif-n.has-new{animation:bounce .5s ease}
+/* Typing indicator */
+.typing-dots{display:inline-flex;gap:3px;align-items:center;height:16px}
+.typing-dots span{width:5px;height:5px;border-radius:50%;background:var(--m);animation:typingDot 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes typingDot{0%,60%,100%{opacity:.3;transform:scale(.8)}30%{opacity:1;transform:scale(1)}}
+/* Enhanced hover effects */
+.kpi{transition:all .2s}
+.kpi:hover{border-color:var(--a);box-shadow:0 4px 16px rgba(37,99,235,.08);transform:translateY(-2px)}
+.dc{transition:all .2s}
+.dc:hover{transform:translateY(-2px)}
+.ic{transition:all .2s}
+.ic:hover{transform:translateX(4px)}
+.nav-i{transition:all .15s}
+.nav-i:hover{transform:translateX(3px)}
+/* Scrollbar styling */
+.main::-webkit-scrollbar,.ch-msgs::-webkit-scrollbar,.k-cards::-webkit-scrollbar{width:6px}
+.main::-webkit-scrollbar-track,.ch-msgs::-webkit-scrollbar-track,.k-cards::-webkit-scrollbar-track{background:transparent}
+.main::-webkit-scrollbar-thumb,.ch-msgs::-webkit-scrollbar-thumb,.k-cards::-webkit-scrollbar-thumb{background:var(--b);border-radius:3px}
+.main::-webkit-scrollbar-thumb:hover,.ch-msgs::-webkit-scrollbar-thumb:hover,.k-cards::-webkit-scrollbar-thumb:hover{background:var(--m2)}
+/* Portfolio filter bar */
+.port-filter{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.port-sort-btn{padding:5px 10px;border:1px solid var(--b);border-radius:6px;background:var(--surface);cursor:pointer;font-size:9px;font-weight:500;font-family:Arial,'Noto Sans JP',sans-serif;color:var(--m);transition:all .15s}
+.port-sort-btn:hover,.port-sort-btn.active{border-color:var(--a);color:var(--a);background:var(--al)}
+/* Summary row highlight */
+.summary-row{background:var(--al);border-radius:8px;padding:12px 16px;display:flex;gap:20px;align-items:center;margin-bottom:12px;border:1px solid rgba(37,99,235,.15)}
 /* Responsive */
 @media(max-width:1024px){
   .sidebar{position:fixed;left:-260px;top:0;bottom:0;z-index:50;transition:left .25s;box-shadow:none}
@@ -403,6 +471,14 @@ html.dark .theme-toggle{background:var(--surface);border-color:var(--b)}
   .ai-b{display:none}
   .acct-dd{right:-40px}
   .srch{width:70px}
+  .nav-i{padding:12px 10px;font-size:12px}
+  .qa-btn{padding:10px 12px;font-size:11px}
+  .dc{padding:14px}
+  .tab{padding:8px 14px}
+  .flt-b{padding:6px 12px}
+  .pipe-filter{flex-direction:column}
+  .pipe-filter input{min-width:100%}
+  .port-filter{flex-wrap:wrap;gap:4px}
 }
 </style>
 </head>
@@ -662,12 +738,44 @@ var insights=[
 ];
 // ========== CORE FUNCTIONS ==========
 function showPage(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  var prev=document.querySelector('.page.active');
+  if(prev){prev.classList.remove('active');prev.style.opacity='0';prev.style.transform='translateY(8px)';}
   document.querySelectorAll('.nav-i').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
+  var next=document.getElementById('page-'+id);
+  requestAnimationFrame(()=>{next.classList.add('active');requestAnimationFrame(()=>{next.style.opacity='1';next.style.transform='translateY(0)';});});
+  // Scroll to top
+  document.querySelector('.main').scrollTop=0;
   var idx=navItems.findIndex(n=>n.id===id);
   if(idx>=0)document.querySelectorAll('.nav-i')[idx].classList.add('active');
   closeAllPanels();closeMobileMenu();saveState();
+  // Animate numbers on page
+  setTimeout(()=>animateCountUps(next),80);
+}
+// ========== COUNT-UP ANIMATION ==========
+function animateCountUps(container){
+  container.querySelectorAll('.kpi-v,.ps-v,.lp-s-v,.diag-card-v,.funnel-v').forEach(el=>{
+    var text=el.textContent.trim();
+    var match=text.match(/^([¥]?)([0-9,]+\.?[0-9]*)(.*)$/);
+    if(!match)return;
+    var prefix=match[1],numStr=match[2],suffix=match[3];
+    var target=parseFloat(numStr.replace(/,/g,''));
+    if(isNaN(target)||target===0)return;
+    var hasDecimal=numStr.includes('.');
+    var decPlaces=hasDecimal?(numStr.split('.')[1]||'').length:0;
+    var hasComma=numStr.includes(',');
+    var start=0,duration=600,startTime=null;
+    function step(ts){
+      if(!startTime)startTime=ts;
+      var p=Math.min((ts-startTime)/duration,1);
+      var eased=1-Math.pow(1-p,3);// easeOutCubic
+      var current=start+eased*(target-start);
+      var formatted=hasDecimal?current.toFixed(decPlaces):Math.round(current).toString();
+      if(hasComma)formatted=formatted.replace(/\B(?=(\d{3})+(?!\d))/g,',');
+      el.textContent=prefix+formatted+suffix;
+      if(p<1)requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
 }
 function changeFund(){currentFund=document.getElementById('fundSel').value;renderAll();saveState();}
 function closeAllPanels(){['notifPanel','searchResults','acctMenu'].forEach(id=>{var e=document.getElementById(id);if(e)e.classList.remove('show')});}
@@ -800,17 +908,36 @@ function renderDashboard(){
   donutSvg+='<circle cx="80" cy="80" r="46" fill="var(--surface)"/></svg>';
 
   document.getElementById('page-dashboard').innerHTML=hdr('ダッシュボード')+
-    '<div class="ct"><div style="font-size:11px;color:var(--m);margin-bottom:8px">'+fd.label+'</div>'+
-    '<div class="kpi-g">'+kpis.map(k=>'<div class="kpi"><div class="kpi-l">'+k.l+'</div><div class="kpi-v">'+k.v+'</div><div class="kpi-c '+k.d+'"><span>'+(k.d==='up'?'&#9650;':'&#9660;')+' '+k.c+'</span></div></div>').join('')+'</div>'+
+    '<div class="ct"><div style="font-size:11px;color:var(--m);margin-bottom:8px">'+fd.label+' <span class="live-dot"></span><span style="font-size:9px;color:#22c55e">リアルタイム</span></div>'+
+    '<div class="quick-actions">'+
+      '<button class="qa-btn" onclick="showPage(\'pipeline\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>案件パイプライン</button>'+
+      '<button class="qa-btn" onclick="showPage(\'ai\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>AI分析</button>'+
+      '<button class="qa-btn" onclick="generateLPReport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>LPレポート生成</button>'+
+      '<button class="qa-btn" onclick="exportPortfolioCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV出力</button>'+
+      '<button class="qa-btn" onclick="showPage(\'recruit\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>採用</button>'+
+    '</div>'+
+    '<div class="kpi-g">'+kpis.map((k,ki)=>{
+      var sparkData=[[180,195,210,220,235,248],[26,27,28,30,31,32],[14.2,15.1,16.3,17.0,17.8,18.7],[1.42,1.48,1.53,1.58,1.62,1.67],[32,35,38,40,44,47],[8,7,6,5,6,5]];
+      return '<div class="kpi"><div class="kpi-l">'+k.l+'</div><div class="kpi-v">'+k.v+'</div><div class="kpi-c '+k.d+'"><span>'+(k.d==='up'?'&#9650;':'&#9660;')+' '+k.c+'</span>'+genSparkSvg(sparkData[ki]||[1,2,3],50,16,k.d==='up'?'var(--a)':'var(--ng)')+'</div></div>';
+    }).join('')+'</div>'+
     '<div class="cg cg3">'+
     '<div class="cd"><div class="cd-t">パイプライン（ステージ別）</div><div class="cd-s">アクティブ案件分布</div><div class="bar-c">'+
-    Object.keys(stageLabels).filter(s=>s!=='closed').map((s,i)=>{var cnt=deals.filter(d=>d.stage===s).length;var h=Math.max(cnt/Math.max(...Object.keys(stageLabels).map(st=>deals.filter(d=>d.stage===st).length))*100,5);return '<div class="bar-col"><div class="bar" style="height:'+h+'%;background:rgba(37,99,235,'+(0.2+i*0.13)+');cursor:pointer" onmouseover="showTip(event,\''+stageLabels[s]+': '+cnt+'件\')" onmouseout="hideTip()"></div><div class="bar-lb">'+stageLabels[s]+'</div><div style="font-size:9px;font-weight:700;color:var(--fg);font-family:Arial">'+cnt+'</div></div>'}).join('')+'</div></div>'+
+    Object.keys(stageLabels).filter(s=>s!=='closed').map((s,i)=>{var cnt=deals.filter(d=>d.stage===s).length;var h=Math.max(cnt/Math.max(...Object.keys(stageLabels).map(st=>deals.filter(d=>d.stage===st).length))*100,5);return '<div class="bar-col"><div class="bar" style="--bar-h:'+h+'%;background:rgba(37,99,235,'+(0.2+i*0.13)+');cursor:pointer;animation-delay:'+(i*0.08)+'s" onmouseover="showTip(event,\''+stageLabels[s]+': '+cnt+'件\')" onmouseout="hideTip()"></div><div class="bar-lb">'+stageLabels[s]+'</div><div style="font-size:9px;font-weight:700;color:var(--fg);font-family:Arial">'+cnt+'</div></div>'}).join('')+'</div></div>'+
     '<div class="cd"><div class="cd-t">TVPI推移</div><div class="cd-s">四半期ごと</div><div style="height:150px"><svg width="100%" height="150" viewBox="0 0 400 150" preserveAspectRatio="none"><polyline points="10,130 60,118 120,104 180,90 240,78 300,62 360,48 390,38" fill="none" stroke="#2563eb" stroke-width="2.5"/><polyline points="10,140 60,138 120,136 180,134 240,132 300,130 360,128 390,126" fill="none" stroke="#a3a3a3" stroke-width="1.5" stroke-dasharray="4 4"/><text x="390" y="36" font-size="10" fill="#2563eb" text-anchor="end" font-family="Arial" font-weight="700">'+fd.tvpi+'x</text><text x="10" y="146" font-size="8" fill="#a3a3a3" font-family="Arial">Q1\'24</text><text x="390" y="146" font-size="8" fill="#a3a3a3" font-family="Arial">Q1\'26</text></svg></div></div>'+
     '<div class="cd"><div class="cd-t">セクター配分</div><div class="cd-s">ポートフォリオ構成</div><div class="donut-w">'+donutSvg+'<div class="d-leg">'+secs.map(s=>'<div class="d-leg-i"><div class="d-leg-d" style="background:'+s.c+'"></div>'+s.n+' '+s.p+'%</div>').join('')+'</div></div></div></div>'+
     '<div style="margin-top:16px"><div class="sh"><div class="st">最新AIインサイト</div><a class="sl" href="#" onclick="showPage(\'ai\');return false">すべて表示 →</a></div><div class="ig">'+filtered.slice(0,4).map(renderInsightCard).join('')+'</div></div>'+
     '<div style="margin-top:16px"><div class="sh"><div class="st">直近の案件動向</div><a class="sl" href="#" onclick="showPage(\'pipeline\');return false">パイプライン →</a></div>'+
     '<div class="tw"><table><thead><tr><th>企業名</th><th>セクター</th><th>ファンド</th><th>ステージ</th><th>AIスコア</th><th>EV</th><th>リード</th><th>更新日</th></tr></thead><tbody>'+
-    deals.slice(0,10).map(d=>{var sc=d.score>=85?'hi':d.score>=70?'mi':'lo';return '<tr onclick="openModal(\''+d.detail.replace(/'/g,"\\'")+'\')" style="cursor:pointer"><td style="font-weight:500">'+d.name+'</td><td style="font-size:10px;color:var(--m)">'+d.sector+'</td><td><span class="badge badge-a">'+d.fund.replace('fund','Fund ')+'</span></td><td><span class="badge badge-a">'+stageLabels[d.stage]+'</span></td><td><div class="sc-bar"><div class="sc-track"><div class="sc-fill" style="width:'+d.score+'%"></div></div><span class="sc-v">'+d.score+'</span></div></td><td>'+d.ev+'</td><td>'+d.lead+'</td><td style="color:var(--m)">'+d.date+'</td></tr>'}).join('')+'</tbody></table></div></div></div>';
+    deals.slice(0,10).map(d=>{var sc=d.score>=85?'hi':d.score>=70?'mi':'lo';return '<tr onclick="openModal(\''+d.detail.replace(/'/g,"\\'")+'\')" style="cursor:pointer"><td style="font-weight:500">'+d.name+'</td><td style="font-size:10px;color:var(--m)">'+d.sector+'</td><td><span class="badge badge-a">'+d.fund.replace('fund','Fund ')+'</span></td><td><span class="badge badge-a">'+stageLabels[d.stage]+'</span></td><td><div class="sc-bar"><div class="sc-track"><div class="sc-fill" style="width:'+d.score+'%"></div></div><span class="sc-v">'+d.score+'</span></div></td><td>'+d.ev+'</td><td>'+d.lead+'</td><td style="color:var(--m)">'+d.date+'</td></tr>'}).join('')+'</tbody></table></div></div>'+
+    '<div style="margin-top:16px"><div class="sh"><div class="st"><span class="live-dot"></span>アクティビティフィード</div></div>'+
+    '<div style="display:flex;flex-direction:column;gap:6px" id="activityFeed">'+
+    [
+      {t:'AI分析完了',d:'Sakura Healthcare IM分析（信頼度88%）',time:'10分前',icon:'&#9733;',col:'var(--a)'},
+      {t:'SPA受領',d:'Aether Semiconductors 最終版',time:'30分前',icon:'&#128196;',col:'var(--fg)'},
+      {t:'スコア更新',d:'Nexus Precision → 87/100',time:'1時間前',icon:'&#9650;',col:'#22c55e'},
+      {t:'DD進捗',d:'Nexus Precision 財務DD完了',time:'2時間前',icon:'&#10003;',col:'var(--a)'},
+      {t:'リスク検出',d:'関東化学工業 コベナンツ抵触リスク',time:'3時間前',icon:'&#9888;',col:'var(--ng)'}
+    ].map(a=>'<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--b);border-radius:8px;background:var(--surface);font-size:10px"><span style="width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;background:var(--s2);flex-shrink:0">'+a.icon+'</span><div style="flex:1"><span style="font-weight:600">'+a.t+'</span> — '+a.d+'</div><span style="color:var(--m);font-size:8px;white-space:nowrap">'+a.time+'</span></div>').join('')+'</div></div></div>';
 }
 
 function renderInsightCard(ins){
@@ -827,6 +954,7 @@ function renderPipeline(){
 
   document.getElementById('page-pipeline').innerHTML=hdr('案件パイプライン')+
     '<div class="ct">'+
+    '<div class="pipe-filter"><input type="text" id="pipeSearch" placeholder="企業名・セクターで検索..." oninput="filterPipeline()"><select id="pipeStageFilter" onchange="filterPipeline()"><option value="all">全ステージ</option>'+stageFlow.map(s=>'<option value="'+s+'">'+stageLabels[s]+'</option>').join('')+'</select><select id="pipeSectorFilter" onchange="filterPipeline()"><option value="all">全セクター</option>'+[...new Set(deals.map(d=>d.sector))].sort().map(s=>'<option value="'+s+'">'+s+'</option>').join('')+'</select><select id="pipeScoreFilter" onchange="filterPipeline()"><option value="all">全スコア</option><option value="85">85+ (高)</option><option value="70">70+ (中以上)</option><option value="0">全て</option></select></div>'+
     '<div class="funnel">'+funnelData.map((f,i)=>{
       var cumCount=0;for(var j=i;j<funnelData.length;j++)cumCount+=funnelData[j].count;
       var prevCum=0;if(i>0)for(var j=i-1;j<funnelData.length;j++)prevCum+=funnelData[j].count;
@@ -855,15 +983,30 @@ function renderPortfolio(){
   document.getElementById('page-portfolio').innerHTML=hdr('ポートフォリオ モニタリング')+
     '<div class="ct">'+
     '<div class="p-sum"><div class="ps"><div class="ps-l">投資先</div><div class="ps-v">'+companies.length+'社</div></div><div class="ps"><div class="ps-l">投資総額</div><div class="ps-v">¥'+totalInv+'億</div></div><div class="ps"><div class="ps-l">評価額</div><div class="ps-v" style="color:var(--a)">¥'+totalVal+'億</div></div><div class="ps"><div class="ps-l">平均MOIC</div><div class="ps-v">'+avgMoic+'x</div></div><div class="ps"><div class="ps-l">リターン倍率</div><div class="ps-v" style="color:var(--a)">'+(totalVal/totalInv).toFixed(2)+'x</div></div></div>'+
-    '<div class="tabs" style="margin-top:16px"><button class="tab active" onclick="filterPort(\'all\',this)">全社</button><button class="tab" onclick="filterPort(\'fund3\',this)">Fund III</button><button class="tab" onclick="filterPort(\'fund2\',this)">Fund II</button><button class="tab" onclick="filterPort(\'fund1\',this)">Fund I</button></div>'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;flex-wrap:wrap;gap:8px"><div class="tabs" style="margin:0"><button class="tab active" onclick="filterPort(\'all\',this)">全社</button><button class="tab" onclick="filterPort(\'fund3\',this)">Fund III</button><button class="tab" onclick="filterPort(\'fund2\',this)">Fund II</button><button class="tab" onclick="filterPort(\'fund1\',this)">Fund I</button></div>'+
+    '<div class="port-filter"><span style="font-size:9px;color:var(--m)">並び替え:</span><button class="port-sort-btn active" onclick="sortPort(\'default\',this)">デフォルト</button><button class="port-sort-btn" onclick="sortPort(\'moic\',this)">MOIC順</button><button class="port-sort-btn" onclick="sortPort(\'irr\',this)">IRR順</button><button class="port-sort-btn" onclick="sortPort(\'val\',this)">評価額順</button></div></div>'+
     '<div class="p-grid" id="port-grid">'+renderPortCards(companies)+'</div></div>';
   setTimeout(()=>{companies.forEach(c=>{var el=document.getElementById('wf-'+c.id);if(el)renderWaterfall('wf-'+c.id,c)})},50);
 }
+var currentPortSort='default';
 function filterPort(fund,btn){
   document.querySelectorAll('#page-portfolio .tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');
   var companies=fund==='all'?portfolioCompanies.slice(0,20):portfolioCompanies.filter(c=>c.fund===fund).slice(0,20);
+  companies=applySortPort(companies);
   document.getElementById('port-grid').innerHTML=renderPortCards(companies);
   setTimeout(()=>{companies.forEach(c=>{var el=document.getElementById('wf-'+c.id);if(el)renderWaterfall('wf-'+c.id,c)})},50);
+}
+function sortPort(sortKey,btn){
+  document.querySelectorAll('.port-sort-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
+  currentPortSort=sortKey;
+  var activeTab=document.querySelector('#page-portfolio .tab.active');
+  if(activeTab)filterPort(activeTab.textContent.trim()==='全社'?'all':activeTab.textContent.trim().toLowerCase().replace(' ',''),activeTab);
+}
+function applySortPort(companies){
+  if(currentPortSort==='moic')return companies.slice().sort((a,b)=>b.moic-a.moic);
+  if(currentPortSort==='irr')return companies.slice().sort((a,b)=>b.irr-a.irr);
+  if(currentPortSort==='val')return companies.slice().sort((a,b)=>b.val-a.val);
+  return companies;
 }
 function renderPortCards(companies){
   return companies.map(c=>{
@@ -901,7 +1044,7 @@ function sendChat(){
   var input=document.getElementById('chatInput');var msg=input.value.trim();if(!msg)return;
   var msgs=document.getElementById('chatMessages');
   msgs.innerHTML+='<div class="ch-msg user">'+msg+'</div>';input.value='';
-  msgs.innerHTML+='<div class="ch-msg typing" id="typing">分析中...</div>';msgs.scrollTop=msgs.scrollHeight;
+  msgs.innerHTML+='<div class="ch-msg typing" id="typing"><div class="typing-dots"><span></span><span></span><span></span></div> 分析中...</div>';msgs.scrollTop=msgs.scrollHeight;
   setTimeout(function(){var t=document.getElementById('typing');if(t)t.remove();msgs.innerHTML+='<div class="ch-msg ai">'+genResponse(msg)+'</div>';msgs.scrollTop=msgs.scrollHeight;},600+Math.random()*800);
 }
 function chatQ(topic){document.getElementById('chatInput').value=topic+'について教えて';sendChat();}
@@ -1139,9 +1282,107 @@ function exportPortfolioCSV(){
   showToast('CSVをダウンロードしました');
 }
 
+// ========== SPARKLINE GENERATOR ==========
+function genSparkSvg(values,w,h,color){
+  w=w||60;h=h||20;color=color||'var(--a)';
+  var max=Math.max(...values),min=Math.min(...values);
+  var range=max-min||1;
+  var points=values.map((v,i)=>{
+    var x=(i/(values.length-1))*w;
+    var y=h-((v-min)/range)*(h-2)-1;
+    return x.toFixed(1)+','+y.toFixed(1);
+  }).join(' ');
+  return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="vertical-align:middle;margin-left:6px;opacity:.7"><polyline points="'+points+'" fill="none" stroke="'+color+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+// ========== PIPELINE FILTER ==========
+function filterPipeline(){
+  var q=(document.getElementById('pipeSearch')?.value||'').toLowerCase();
+  var stg=document.getElementById('pipeStageFilter')?.value||'all';
+  var sec=document.getElementById('pipeSectorFilter')?.value||'all';
+  var scMin=parseInt(document.getElementById('pipeScoreFilter')?.value)||0;
+  if(document.getElementById('pipeScoreFilter')?.value==='all')scMin=0;
+  document.querySelectorAll('#page-pipeline .dc').forEach(card=>{
+    var name=(card.querySelector('.dc-n')?.textContent||'').toLowerCase();
+    var sector=card.querySelector('.dc-sec')?.textContent||'';
+    var score=parseInt(card.querySelector('.dc-sc')?.textContent)||0;
+    var show=true;
+    if(q&&!name.includes(q)&&!sector.toLowerCase().includes(q))show=false;
+    if(scMin>0&&score<scMin)show=false;
+    if(sec!=='all'&&sector!==sec)show=false;
+    card.style.display=show?'':'none';
+  });
+  // Stage filter: hide entire columns
+  if(stg!=='all'){
+    document.querySelectorAll('#page-pipeline .k-col').forEach(col=>{
+      var title=col.querySelector('.k-col-t')?.textContent||'';
+      var stageMatch=Object.entries(stageLabels).find(([k,v])=>v===title);
+      if(stageMatch&&stageMatch[0]!==stg)col.style.display='none';
+      else col.style.display='';
+    });
+  }else{
+    document.querySelectorAll('#page-pipeline .k-col').forEach(col=>col.style.display='');
+  }
+}
+
+// ========== TABLE SORTING ==========
+function enableTableSort(){
+  document.querySelectorAll('.tw table, .lp-tc table').forEach(table=>{
+    var ths=table.querySelectorAll('thead th');
+    ths.forEach((th,colIdx)=>{
+      if(th.querySelector('.sort-arrow'))return;
+      th.innerHTML+='<span class="sort-arrow">&#9650;</span>';
+      th.addEventListener('click',function(){
+        var tbody=table.querySelector('tbody');if(!tbody)return;
+        var rows=Array.from(tbody.querySelectorAll('tr')).filter(r=>!r.style.fontWeight||r.style.fontWeight!=='700');
+        var asc=!th.classList.contains('sorted')||th.dataset.dir==='desc';
+        ths.forEach(h=>{h.classList.remove('sorted');h.dataset.dir='';h.querySelector('.sort-arrow').innerHTML='&#9650;';});
+        th.classList.add('sorted');th.dataset.dir=asc?'asc':'desc';
+        th.querySelector('.sort-arrow').innerHTML=asc?'&#9650;':'&#9660;';
+        rows.sort((a,b)=>{
+          var aText=(a.cells[colIdx]||{}).textContent||'';
+          var bText=(b.cells[colIdx]||{}).textContent||'';
+          var aNum=parseFloat(aText.replace(/[^0-9.\-]/g,''));
+          var bNum=parseFloat(bText.replace(/[^0-9.\-]/g,''));
+          if(!isNaN(aNum)&&!isNaN(bNum))return asc?aNum-bNum:bNum-aNum;
+          return asc?aText.localeCompare(bText,'ja'):bText.localeCompare(aText,'ja');
+        });
+        rows.forEach(r=>tbody.appendChild(r));
+      });
+    });
+  });
+}
+
+// ========== KEYBOARD SHORTCUTS ==========
+var kbdHintEl=null;
+function initKeyboardShortcuts(){
+  kbdHintEl=document.createElement('div');kbdHintEl.className='kbd-hint';kbdHintEl.id='kbdHint';
+  kbdHintEl.innerHTML='<kbd>1-0</kbd> ページ切替 <kbd>/</kbd> 検索 <kbd>D</kbd> ダーク <kbd>?</kbd> ヘルプ';
+  document.body.appendChild(kbdHintEl);
+
+  document.addEventListener('keydown',function(e){
+    // Ignore if typing in input
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;
+    var key=e.key;
+    // Page navigation: 1-9,0 maps to nav items
+    if(key>='1'&&key<='9'){var idx=parseInt(key)-1;if(idx<navItems.length){showPage(navItems[idx].id);showToast(navItems[idx].label);e.preventDefault();}return;}
+    if(key==='0'){if(navItems.length>=10){showPage(navItems[9].id);showToast(navItems[9].label);e.preventDefault();}return;}
+    // / for search focus
+    if(key==='/'){e.preventDefault();var srch=document.querySelector('.srch');if(srch)srch.focus();return;}
+    // d for dark mode
+    if(key==='d'||key==='D'){toggleTheme();e.preventDefault();return;}
+    // ? for help
+    if(key==='?'){e.preventDefault();kbdHintEl.classList.toggle('show');return;}
+    // Escape to close panels
+    if(key==='Escape'){closeAllPanels();closeProfile();closeModal();if(kbdHintEl)kbdHintEl.classList.remove('show');return;}
+  });
+}
+
 // ========== INIT ==========
-function renderAll(){renderSidebar();renderDashboard();renderPipeline();renderPortfolio();renderAI();renderLP();renderMarket();renderTeam();renderDiagnosis();renderRecruit();renderESG();renderNotifications();}
-loadTheme();renderAll();loadState();
+function renderAll(){renderSidebar();renderDashboard();renderPipeline();renderPortfolio();renderAI();renderLP();renderMarket();renderTeam();renderDiagnosis();renderRecruit();renderESG();renderNotifications();setTimeout(enableTableSort,100);}
+loadTheme();renderAll();loadState();initKeyboardShortcuts();
+// Initial count-up on dashboard
+setTimeout(()=>{var dash=document.getElementById('page-dashboard');if(dash)animateCountUps(dash);},200);
 </script>
 </body>
 </html>
