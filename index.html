@@ -687,6 +687,144 @@
             color: rgba(250, 250, 248, 0.2);
         }
 
+        /* ===== LANG TOGGLE ===== */
+        .nav__lang {
+            font-family: var(--ff-sans);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--stone);
+            background: none;
+            border: 1px solid var(--frost);
+            padding: 6px 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 24px;
+        }
+        .nav__lang:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        /* ===== IKI BANNER ===== */
+        .iki-banner {
+            background: var(--forest);
+            color: var(--white);
+            text-align: center;
+            padding: 120px 48px;
+        }
+        .iki-banner blockquote {
+            border: none;
+            padding: 0;
+            font-size: clamp(22px, 3vw, 36px);
+            color: var(--white);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .iki-banner .iki-attr {
+            font-family: var(--ff-sans);
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-top: 32px;
+        }
+        .iki-banner .iki-gold { color: var(--gold); }
+
+        /* ===== SCENE EVAL ===== */
+        .scene-eval {
+            background: var(--black);
+            color: var(--white);
+        }
+        .scene-eval .subheader { color: var(--gold); }
+        .scene-eval h1 { color: var(--white); }
+        .scene-eval .lead { color: rgba(250,250,248,0.5); }
+
+        .eval-bars { margin-top: 48px; max-width: 560px; }
+        .eval-bar { margin-bottom: 28px; }
+        .eval-bar__label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            color: rgba(250,250,248,0.5);
+            margin-bottom: 10px;
+        }
+        .eval-bar__track {
+            height: 3px;
+            background: rgba(250,250,248,0.08);
+            position: relative;
+        }
+        .eval-bar__fill {
+            height: 100%;
+            background: var(--gold);
+            width: 0;
+            transition: width 1.2s ease;
+        }
+
+        .keshiki-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            margin-top: 64px;
+        }
+        .keshiki-card {
+            padding: 40px;
+            border: 1px solid rgba(250,250,248,0.1);
+            position: relative;
+        }
+        .keshiki-card h3 { color: var(--gold); margin-bottom: 12px; }
+        .keshiki-card p { font-size: 14px; line-height: 1.8; color: rgba(250,250,248,0.5); }
+        .keshiki-num {
+            font-family: var(--ff-serif);
+            font-size: 48px;
+            font-weight: 300;
+            color: rgba(250,250,248,0.06);
+            position: absolute;
+            top: 16px;
+            right: 24px;
+            line-height: 1;
+        }
+
+        /* ===== CEO IN TRAINING ===== */
+        .cit { background: var(--white); }
+        .cit__highlight {
+            font-family: var(--ff-serif);
+            font-size: clamp(22px, 3vw, 32px);
+            font-weight: 500;
+            line-height: 1.35;
+            letter-spacing: 0.02em;
+            margin: 48px 0;
+            max-width: var(--text-max);
+        }
+        .cit__stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 48px;
+            margin-top: 64px;
+        }
+        .cit__stat-value {
+            font-family: var(--ff-serif);
+            font-weight: 600;
+            font-size: 48px;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+        .cit__stat-label {
+            font-size: 12px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--stone);
+        }
+
+        @media (max-width: 768px) {
+            .keshiki-grid { grid-template-columns: 1fr; }
+            .cit__stats { grid-template-columns: 1fr; }
+            .iki-banner { padding: 80px 24px; }
+        }
+
         /* ===== ANIMATIONS ===== */
         .fade-in {
             opacity: 0;
@@ -799,13 +937,14 @@
     <nav class="nav" id="nav">
         <a href="#" class="nav__logo">TAIGA</a>
         <ul class="nav__links" id="navLinks">
-            <li><a href="#philosophy">Philosophy</a></li>
-            <li><a href="#portfolio">Portfolio</a></li>
-            <li><a href="#approach">Approach</a></li>
-            <li><a href="#timeline">Roadmap</a></li>
-            <li><a href="#foundation">Foundation</a></li>
-            <li><a href="#contact">Contact</a></li>
+            <li><a href="#philosophy" data-en="Philosophy" data-ja="思想">Philosophy</a></li>
+            <li><a href="#cit" data-en="People" data-ja="人材">People</a></li>
+            <li><a href="#portfolio" data-en="Portfolio" data-ja="事業領域">Portfolio</a></li>
+            <li><a href="#approach" data-en="Approach" data-ja="手法">Approach</a></li>
+            <li><a href="#timeline" data-en="Roadmap" data-ja="ロードマップ">Roadmap</a></li>
+            <li><a href="#contact" data-en="Contact" data-ja="お問い合わせ">Contact</a></li>
         </ul>
+        <button class="nav__lang" id="langToggle">EN / 日本語</button>
         <button class="nav__menu-btn" id="menuBtn" aria-label="Toggle menu">
             <span></span>
             <span></span>
@@ -816,9 +955,9 @@
     <section class="hero">
         <div class="hero__bg"></div>
         <div class="hero__content">
-            <p class="subheader fade-in">Taiga Capital Group</p>
-            <h1 class="display fade-in stagger-1">Building permanence<br>in a world of speed.</h1>
-            <p class="lead fade-in stagger-2">30年の時間軸で日本発のグローバル・コングロマリットを構築する。<br>速度ではなく、不可逆性。</p>
+            <p class="subheader fade-in" data-en="The world's most people-first investment company" data-ja="世界で最も、人に投資する投資会社">The world's most people-first investment company</p>
+            <h1 class="display fade-in stagger-1" data-en="Create the Scene." data-ja="その先の景色を。">Create the Scene.</h1>
+            <p class="lead fade-in stagger-2" data-en="Building a global conglomerate over 30 years from Japan.<br>Not with speed, but with irreversibility." data-ja="30年の時間軸で日本発のグローバル・コングロマリットを構築する。<br>速度ではなく、不可逆性。">Building a global conglomerate over 30 years from Japan.<br>Not with speed, but with irreversibility.</p>
         </div>
         <div class="hero__scroll">
             <div class="hero__scroll-line"></div>
@@ -829,32 +968,111 @@
     <!-- PHILOSOPHY -->
     <section class="philosophy section" id="philosophy">
         <div class="container">
-            <p class="subheader fade-in">Philosophy</p>
+            <p class="subheader fade-in" data-en="Philosophy" data-ja="思想">Philosophy</p>
             <div class="gold-line fade-in"></div>
-            <h1 class="fade-in">大河の思想</h1>
+            <h1 class="fade-in" data-en="Offering New Perspectives." data-ja="新しい視点を提供する。">Offering New Perspectives.</h1>
 
             <div class="philosophy__grid">
                 <div class="philosophy__item fade-in">
                     <h2>Permanence</h2>
-                    <p class="jp">川は最短距離を流れない。しかし、必ず海に届く。短期的な最適化ではなく、地形を受け入れながら前に進む力。1つの事業モデルに賭けるのではなく、複数の流れが1つの大きな河になる構造を築く。</p>
+                    <p class="jp" data-en="Rivers do not flow the shortest path. Yet they always reach the sea. Not short-term optimization, but the power to move forward while embracing the terrain. Not a single business model, but multiple streams converging into one great river." data-ja="川は最短距離を流れない。しかし、必ず海に届く。短期的な最適化ではなく、地形を受け入れながら前に進む力。1つの事業モデルに賭けるのではなく、複数の流れが1つの大きな河になる構造を築く。">川は最短距離を流れない。しかし、必ず海に届く。短期的な最適化ではなく、地形を受け入れながら前に進む力。1つの事業モデルに賭けるのではなく、複数の流れが1つの大きな河になる構造を築く。</p>
                 </div>
                 <div class="philosophy__item fade-in stagger-1">
                     <h2>Discipline</h2>
-                    <p class="jp">EV/EBITDA 4.5倍を超える買収は行わない。この一つの規律が、30年後の企業価値を決定づける。感度分析が示す最大のリスクファクターは、マクロ経済でも競合でもなく、自らの規律の緩みである。</p>
+                    <p class="jp" data-en="We never acquire above EV/EBITDA 4.5x. This single discipline determines our enterprise value 30 years from now. Sensitivity analysis shows the greatest risk factor is neither macroeconomics nor competition — it is the erosion of our own discipline." data-ja="EV/EBITDA 4.5倍を超える買収は行わない。この一つの規律が、30年後の企業価値を決定づける。感度分析が示す最大のリスクファクターは、マクロ経済でも競合でもなく、自らの規律の緩みである。">EV/EBITDA 4.5倍を超える買収は行わない。この一つの規律が、30年後の企業価値を決定づける。感度分析が示す最大のリスクファクターは、マクロ経済でも競合でもなく、自らの規律の緩みである。</p>
                 </div>
                 <div class="philosophy__item fade-in stagger-2">
                     <h2>Landscape</h2>
-                    <p class="jp">私たちの評価制度の最上位軸は「景色創造」である。KPIでもROICでもない。あなたは、どんな景色を作ったか。数字は結果であり、景色は因果の構造だ。</p>
+                    <p class="jp" data-en="Our highest evaluation axis is 'Scene Creation.' Not KPIs. Not ROIC. The question is: what scene did you create? Numbers are results; scenes are the causal structure behind them." data-ja="私たちの評価制度の最上位軸は「景色創造」である。KPIでもROICでもない。あなたは、どんな景色を作ったか。数字は結果であり、景色は因果の構造だ。">私たちの評価制度の最上位軸は「景色創造」である。KPIでもROICでもない。あなたは、どんな景色を作ったか。数字は結果であり、景色は因果の構造だ。</p>
                 </div>
                 <div class="philosophy__item fade-in stagger-3">
                     <h2>Ownership</h2>
-                    <p class="jp">オーナーシップとは口号ではなく、設計である。3層の報酬設計、5つの評価軸、そして自らの資金を投じるコインベスト制度。自分のお金を入れている人間は、会議室での発言が変わる。</p>
+                    <p class="jp" data-en="Ownership is not a slogan — it is architecture. Three-tier compensation, five evaluation axes, and a co-invest system where you put your own money in. People who invest their own capital speak differently in the boardroom." data-ja="オーナーシップとは口号ではなく、設計である。3層の報酬設計、5つの評価軸、そして自らの資金を投じるコインベスト制度。自分のお金を入れている人間は、会議室での発言が変わる。">オーナーシップとは口号ではなく、設計である。3層の報酬設計、5つの評価軸、そして自らの資金を投じるコインベスト制度。自分のお金を入れている人間は、会議室での発言が変わる。</p>
                 </div>
 
                 <div class="philosophy__quote fade-in">
-                    <blockquote>
+                    <blockquote data-en="&ldquo;We are not building a company that runs fast.<br>We are building one that never stops.&rdquo;" data-ja="「私たちは、速く走る会社を作っているのではない。<br>止まらない会社を作っている。」">
                         「私たちは、速く走る会社を作っているのではない。<br>止まらない会社を作っている。」
                     </blockquote>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- IKI BANNER -->
+    <div class="iki-banner">
+        <blockquote class="fade-in" data-en="&ldquo;<span class='iki-gold'>Iki</span> is knowing when not to speak.<br>It is the discipline of restraint,<br>the elegance of the unsaid.&rdquo;" data-ja="&ldquo;<span class='iki-gold'>粋</span>とは、語らない美学。<br>抑制の中にある規律、<br>語られないものの中にある品格。&rdquo;">&ldquo;<span class="iki-gold">粋</span>とは、語らない美学。<br>抑制の中にある規律、<br>語られないものの中にある品格。&rdquo;</blockquote>
+        <p class="iki-attr fade-in" data-en="The Taiga Way" data-ja="大河の流儀">大河の流儀</p>
+    </div>
+
+    <!-- SCENE CREATION EVALUATION -->
+    <section class="scene-eval section">
+        <div class="container">
+            <p class="subheader fade-in" data-en="Evaluation System" data-ja="評価制度">評価制度</p>
+            <div class="gold-line fade-in" style="background: rgba(250,250,248,0.1);"></div>
+            <h1 class="fade-in" data-en="Scene Creation is Our Highest Measure." data-ja="「景色創造」が、最上位の評価軸。">「景色創造」が、最上位の評価軸。</h1>
+            <p class="lead fade-in" style="margin-top: 16px;" data-en="Not KPIs. Not ROIC. We ask: 'What scene did you create?' When revenue grows 10%, the sustainability of that growth depends entirely on whether the landscape has changed." data-ja="KPIでもROICでもない。「あなたは、どんな景色を作ったか」が最初に問われる。売上が10%伸びたとき、それが「景色の変化」を伴っていたかどうかで、その10%の持続性はまったく異なる。">KPIでもROICでもない。「あなたは、どんな景色を作ったか」が最初に問われる。売上が10%伸びたとき、それが「景色の変化」を伴っていたかどうかで、その10%の持続性はまったく異なる。</p>
+
+            <div class="eval-bars fade-in">
+                <div class="eval-bar">
+                    <div class="eval-bar__label"><span data-en="Scene Creation" data-ja="景色創造">景色創造</span><span>40%</span></div>
+                    <div class="eval-bar__track"><div class="eval-bar__fill" data-width="40%"></div></div>
+                </div>
+                <div class="eval-bar">
+                    <div class="eval-bar__label"><span data-en="Offering New Perspectives" data-ja="視点の提供">視点の提供</span><span>25%</span></div>
+                    <div class="eval-bar__track"><div class="eval-bar__fill" data-width="25%"></div></div>
+                </div>
+                <div class="eval-bar">
+                    <div class="eval-bar__label"><span data-en="Ownership" data-ja="オーナーシップ">オーナーシップ</span><span>20%</span></div>
+                    <div class="eval-bar__track"><div class="eval-bar__fill" data-width="20%"></div></div>
+                </div>
+                <div class="eval-bar">
+                    <div class="eval-bar__label"><span data-en="Behind-the-Scenes Contribution" data-ja="裏方貢献">裏方貢献</span><span>15%</span></div>
+                    <div class="eval-bar__track"><div class="eval-bar__fill" data-width="15%"></div></div>
+                </div>
+            </div>
+
+            <div class="keshiki-grid fade-in">
+                <div class="keshiki-card">
+                    <div class="keshiki-num">01</div>
+                    <h3 data-en="Keshiki Reserve" data-ja="景色積立金">景色積立金</h3>
+                    <p data-en="5–10% of profits quietly set aside each year. Because a crisis is 'the moment the scene breaks' — and this fund exists to restore it." data-ja="利益の5〜10%を、将来の危機に備えて静かに積み立てる。危機とは「景色が壊れる瞬間」であり、それを修復する資金。">利益の5〜10%を、将来の危機に備えて静かに積み立てる。危機とは「景色が壊れる瞬間」であり、それを修復する資金。</p>
+                </div>
+                <div class="keshiki-card">
+                    <div class="keshiki-num">02</div>
+                    <h3 data-en="Phase Names as Scenes" data-ja="フェーズという景色">フェーズという景色</h3>
+                    <p data-en="Fundraising. Survival. Liftoff. Expansion. Dominance. IPO. Global. These are not plans — they are previews of 30 years of landscapes yet to come." data-ja="調達、サバイバル、離陸、拡大、支配、上場、グローバル。これは計画ではなく、30年分の景色の予告。">調達、サバイバル、離陸、拡大、支配、上場、グローバル。これは計画ではなく、30年分の景色の予告。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CEO IN TRAINING -->
+    <section class="cit section" id="cit">
+        <div class="container">
+            <p class="subheader fade-in" data-en="CEO in Training" data-ja="CEO in Training">CEO in Training</p>
+            <div class="gold-line fade-in"></div>
+            <h1 class="fade-in" data-en="We Don't Find CEOs. We Create Them." data-ja="CEOを探すのではない。育てる。">CEOを探すのではない。育てる。</h1>
+            <p class="lead jp fade-in text-block" style="margin-top: 24px;" data-en="Inspired by Alpine Investors' pioneering model, Taiga recruits exceptional talent — regardless of industry background — and develops them into the next generation of portfolio company leaders. We invest in people before we invest in companies." data-ja="Alpine Investorsの先駆的モデルに着想を得て、業界を問わず卓越した人材を採用し、投資先企業の次世代経営者へと育成する。会社に投資する前に、人に投資する。">Alpine Investorsの先駆的モデルに着想を得て、業界を問わず卓越した人材を採用し、投資先企業の次世代経営者へと育成する。会社に投資する前に、人に投資する。</p>
+
+            <p class="cit__highlight fade-in" data-en="The world's most <em>people-first</em> investment company. That is not a slogan. It is a structural commitment embedded in every system we build." data-ja="世界で最も「人に投資する」投資会社。それはスローガンではない。私たちが構築するすべてのシステムに埋め込まれた、構造的な覚悟。">世界で最も「人に投資する」投資会社。それはスローガンではない。私たちが構築するすべてのシステムに埋め込まれた、構造的な覚悟。</p>
+
+            <div class="gold-line fade-in"></div>
+
+            <p class="lead jp fade-in text-block" data-en="Our CEO in Training program recruits high-potential leaders in their 20s and 30s, immerses them in Taiga's operating system, and deploys them as CEOs of acquired companies. Three special units — Creation, Turnaround, and Operating — serve as proving grounds where future leaders earn their stripes before age 30." data-ja="CEO in Trainingプログラムは、20代・30代のハイポテンシャル人材を採用し、Taigaの経営システムに没入させ、買収先企業のCEOとして送り出す。事業創造・事業再生・経営管理の3つの特殊部隊が、30歳までに修羅場を経験する育成の場となる。">CEO in Trainingプログラムは、20代・30代のハイポテンシャル人材を採用し、Taigaの経営システムに没入させ、買収先企業のCEOとして送り出す。事業創造・事業再生・経営管理の3つの特殊部隊が、30歳までに修羅場を経験する育成の場となる。</p>
+
+            <div class="cit__stats fade-in">
+                <div>
+                    <div class="cit__stat-value">30</div>
+                    <div class="cit__stat-label" data-en="Year Horizon" data-ja="年の時間軸">年の時間軸</div>
+                </div>
+                <div>
+                    <div class="cit__stat-value">3</div>
+                    <div class="cit__stat-label" data-en="Special Units" data-ja="つの特殊部隊">つの特殊部隊</div>
+                </div>
+                <div>
+                    <div class="cit__stat-value">&lt;30</div>
+                    <div class="cit__stat-label" data-en="Age Rule for Units" data-ja="歳ルール">歳ルール</div>
                 </div>
             </div>
         </div>
@@ -1068,29 +1286,45 @@
     </footer>
 
     <script>
-        // Scroll-based nav border
+        // ── Language Toggle ──
+        let lang = 'ja';
+        const langBtn = document.getElementById('langToggle');
+        langBtn.addEventListener('click', function() {
+            lang = lang === 'ja' ? 'en' : 'ja';
+            document.documentElement.lang = lang;
+            langBtn.textContent = lang === 'ja' ? 'EN / 日本語' : '日本語 / EN';
+            document.querySelectorAll('[data-en]').forEach(function(el) {
+                var text = el.getAttribute('data-' + lang);
+                if (text) el.innerHTML = text;
+            });
+        });
+
+        // ── Scroll-based nav border ──
         const nav = document.getElementById('nav');
         window.addEventListener('scroll', () => {
             nav.classList.toggle('nav--scrolled', window.scrollY > 10);
         }, { passive: true });
 
-        // Mobile menu toggle
+        // ── Mobile menu toggle ──
         const menuBtn = document.getElementById('menuBtn');
         const navLinks = document.getElementById('navLinks');
         menuBtn.addEventListener('click', () => {
             navLinks.classList.toggle('open');
         });
 
-        // Close mobile menu on link click
         navLinks.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => navLinks.classList.remove('open'));
         });
 
-        // Intersection Observer for fade-in animations
+        // ── Intersection Observer for fade-in + eval bars ──
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
+                    // Animate eval bars within this element
+                    entry.target.querySelectorAll('.eval-bar__fill').forEach(bar => {
+                        bar.style.width = bar.getAttribute('data-width');
+                    });
                 }
             });
         }, {
