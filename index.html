@@ -819,9 +819,65 @@
             color: var(--stone);
         }
 
+        /* ===== CIT UNITS TABLE ===== */
+        .cit-units {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            margin-top: 48px;
+        }
+        .cit-unit {
+            padding: 32px;
+            border: 1px solid var(--frost);
+            border-right: none;
+            text-align: center;
+        }
+        .cit-unit:last-child { border-right: 1px solid var(--frost); }
+        .cit-unit__icon {
+            font-family: var(--ff-serif);
+            font-size: 36px;
+            font-weight: 300;
+            color: var(--gold);
+            margin-bottom: 16px;
+            line-height: 1;
+        }
+        .cit-unit__name {
+            font-family: var(--ff-sans);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--stone);
+            margin-bottom: 4px;
+        }
+        .cit-unit__jp {
+            font-family: var(--ff-jp);
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+        .cit-unit__desc {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--stone);
+        }
+        .cit-unit__age {
+            display: inline-block;
+            margin-top: 16px;
+            font-family: var(--ff-serif);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gold);
+            border-top: 1px solid var(--frost);
+            padding-top: 12px;
+        }
+
         @media (max-width: 768px) {
             .keshiki-grid { grid-template-columns: 1fr; }
             .cit__stats { grid-template-columns: 1fr; }
+            .cit-units { grid-template-columns: 1fr; }
+            .cit-unit { border-right: 1px solid var(--frost); border-bottom: none; }
+            .cit-unit:last-child { border-bottom: 1px solid var(--frost); }
             .iki-banner { padding: 80px 24px; }
         }
 
@@ -1055,24 +1111,29 @@
             <h1 class="fade-in" data-en="We Don't Find CEOs.<br>We Create Them." data-ja="CEOを探すのではない。育てる。">CEOを探すのではない。育てる。</h1>
             <p class="lead jp fade-in text-block" style="margin-top: 24px;" data-en="We invest in people before we invest in companies." data-ja="会社に投資する前に、人に投資する。">会社に投資する前に、人に投資する。</p>
 
-            <p class="cit__highlight fade-in" data-en="The world's most <em>people-first</em> investment company." data-ja="世界で最も「人に投資する」投資会社。">世界で最も「人に投資する」投資会社。</p>
+            <p class="cit__highlight fade-in" data-en="Become the world's most <em>people-first</em> investment company." data-ja="世界で最も「人に投資する」投資会社となる。">世界で最も「人に投資する」投資会社となる。</p>
 
-            <div class="gold-line fade-in"></div>
-
-            <p class="lead jp fade-in text-block" data-en="Three special units — Creation, Turnaround, Operating. Earn your stripes before 30. Then lead." data-ja="事業創造・事業再生・経営管理。3つの特殊部隊で、30歳までに修羅場を経験する。そして、経営者になる。">事業創造・事業再生・経営管理。3つの特殊部隊で、30歳までに修羅場を経験する。そして、経営者になる。</p>
-
-            <div class="cit__stats fade-in">
-                <div>
-                    <div class="cit__stat-value">30</div>
-                    <div class="cit__stat-label" data-en="Year Horizon" data-ja="年の時間軸">年の時間軸</div>
+            <div class="cit-units fade-in">
+                <div class="cit-unit">
+                    <div class="cit-unit__icon">01</div>
+                    <div class="cit-unit__name">Creation</div>
+                    <div class="cit-unit__jp" data-en="Creation" data-ja="事業創造">事業創造</div>
+                    <div class="cit-unit__desc" data-en="Build from zero. Launch new businesses within the group." data-ja="ゼロから立ち上げる。グループ内で新規事業を創る。">ゼロから立ち上げる。グループ内で新規事業を創る。</div>
+                    <div class="cit-unit__age" data-en="&lt; 30 yrs" data-ja="30歳未満">30歳未満</div>
                 </div>
-                <div>
-                    <div class="cit__stat-value">3</div>
-                    <div class="cit__stat-label" data-en="Special Units" data-ja="つの特殊部隊">つの特殊部隊</div>
+                <div class="cit-unit">
+                    <div class="cit-unit__icon">02</div>
+                    <div class="cit-unit__name">Turnaround</div>
+                    <div class="cit-unit__jp" data-en="Turnaround" data-ja="事業再生">事業再生</div>
+                    <div class="cit-unit__desc" data-en="Fix what's broken. Turn struggling acquisitions around." data-ja="壊れたものを直す。買収先の再建を担う。">壊れたものを直す。買収先の再建を担う。</div>
+                    <div class="cit-unit__age" data-en="&lt; 30 yrs" data-ja="30歳未満">30歳未満</div>
                 </div>
-                <div>
-                    <div class="cit__stat-value">&lt;30</div>
-                    <div class="cit__stat-label" data-en="Age Rule for Units" data-ja="歳ルール">歳ルール</div>
+                <div class="cit-unit">
+                    <div class="cit-unit__icon">03</div>
+                    <div class="cit-unit__name">Operating</div>
+                    <div class="cit-unit__jp" data-en="Operating" data-ja="経営管理">経営管理</div>
+                    <div class="cit-unit__desc" data-en="Run the machine. Deploy Taiga OS across portfolio companies." data-ja="仕組みを回す。Taiga OSを投資先に移植する。">仕組みを回す。Taiga OSを投資先に移植する。</div>
+                    <div class="cit-unit__age" data-en="&lt; 30 yrs" data-ja="30歳未満">30歳未満</div>
                 </div>
             </div>
         </div>
