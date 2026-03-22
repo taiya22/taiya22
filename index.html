@@ -420,31 +420,76 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2px;
+            gap: 0;
             width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        .pyramid__row {
+        .pyramid__tier {
+            width: 100%;
             display: flex;
-            gap: 2px;
-            justify-content: center;
+            align-items: stretch;
+            position: relative;
         }
 
-        .pyramid__row--1 { width: 36%; }
-        .pyramid__row--2 { width: 64%; }
-        .pyramid__row--3 { width: 100%; }
+        .pyramid__tier-edge {
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        /* Left angled edge */
+        .pyramid__tier-edge--left {
+            background: transparent;
+        }
+        .pyramid__tier-edge--left::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--frost);
+            clip-path: polygon(100% 0, 0 100%, 100% 100%);
+        }
+
+        /* Right angled edge */
+        .pyramid__tier-edge--right {
+            background: transparent;
+        }
+        .pyramid__tier-edge--right::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--frost);
+            clip-path: polygon(0 0, 0 100%, 100% 100%);
+        }
+
+        .pyramid__tier-body {
+            flex: 1;
+            display: flex;
+            background: var(--frost);
+            min-height: 0;
+        }
 
         .pyramid__cell {
             flex: 1;
-            padding: 32px 24px;
-            background: var(--frost);
+            padding: 28px 20px;
             text-align: center;
-            transition: background 0.3s ease;
             position: relative;
+            transition: background 0.3s ease;
         }
 
         .pyramid__cell:hover {
             background: #dad5ce;
+        }
+
+        /* Divider between cells in same tier */
+        .pyramid__cell + .pyramid__cell {
+            border-left: 2px solid var(--white);
+        }
+
+        /* Gold line between tiers */
+        .pyramid__tier + .pyramid__tier {
+            margin-top: 2px;
         }
 
         .pyramid__cell-en {
@@ -478,6 +523,11 @@
             color: var(--gold);
             margin-top: 12px;
         }
+
+        /* Tier edge widths — create the pyramid angle */
+        .pyramid__tier--1 .pyramid__tier-edge { width: 32%; }
+        .pyramid__tier--2 .pyramid__tier-edge { width: 18%; }
+        .pyramid__tier--3 .pyramid__tier-edge { width: 0; }
 
         /* ===== TIMELINE ===== */
         .timeline {
@@ -922,9 +972,8 @@
             .nav { padding: 0 32px; }
             .hero__content { padding: 0 32px; }
 
-            .pyramid__row--1 { width: 50%; }
-            .pyramid__row--2 { width: 80%; }
-            .pyramid__row--3 { width: 100%; }
+            .pyramid__tier--1 .pyramid__tier-edge { width: 25%; }
+            .pyramid__tier--2 .pyramid__tier-edge { width: 12%; }
 
             .timeline__track {
                 grid-template-columns: repeat(4, 1fr);
@@ -971,12 +1020,9 @@
                 gap: 32px;
             }
 
-            .pyramid__row--1,
-            .pyramid__row--2,
-            .pyramid__row--3 { width: 100%; }
-
-            .pyramid__row { flex-direction: column; }
-
+            .pyramid__tier-edge { display: none !important; }
+            .pyramid__tier-body { flex-direction: column; }
+            .pyramid__cell + .pyramid__cell { border-left: none; border-top: 2px solid var(--white); }
             .pyramid__cell { padding: 24px 16px; }
 
             .timeline__track {
@@ -1188,40 +1234,53 @@
             <p class="lead jp fade-in" style="margin-top: 16px; max-width: 600px;" data-en="Five domains with different cycle characteristics support each other across economic phases." data-ja="景気循環の異なるフェーズで支え合う5つの事業領域。">景気循環の異なるフェーズで支え合う5つの事業領域。</p>
 
             <div class="pyramid fade-in">
-                <div class="pyramid__row pyramid__row--1">
-                    <div class="pyramid__cell">
-                        <div class="pyramid__cell-en">Venture</div>
-                        <div class="pyramid__cell-jp" data-en="Venture" data-ja="創発">創発</div>
-                        <div class="pyramid__cell-desc" data-en="Business development, VC" data-ja="事業開発、VC">事業開発、VC</div>
-                        <div class="pyramid__cell-pct">15%</div>
+                <!-- Tier 1: Top — Venture -->
+                <div class="pyramid__tier pyramid__tier--1">
+                    <div class="pyramid__tier-edge pyramid__tier-edge--left"></div>
+                    <div class="pyramid__tier-body">
+                        <div class="pyramid__cell">
+                            <div class="pyramid__cell-en" data-en="Venture" data-ja="Venture">Venture</div>
+                            <div class="pyramid__cell-jp" data-en="Venture" data-ja="創発">創発</div>
+                            <div class="pyramid__cell-desc" data-en="Business development, VC" data-ja="事業開発、VC">事業開発、VC</div>
+                            <div class="pyramid__cell-pct">15%</div>
+                        </div>
                     </div>
+                    <div class="pyramid__tier-edge pyramid__tier-edge--right"></div>
                 </div>
-                <div class="pyramid__row pyramid__row--2">
-                    <div class="pyramid__cell">
-                        <div class="pyramid__cell-en">Experience</div>
-                        <div class="pyramid__cell-jp" data-en="Experience" data-ja="体験">体験</div>
-                        <div class="pyramid__cell-desc" data-en="Entertainment, food, space" data-ja="エンタメ、食、宇宙">エンタメ、食、宇宙</div>
-                        <div class="pyramid__cell-pct">15%</div>
+                <!-- Tier 2: Middle — Experience + Strategy -->
+                <div class="pyramid__tier pyramid__tier--2">
+                    <div class="pyramid__tier-edge pyramid__tier-edge--left"></div>
+                    <div class="pyramid__tier-body">
+                        <div class="pyramid__cell">
+                            <div class="pyramid__cell-en" data-en="Experience" data-ja="Experience">Experience</div>
+                            <div class="pyramid__cell-jp" data-en="Experience" data-ja="体験">体験</div>
+                            <div class="pyramid__cell-desc" data-en="Entertainment, food, space" data-ja="エンタメ、食、宇宙">エンタメ、食、宇宙</div>
+                            <div class="pyramid__cell-pct">15%</div>
+                        </div>
+                        <div class="pyramid__cell">
+                            <div class="pyramid__cell-en" data-en="Strategy" data-ja="Strategy">Strategy</div>
+                            <div class="pyramid__cell-jp" data-en="Strategy" data-ja="戦略">戦略</div>
+                            <div class="pyramid__cell-desc" data-en="PE, strategic consulting" data-ja="PE投資、戦略コンサル">PE投資、戦略コンサル</div>
+                            <div class="pyramid__cell-pct">15%</div>
+                        </div>
                     </div>
-                    <div class="pyramid__cell">
-                        <div class="pyramid__cell-en">Strategy</div>
-                        <div class="pyramid__cell-jp" data-en="Strategy" data-ja="戦略">戦略</div>
-                        <div class="pyramid__cell-desc" data-en="PE, strategic consulting" data-ja="PE投資、戦略コンサル">PE投資、戦略コンサル</div>
-                        <div class="pyramid__cell-pct">15%</div>
-                    </div>
+                    <div class="pyramid__tier-edge pyramid__tier-edge--right"></div>
                 </div>
-                <div class="pyramid__row pyramid__row--3">
-                    <div class="pyramid__cell">
-                        <div class="pyramid__cell-en">Product</div>
-                        <div class="pyramid__cell-jp" data-en="Product" data-ja="実業">実業</div>
-                        <div class="pyramid__cell-desc" data-en="Agriculture, robotics, manufacturing" data-ja="農業、ロボティクス、製造業">農業、ロボティクス、製造業</div>
-                        <div class="pyramid__cell-pct">25%</div>
-                    </div>
-                    <div class="pyramid__cell">
-                        <div class="pyramid__cell-en">Terra</div>
-                        <div class="pyramid__cell-jp" data-en="Terra" data-ja="大地">大地</div>
-                        <div class="pyramid__cell-desc" data-en="Real estate, infrastructure, forestry" data-ja="不動産、インフラ、森林">不動産、インフラ、森林</div>
-                        <div class="pyramid__cell-pct">30%</div>
+                <!-- Tier 3: Base — Product + Terra -->
+                <div class="pyramid__tier pyramid__tier--3">
+                    <div class="pyramid__tier-body">
+                        <div class="pyramid__cell">
+                            <div class="pyramid__cell-en" data-en="Product" data-ja="Product">Product</div>
+                            <div class="pyramid__cell-jp" data-en="Product" data-ja="実業">実業</div>
+                            <div class="pyramid__cell-desc" data-en="Agriculture, robotics, manufacturing" data-ja="農業、ロボティクス、製造業">農業、ロボティクス、製造業</div>
+                            <div class="pyramid__cell-pct">25%</div>
+                        </div>
+                        <div class="pyramid__cell">
+                            <div class="pyramid__cell-en" data-en="Terra" data-ja="Terra">Terra</div>
+                            <div class="pyramid__cell-jp" data-en="Terra" data-ja="大地">大地</div>
+                            <div class="pyramid__cell-desc" data-en="Real estate, infrastructure, forestry" data-ja="不動産、インフラ、森林">不動産、インフラ、森林</div>
+                            <div class="pyramid__cell-pct">30%</div>
+                        </div>
                     </div>
                 </div>
             </div>
