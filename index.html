@@ -274,9 +274,8 @@
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(ellipse 120% 80% at 80% 40%, rgba(27, 58, 45, 0.4) 0%, transparent 60%),
-                radial-gradient(ellipse 80% 60% at 20% 70%, rgba(27, 58, 45, 0.2) 0%, transparent 50%),
-                var(--black);
+                linear-gradient(to bottom, rgba(10,10,10,0.45) 0%, rgba(10,10,10,0.55) 50%, rgba(10,10,10,0.7) 100%),
+                url('https://images.unsplash.com/photo-1476231682828-37e571bc172f?w=1920&q=80') center/cover no-repeat;
         }
 
         .hero__content {
@@ -332,6 +331,22 @@
         @keyframes scrollPulse {
             0%, 100% { opacity: 0.3; }
             50% { opacity: 1; }
+        }
+
+        /* ===== SECTION IMAGES ===== */
+        .section-image {
+            width: 100%;
+            height: 360px;
+            object-fit: cover;
+            display: block;
+            margin: 48px 0;
+            filter: grayscale(20%) contrast(1.05);
+        }
+
+        .section-image--full {
+            margin-left: calc(-48px);
+            margin-right: calc(-48px);
+            width: calc(100% + 96px);
         }
 
         /* ===== PHILOSOPHY ===== */
@@ -648,7 +663,9 @@
 
         /* ===== FOUNDATION ===== */
         .foundation {
-            background: var(--forest);
+            background:
+                linear-gradient(to bottom, rgba(27, 58, 45, 0.88) 0%, rgba(27, 58, 45, 0.92) 100%),
+                url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1600&q=80') center/cover no-repeat;
             color: var(--white);
         }
 
@@ -981,6 +998,7 @@
             .container { padding: 0 32px; }
             .nav { padding: 0 32px; }
             .hero__content { padding: 0 32px; }
+            .section-image--full { margin-left: -32px; margin-right: -32px; width: calc(100% + 64px); }
 
             .pyramid__tier--1 .pyramid__tier-edge { width: 25%; }
             .pyramid__tier--2 .pyramid__tier-edge { width: 12%; }
@@ -1003,6 +1021,8 @@
             .container { padding: 0 24px; }
             .nav { padding: 0 24px; height: 64px; }
             .hero__content { padding: 0 24px; }
+            .section-image { height: 240px; }
+            .section-image--full { margin-left: -24px; margin-right: -24px; width: calc(100% + 48px); }
 
             .nav__links { display: none; }
             .nav__menu-btn { display: block; }
@@ -1090,6 +1110,8 @@
             <p class="subheader fade-in" data-en="Philosophy" data-ja="思想">思想</p>
             <div class="gold-line fade-in"></div>
             <h1 class="fade-in" data-en="Offering New Perspectives." data-ja="新しい視点を提供する。<span class='bilingual-sub'>Offering New Perspectives.</span>">新しい視点を提供する。<span class="bilingual-sub">Offering New Perspectives.</span></h1>
+
+            <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=1400&q=80" alt="Taiga forest — vast boreal woodland" class="section-image section-image--full fade-in" loading="lazy">
 
             <div class="philosophy__grid">
                 <div class="philosophy__item fade-in">
@@ -1303,6 +1325,8 @@
             <p class="subheader fade-in" data-en="Our Approach" data-ja="手法">手法</p>
             <div class="gold-line fade-in"></div>
             <h1 class="fade-in" data-en="Find Good Companies. Make Them Better." data-ja="良い会社を見つけて、もっと良くする。">良い会社を見つけて、もっと良くする。</h1>
+
+            <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1400&q=80" alt="River flowing through forest valley — 大河" class="section-image section-image--full fade-in" loading="lazy">
 
             <div class="approach__grid">
                 <div class="approach__item fade-in">
