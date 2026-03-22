@@ -410,55 +410,72 @@
             margin-top: 8px;
         }
 
-        /* ===== PORTFOLIO ===== */
+        /* ===== PORTFOLIO PYRAMID ===== */
         .portfolio {
             background: var(--white);
         }
 
-        .portfolio__grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 0;
+        .pyramid {
             margin-top: 64px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
         }
 
-        .portfolio__item {
-            padding: 48px 32px;
-            border-right: 1px solid var(--frost);
-            transition: background 0.4s ease;
+        .pyramid__row {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
         }
 
-        .portfolio__item:last-child {
-            border-right: none;
-        }
+        .pyramid__row--1 { width: 36%; }
+        .pyramid__row--2 { width: 64%; }
+        .pyramid__row--3 { width: 100%; }
 
-        .portfolio__item:hover {
+        .pyramid__cell {
+            flex: 1;
+            padding: 32px 24px;
             background: var(--frost);
+            text-align: center;
+            transition: background 0.3s ease;
+            position: relative;
         }
 
-        .portfolio__item h3 {
+        .pyramid__cell:hover {
+            background: #dad5ce;
+        }
+
+        .pyramid__cell-en {
+            font-family: var(--ff-sans);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--stone);
+            margin-bottom: 4px;
+        }
+
+        .pyramid__cell-jp {
+            font-family: var(--ff-jp);
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .pyramid__cell-desc {
+            font-family: var(--ff-jp);
             font-size: 12px;
-            margin-bottom: 16px;
-        }
-
-        .portfolio__item h2 {
-            font-size: clamp(20px, 2vw, 24px);
-            margin-bottom: 20px;
-        }
-
-        .portfolio__item p {
-            font-size: 14px;
             line-height: 1.7;
             color: var(--stone);
         }
 
-        .portfolio__pct {
+        .pyramid__cell-pct {
             font-family: var(--ff-serif);
             font-weight: 600;
-            font-size: 32px;
+            font-size: 24px;
             color: var(--gold);
-            margin-top: 24px;
-            display: block;
+            margin-top: 12px;
         }
 
         /* ===== TIMELINE ===== */
@@ -904,18 +921,9 @@
             .nav { padding: 0 32px; }
             .hero__content { padding: 0 32px; }
 
-            .portfolio__grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .portfolio__item:nth-child(3) {
-                border-right: none;
-            }
-
-            .portfolio__item:nth-child(4),
-            .portfolio__item:nth-child(5) {
-                border-top: 1px solid var(--frost);
-            }
+            .pyramid__row--1 { width: 50%; }
+            .pyramid__row--2 { width: 80%; }
+            .pyramid__row--3 { width: 100%; }
 
             .timeline__track {
                 grid-template-columns: repeat(4, 1fr);
@@ -962,15 +970,13 @@
                 gap: 32px;
             }
 
-            .portfolio__grid {
-                grid-template-columns: 1fr;
-            }
+            .pyramid__row--1,
+            .pyramid__row--2,
+            .pyramid__row--3 { width: 100%; }
 
-            .portfolio__item {
-                border-right: none;
-                border-bottom: 1px solid var(--frost);
-                padding: 32px 0;
-            }
+            .pyramid__row { flex-direction: column; }
+
+            .pyramid__cell { padding: 24px 16px; }
 
             .timeline__track {
                 grid-template-columns: 1fr 1fr;
@@ -1013,7 +1019,7 @@
         <div class="hero__content">
             <p class="subheader fade-in" data-en="The world's most people-first investment company" data-ja="世界で最も、人に投資する投資会社">The world's most people-first investment company</p>
             <h1 class="display fade-in stagger-1" data-en="Create the Scene." data-ja="その先の景色を。">Create the Scene.</h1>
-            <p class="lead fade-in stagger-2" data-en="Building a global conglomerate over 30 years from Japan.<br>Not with speed, but with irreversibility." data-ja="30年の時間軸で日本発のグローバル・コングロマリットを構築する。<br>速度ではなく、不可逆性。">Building a global conglomerate over 30 years from Japan.<br>Not with speed, but with irreversibility.</p>
+            <p class="lead fade-in stagger-2" data-en="Building a global conglomerate over 30 years from Japan." data-ja="30年の時間軸で日本発のグローバル・コングロマリットを構築する。">Building a global conglomerate over 30 years from Japan.</p>
         </div>
         <div class="hero__scroll">
             <div class="hero__scroll-line"></div>
@@ -1132,7 +1138,7 @@
                     <div class="cit-unit__icon">03</div>
                     <div class="cit-unit__name">Operating</div>
                     <div class="cit-unit__jp" data-en="Operating" data-ja="経営管理">経営管理</div>
-                    <div class="cit-unit__desc" data-en="Run the machine. Deploy Taiga OS across portfolio companies." data-ja="仕組みを回す。Taiga OSを投資先に移植する。">仕組みを回す。Taiga OSを投資先に移植する。</div>
+                    <div class="cit-unit__desc" data-en="Run the machine. Deploy Taiga's management system across portfolio companies." data-ja="仕組みを回す。Taigaの経営管理手法を投資先に移植する。">仕組みを回す。Taigaの経営管理手法を投資先に移植する。</div>
                     <div class="cit-unit__age" data-en="&lt; 30 yrs" data-ja="30歳未満">30歳未満</div>
                 </div>
             </div>
@@ -1175,43 +1181,47 @@
     <!-- PORTFOLIO -->
     <section class="portfolio section" id="portfolio">
         <div class="container">
-            <p class="subheader fade-in">Portfolio Architecture</p>
+            <p class="subheader fade-in" data-en="Portfolio Architecture" data-ja="事業ポートフォリオ">事業ポートフォリオ</p>
             <div class="gold-line fade-in"></div>
-            <h1 class="fade-in">5つの景色</h1>
-            <p class="lead jp fade-in" style="margin-top: 16px; max-width: 600px;">異なる景色の文法を持つ5つの事業領域が、景気循環の異なるフェーズで支え合う。</p>
-        </div>
+            <h1 class="fade-in" data-en="Five Business Domains" data-ja="5つの事業領域">5つの事業領域</h1>
+            <p class="lead jp fade-in" style="margin-top: 16px; max-width: 600px;" data-en="Five domains with different cycle characteristics support each other across economic phases." data-ja="景気循環の異なるフェーズで支え合う5つの事業領域。">景気循環の異なるフェーズで支え合う5つの事業領域。</p>
 
-        <div class="container" style="max-width: 100%; padding: 0;">
-            <div class="portfolio__grid" style="max-width: var(--max-w); margin: 0 auto; padding: 0 48px;">
-                <div class="portfolio__item fade-in">
-                    <h3>Product</h3>
-                    <h2>実業</h2>
-                    <p>農業、ロボティクス、製造業。手で触れるものを作る。景色の中で最も壊れにくい。大河の川床。</p>
-                    <span class="portfolio__pct">25%</span>
+            <div class="pyramid fade-in">
+                <div class="pyramid__row pyramid__row--1">
+                    <div class="pyramid__cell">
+                        <div class="pyramid__cell-en">Venture</div>
+                        <div class="pyramid__cell-jp" data-en="Venture" data-ja="創発">創発</div>
+                        <div class="pyramid__cell-desc" data-en="Business development, VC" data-ja="事業開発、VC">事業開発、VC</div>
+                        <div class="pyramid__cell-pct">15%</div>
+                    </div>
                 </div>
-                <div class="portfolio__item fade-in stagger-1">
-                    <h3>Experience</h3>
-                    <h2>体験</h2>
-                    <p>エンターテインメント、食、宇宙。人の記憶に残る瞬間を設計する。大河の水面に映る光。</p>
-                    <span class="portfolio__pct">15%</span>
+                <div class="pyramid__row pyramid__row--2">
+                    <div class="pyramid__cell">
+                        <div class="pyramid__cell-en">Experience</div>
+                        <div class="pyramid__cell-jp" data-en="Experience" data-ja="体験">体験</div>
+                        <div class="pyramid__cell-desc" data-en="Entertainment, food, space" data-ja="エンタメ、食、宇宙">エンタメ、食、宇宙</div>
+                        <div class="pyramid__cell-pct">15%</div>
+                    </div>
+                    <div class="pyramid__cell">
+                        <div class="pyramid__cell-en">Strategy</div>
+                        <div class="pyramid__cell-jp" data-en="Strategy" data-ja="戦略">戦略</div>
+                        <div class="pyramid__cell-desc" data-en="PE, strategic consulting" data-ja="PE投資、戦略コンサル">PE投資、戦略コンサル</div>
+                        <div class="pyramid__cell-pct">15%</div>
+                    </div>
                 </div>
-                <div class="portfolio__item fade-in stagger-2">
-                    <h3>Strategy</h3>
-                    <h2>戦略</h2>
-                    <p>PE投資、戦略コンサルティング。他の事業領域を俯瞰し、資本を配分する。上空から見る鳥。</p>
-                    <span class="portfolio__pct">15%</span>
-                </div>
-                <div class="portfolio__item fade-in stagger-3">
-                    <h3>Venture</h3>
-                    <h2>創発</h2>
-                    <p>事業開発、VC。まだ存在しない景色を想像し、走る。雪解け水が最初の一滴になる場所。</p>
-                    <span class="portfolio__pct">15%</span>
-                </div>
-                <div class="portfolio__item fade-in stagger-4">
-                    <h3>Terra</h3>
-                    <h2>大地</h2>
-                    <p>不動産、インフラ、森林。最も長い時間軸で景色を作り、守る。ポートフォリオの最大の柱。</p>
-                    <span class="portfolio__pct">30%</span>
+                <div class="pyramid__row pyramid__row--3">
+                    <div class="pyramid__cell">
+                        <div class="pyramid__cell-en">Product</div>
+                        <div class="pyramid__cell-jp" data-en="Product" data-ja="実業">実業</div>
+                        <div class="pyramid__cell-desc" data-en="Agriculture, robotics, manufacturing" data-ja="農業、ロボティクス、製造業">農業、ロボティクス、製造業</div>
+                        <div class="pyramid__cell-pct">25%</div>
+                    </div>
+                    <div class="pyramid__cell">
+                        <div class="pyramid__cell-en">Terra</div>
+                        <div class="pyramid__cell-jp" data-en="Terra" data-ja="大地">大地</div>
+                        <div class="pyramid__cell-desc" data-en="Real estate, infrastructure, forestry" data-ja="不動産、インフラ、森林">不動産、インフラ、森林</div>
+                        <div class="pyramid__cell-pct">30%</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1233,7 +1243,7 @@
                 <div class="approach__item fade-in stagger-1">
                     <div class="approach__num">02</div>
                     <h2>Integrate</h2>
-                    <p class="jp">経営管理ユニットがTaigaの経営OS を移植。買収1件あたり+650bpsのマージン改善を、ダナハーのDBSをモデルに実現する。</p>
+                    <p class="jp" data-en="The Operating unit deploys Taiga's management system. Targeting +650bps margin improvement per acquisition, modeled on Danaher's DBS." data-ja="経営管理ユニットがTaigaの経営管理手法を移植。買収1件あたり+650bpsのマージン改善を、ダナハーのDBSをモデルに実現する。">経営管理ユニットがTaigaの経営管理手法を移植。買収1件あたり+650bpsのマージン改善を、ダナハーのDBSをモデルに実現する。</p>
                 </div>
                 <div class="approach__item fade-in stagger-2">
                     <div class="approach__num">03</div>
