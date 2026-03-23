@@ -7,6 +7,14 @@
 - 4月・5月は研修期間（簿記・TOEIC・Excel・PowerPoint・財務モデリング）
 - 長期ビジョン：Taiga Capital Group（30年マスタープラン）── docs/founding_story.md参照
 
+## 自分とは何者か
+
+- **Purpose:** Offering New Perspectives（新しい物の見方を提供する）
+- **Value:** Consummatory（今を生きる）・Curiosity（好奇心）・Considerateness（やさしさ）── 3C
+- **Carrier Concept:** Applied Philosopher（応用哲学者）/ Applied Troubadour（応用吟遊詩人）
+
+> 詳細は [Appendix: 取扱説明書](#appendix-a-beginners-guide-to-taiga-yamawaki-取扱説明書) を参照
+
 ## 【毎日見る！自分の仕事】
 
 ### 本業（デロイトトーマツ）
@@ -29,10 +37,31 @@
 
 ## 【行動規律】
 
-- Purpose（Taigaのマスタープラン）から逆算して今日の行動を選ぶ。刹那的なタスクに流されない
+### Purposeから逆算する
+- Taigaのマスタープランから逆算して今日の行動を選ぶ。刹那的なタスクに流されない
+- すべての仕事・活動が「Offering New Perspectives」に繋がっているか自問する
+
+### 新人としての基本
 - 新人の仕事を舐めない。地味な基礎を徹底する人間が、10年後に大きな仕事をする
 - 研修期間中は「吸収」に全振りする。アウトプットは社外活動で担保する
+- 自分の頭で考えて行動する（Autonomy）。ただし先輩の型をまず学ぶ
+
+### 人との関わり方
 - 新しい環境では「面を獲る」ことを優先する。人間関係を拡げられる時期は限られている
+- 3分以内にできることなら、考えずにすぐ与える（Be a Giver）
+- Whyから伝える。魚の釣り方を教える。真っ直ぐ伝える
+- 相手の強みに投資し、力を100%引き出す
+
+### 仕事の姿勢
+- コントロールできることに集中する。人事を尽くして天命を待つ（Task Focus）
+- 人生は実験。新しいもの・面白そうなものはまず試す（Experiment）
+- ここぞというときは直観にAll in（Inspiration All-in）
+- 自ら機会を創り、機会によって自らを変えよ（Initiate by yourself）
+
+### 自分の弱みへの自覚
+- 人に頼るのが下手 → 意識的に頼る・任せる
+- 考える前に動いてしまう → 研修期間は特に「聞いてから動く」を徹底
+- 堅すぎる → 今この瞬間に没頭し、一緒にいる相手と全身全霊で楽しむ（Consummatory）
 
 ---
 
@@ -40,7 +69,7 @@
 
 ---
 
-## A Beginner's Guide to Taiga Yamawaki 取扱説明書
+## Appendix: A Beginner's Guide to Taiga Yamawaki 取扱説明書
 
 ### Executive Summary
 
