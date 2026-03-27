@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ご縁 — Goen Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        'cosmos-bg': '#0a0a1a',
+        'cosmos-surface': '#12122a',
+        'cosmos-accent': '#6366f1',
+        'cosmos-glow': '#818cf8',
+        'cosmos-star': '#f0f0ff',
+        'cosmos-dim': '#4a4a6a',
+        'cosmos-warm': '#f59e0b',
+      },
+      fontFamily: {
+        sans: ['Noto Sans JP', 'sans-serif'],
+      },
+    },
+  },
+}
+</script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: #0a0a1a; color: #f0f0ff; min-height: 100vh; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #0a0a1a; }
+  ::-webkit-scrollbar-thumb { background: #4a4a6a; border-radius: 2px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .mood-inspired { border-left: 3px solid #f59e0b; }
+  .mood-grateful { border-left: 3px solid #10b981; }
+  .mood-energized { border-left: 3px solid #ef4444; }
+  .mood-thoughtful { border-left: 3px solid #6366f1; }
+  .mood-warm { border-left: 3px solid #ec4899; }
+  .mood-neutral { border-left: 3px solid #4a4a6a; }
+  .glow { text-shadow: 0 0 10px rgba(129,140,248,0.5); }
+  .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
+  .card-hover:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(99,102,241,0.15); }
+  @keyframes twinkle { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+  .star-bg { position: absolute; border-radius: 50%; background: #f0f0ff; }
+  #universe-svg { width: 100%; height: calc(100vh - 120px); }
+  .tooltip-universe {
+    position: absolute; background: #12122a; border: 1px solid #6366f1; border-radius: 8px;
+    padding: 10px 14px; font-size: 12px; pointer-events: none; opacity: 0;
+    transition: opacity 0.2s; z-index: 50; max-width: 220px;
+  }
+  .brightness-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .brightness-white { background: #f0f0ff; box-shadow: 0 0 6px #f0f0ff; }
+  .brightness-indigo { background: #6366f1; box-shadow: 0 0 6px #6366f1; }
+  .brightness-deep { background: #3730a3; box-shadow: 0 0 4px #3730a3; }
+  .brightness-dim { background: #4a4a6a; }
+</style>
+</head>
+<body class="max-w-[42rem] mx-auto relative pb-20">
+
+<!-- ===== ホーム画面 ===== -->
+<div id="screen-home" class="screen active px-4 pt-6">
+  <header class="text-center mb-6">
+    <h1 class="text-3xl font-bold glow tracking-wider">ご縁</h1>
+    <p class="text-cosmos-dim text-sm mt-1">出会いを星のように記録する</p>
+  </header>
+
+  <!-- クイック入力 -->
+  <div class="bg-cosmos-surface rounded-xl p-4 mb-6">
+    <textarea id="encounter-input" rows="3" placeholder="出会いを記録... 例: 今日は田中さんと#起業 について話した。とても刺激的だった。"
+      class="w-full bg-transparent text-cosmos-star placeholder-cosmos-dim text-sm resize-none outline-none"></textarea>
+    <div id="extract-preview" class="text-xs text-cosmos-dim mt-2 min-h-[1.2em]"></div>
+    <div class="flex items-center justify-between mt-3">
+      <button id="btn-voice" onclick="startVoice()" class="text-cosmos-dim hover:text-cosmos-glow transition text-xl" title="音声入力">🎙️</button>
+      <button id="btn-submit" onclick="submitEncounter()" class="bg-cosmos-accent hover:bg-indigo-500 text-white text-sm font-medium px-5 py-2 rounded-lg transition">記録する</button>
+    </div>
+  </div>
+
+  <!-- 久しぶりのご縁 -->
+  <div id="panel-stale" class="mb-6">
+    <h2 class="text-sm font-medium text-cosmos-glow mb-3">✦ 久しぶりのご縁</h2>
+    <div id="stale-list" class="space-y-2"></div>
+  </div>
+
+  <!-- 最近の記録 -->
+  <div id="panel-recent" class="mb-6">
+    <h2 class="text-sm font-medium text-cosmos-glow mb-3">✦ 最近の記録</h2>
+    <div id="recent-list" class="space-y-2"></div>
+  </div>
+</div>
+
+<!-- ===== ユニバース画面 ===== -->
+<div id="screen-universe" class="screen px-2 pt-4">
+  <h2 class="text-center text-lg font-medium glow mb-2">ユニバース</h2>
+  <div id="universe-container" class="relative w-full" style="height:calc(100vh - 120px);">
+    <svg id="universe-svg"></svg>
+    <div id="universe-tooltip" class="tooltip-universe"></div>
+  </div>
+</div>
+
+<!-- ===== ご縁一覧画面 ===== -->
+<div id="screen-people" class="screen px-4 pt-6">
+  <h2 class="text-center text-lg font-medium glow mb-4">ご縁一覧</h2>
+  <div id="people-list" class="space-y-3"></div>
+  <div id="people-empty" class="text-center text-cosmos-dim text-sm mt-12 hidden">まだ誰も記録されていません</div>
+</div>
+
+<!-- ===== 底部ナビゲーション ===== -->
+<nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[42rem] bg-cosmos-surface/80 backdrop-blur-md border-t border-cosmos-dim/30 z-40">
+  <div class="flex justify-around py-3">
+    <button onclick="switchScreen('home')" data-nav="home" class="nav-btn flex flex-col items-center text-xs text-cosmos-accent">
+      <span class="text-lg mb-0.5">🏠</span>ホーム
+    </button>
+    <button onclick="switchScreen('universe')" data-nav="universe" class="nav-btn flex flex-col items-center text-xs text-cosmos-dim">
+      <span class="text-lg mb-0.5">✨</span>ユニバース
+    </button>
+    <button onclick="switchScreen('people')" data-nav="people" class="nav-btn flex flex-col items-center text-xs text-cosmos-dim">
+      <span class="text-lg mb-0.5">👥</span>ご縁
+    </button>
+  </div>
+</nav>
+
+<script>
+// ===== ストレージ =====
+const STORAGE_KEY_PEOPLE = 'goen_people';
+const STORAGE_KEY_ENCOUNTERS = 'goen_encounters';
+
+function loadData(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; } }
+function saveData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+
+let people = loadData(STORAGE_KEY_PEOPLE);
+let encounters = loadData(STORAGE_KEY_ENCOUNTERS);
+
+// ===== UUID =====
+function uuid() { return 'xxxx-xxxx-4xxx'.replace(/[x]/g, () => (Math.random()*16|0).toString(16)) + '-' + Date.now().toString(36); }
+
+// ===== AI抽出ロジック =====
+const NAME_PATTERN = /(?:@(\S+)|(\S+?)(?:さん|くん|ちゃん|氏|先生|社長|部長|課長|代表))/g;
+
+const TAG_KEYWORDS = {
+  '起業': ['起業','スタートアップ','創業','ベンチャー','独立'],
+  'キャリア': ['キャリア','転職','就職','仕事','働き方','昇進'],
+  '海外': ['海外','留学','グローバル','渡航','外国','英語'],
+  'テクノロジー': ['AI','テクノロジー','プログラミング','エンジニア','開発','DX','IT'],
+  'クリエイティブ': ['デザイン','クリエイティブ','アート','写真','映像','音楽'],
+  '投資': ['投資','資産','株','ファンド','M&A','IPO'],
+  '学び': ['学び','勉強','読書','セミナー','研修','大学'],
+  '食事': ['食事','ランチ','ディナー','飲み','カフェ','レストラン'],
+  'イベント': ['イベント','交流会','セミナー','カンファレンス','パーティ','展示会'],
+};
+
+const MOOD_KEYWORDS = {
+  inspired: ['刺激','感動','すごい','インスパイア','驚き','衝撃','圧倒'],
+  grateful: ['感謝','ありがたい','おかげ','恩','助けて','救われ'],
+  energized: ['元気','やる気','熱い','パワー','エネルギー','盛り上が'],
+  thoughtful: ['考えさせ','深い','本質','哲学','気づき','視点'],
+  warm: ['温かい','嬉しい','楽しい','笑','幸せ','心地よ','和やか'],
+};
+
+function extractNames(text) {
+  const names = new Set();
+  let m;
+  const re = new RegExp(NAME_PATTERN.source, 'g');
+  while ((m = re.exec(text)) !== null) {
+    names.add(m[1] || m[2]);
+  }
+  return [...names];
+}
+
+function extractTags(text) {
+  const tags = new Set();
+  const hashRe = /#([\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+)/g;
+  let m;
+  while ((m = hashRe.exec(text)) !== null) tags.add(m[1]);
+  for (const [tag, keywords] of Object.entries(TAG_KEYWORDS)) {
+    for (const kw of keywords) {
+      if (text.includes(kw)) { tags.add(tag); break; }
+    }
+  }
+  return [...tags];
+}
+
+function detectMood(text) {
+  for (const [mood, keywords] of Object.entries(MOOD_KEYWORDS)) {
+    for (const kw of keywords) {
+      if (text.includes(kw)) return mood;
+    }
+  }
+  return 'neutral';
+}
+
+// ===== リアルタイムプレビュー =====
+const inputEl = document.getElementById('encounter-input');
+const previewEl = document.getElementById('extract-preview');
+inputEl.addEventListener('input', () => {
+  const text = inputEl.value;
+  const names = extractNames(text);
+  const tags = extractTags(text);
+  const mood = detectMood(text);
+  const parts = [];
+  if (names.length) parts.push('👤 ' + names.join(', '));
+  if (tags.length) parts.push('🏷️ ' + tags.join(', '));
+  if (mood !== 'neutral') parts.push(moodIcon(mood) + ' ' + mood);
+  previewEl.textContent = parts.join('　') || '';
+});
+
+function moodIcon(mood) {
+  return { inspired:'💡', grateful:'🙏', energized:'🔥', thoughtful:'🤔', warm:'💖', neutral:'◽' }[mood] || '◽';
+}
+
+// ===== 音声入力 =====
+function startVoice() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    alert('お使いのブラウザは音声入力に対応していません');
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SR();
+  recognition.lang = 'ja-JP';
+  recognition.interimResults = false;
+  recognition.onresult = (e) => {
+    inputEl.value += e.results[0][0].transcript;
+    inputEl.dispatchEvent(new Event('input'));
+  };
+  recognition.onerror = () => {};
+  recognition.start();
+  document.getElementById('btn-voice').textContent = '🔴';
+  recognition.onend = () => { document.getElementById('btn-voice').textContent = '🎙️'; };
+}
+
+// ===== エンカウンター送信 =====
+function submitEncounter() {
+  const text = inputEl.value.trim();
+  if (!text) return;
+  const names = extractNames(text);
+  const tags = extractTags(text);
+  const mood = detectMood(text);
+
+  const personIds = [];
+  const personNames = [];
+  for (const name of names) {
+    let person = people.find(p => p.name === name);
+    if (!person) {
+      person = { id: uuid(), name, createdAt: new Date().toISOString(), tags: [] };
+      people.push(person);
+    }
+    // マージタグ
+    for (const t of tags) { if (!person.tags.includes(t)) person.tags.push(t); }
+    personIds.push(person.id);
+    personNames.push(person.name);
+  }
+
+  const enc = {
+    id: uuid(),
+    text,
+    personIds,
+    personNames,
+    tags,
+    mood,
+    createdAt: new Date().toISOString(),
+  };
+  encounters.push(enc);
+  saveData(STORAGE_KEY_PEOPLE, people);
+  saveData(STORAGE_KEY_ENCOUNTERS, encounters);
+
+  inputEl.value = '';
+  previewEl.textContent = '';
+  renderHome();
+}
+
+// ===== ホーム画面レンダリング =====
+function renderHome() {
+  renderStale();
+  renderRecent();
+}
+
+function daysBetween(dateStr) {
+  return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+}
+
+function renderStale() {
+  const container = document.getElementById('stale-list');
+  const staleData = [];
+  for (const p of people) {
+    const personEncs = encounters.filter(e => e.personIds.includes(p.id));
+    if (!personEncs.length) continue;
+    const last = personEncs.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    const days = daysBetween(last.createdAt);
+    if (days < 30) continue;
+    const freq = personEncs.length;
+    const score = days * 0.7 + (1/freq) * 100;
+    staleData.push({ person: p, last, days, score });
+  }
+  staleData.sort((a,b) => b.score - a.score);
+  if (!staleData.length) {
+    container.innerHTML = '<p class="text-xs text-cosmos-dim">すべてのご縁が活発です ✨</p>';
+    return;
+  }
+  container.innerHTML = staleData.slice(0, 5).map(d => `
+    <div class="bg-cosmos-surface rounded-lg p-3 card-hover">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium">${d.person.name}</span>
+        <span class="text-xs text-cosmos-warm">${d.days}日前</span>
+      </div>
+      <p class="text-xs text-cosmos-dim mt-1 truncate">${d.last.text}</p>
+      <span class="text-xs">${moodIcon(d.last.mood)}</span>
+    </div>
+  `).join('');
+}
+
+function renderRecent() {
+  const container = document.getElementById('recent-list');
+  const sorted = [...encounters].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 10);
+  if (!sorted.length) {
+    container.innerHTML = '<p class="text-xs text-cosmos-dim">まだ記録がありません</p>';
+    return;
+  }
+  container.innerHTML = sorted.map(e => `
+    <div class="bg-cosmos-surface rounded-lg p-3 mood-${e.mood} card-hover">
+      <div class="flex items-center justify-between mb-1">
+        <div class="flex gap-1 flex-wrap">${e.personNames.map(n => `<span class="text-xs bg-cosmos-accent/20 text-cosmos-glow px-2 py-0.5 rounded-full">${n}</span>`).join('')}</div>
+        <span class="text-xs text-cosmos-dim">${formatDate(e.createdAt)}</span>
+      </div>
+      <p class="text-xs text-cosmos-star/80 leading-relaxed">${escapeHtml(e.text)}</p>
+      <div class="flex gap-1 mt-1.5 flex-wrap">${e.tags.map(t => `<span class="text-[10px] text-cosmos-dim">#${t}</span>`).join(' ')}</div>
+    </div>
+  `).join('');
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ===== ユニバース画面 =====
+let simulation = null;
+function renderUniverse() {
+  const svg = d3.select('#universe-svg');
+  svg.selectAll('*').remove();
+  const container = document.getElementById('universe-container');
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+  svg.attr('width', width).attr('height', height);
+
+  // 背景星
+  const bgStars = svg.append('g');
+  for (let i = 0; i < 150; i++) {
+    bgStars.append('circle')
+      .attr('cx', Math.random() * width)
+      .attr('cy', Math.random() * height)
+      .attr('r', Math.random() * 1.2 + 0.3)
+      .attr('fill', '#f0f0ff')
+      .attr('opacity', Math.random() * 0.5 + 0.1)
+      .style('animation', `twinkle ${2 + Math.random()*4}s ease-in-out infinite`)
+      .style('animation-delay', `${Math.random()*3}s`);
+  }
+
+  // ノード・リンク構築
+  const nodes = [];
+  const nodeMap = {};
+  for (const p of people) {
+    const encs = encounters.filter(e => e.personIds.includes(p.id));
+    const count = encs.length;
+    if (!count) continue;
+    const lastEnc = encs.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    const days = daysBetween(lastEnc.createdAt);
+    const brightness = Math.max(0, 1 - days / 120);
+    const r = Math.min(8, 3 + count * 1.5);
+    const allTags = [...new Set(encs.flatMap(e => e.tags))];
+    const node = { id: p.id, name: p.name, count, days, brightness, r, tags: allTags };
+    nodes.push(node);
+    nodeMap[p.id] = node;
+  }
+
+  const links = [];
+  const linkSet = new Set();
+  for (const enc of encounters) {
+    const ids = enc.personIds.filter(id => nodeMap[id]);
+    for (let i = 0; i < ids.length; i++) {
+      for (let j = i + 1; j < ids.length; j++) {
+        const key = [ids[i], ids[j]].sort().join('-');
+        if (!linkSet.has(key)) {
+          linkSet.add(key);
+          links.push({ source: ids[i], target: ids[j] });
+        }
+      }
+    }
+  }
+
+  // 星座ラベル（共通タグ2人以上）
+  const tagGroups = {};
+  for (const n of nodes) {
+    for (const t of n.tags) {
+      if (!tagGroups[t]) tagGroups[t] = [];
+      tagGroups[t].push(n);
+    }
+  }
+
+  if (simulation) simulation.stop();
+  simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id).distance(80))
+    .force('charge', d3.forceManyBody().strength(-120))
+    .force('center', d3.forceCenter(width / 2, height / 2))
+    .force('collision', d3.forceCollide().radius(d => d.r + 5));
+
+  const linkEls = svg.append('g')
+    .selectAll('line')
+    .data(links)
+    .join('line')
+    .attr('stroke', '#6366f1')
+    .attr('stroke-opacity', 0.25)
+    .attr('stroke-width', 0.8);
+
+  const nodeGroup = svg.append('g')
+    .selectAll('g')
+    .data(nodes)
+    .join('g')
+    .call(d3.drag()
+      .on('start', (event, d) => { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+      .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
+      .on('end', (event, d) => { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
+    );
+
+  function starColor(b) {
+    if (b > 0.6) return '#f0f0ff';
+    if (b > 0.3) return '#6366f1';
+    return '#4a4a6a';
+  }
+
+  nodeGroup.append('circle')
+    .attr('r', d => d.r)
+    .attr('fill', d => starColor(d.brightness))
+    .attr('opacity', d => 0.4 + d.brightness * 0.6)
+    .style('filter', d => d.brightness > 0.5 ? 'drop-shadow(0 0 4px #818cf8)' : 'none');
+
+  nodeGroup.append('text')
+    .text(d => d.name)
+    .attr('dy', d => d.r + 12)
+    .attr('text-anchor', 'middle')
+    .attr('fill', '#f0f0ff')
+    .attr('font-size', '10px')
+    .attr('opacity', 0.7);
+
+  // 星座ラベル
+  const labelG = svg.append('g');
+  for (const [tag, members] of Object.entries(tagGroups)) {
+    if (members.length < 2) continue;
+    const labelNode = { tag, members };
+    const label = labelG.append('text')
+      .datum(labelNode)
+      .attr('fill', '#f59e0b')
+      .attr('font-size', '9px')
+      .attr('text-anchor', 'middle')
+      .attr('opacity', 0.6)
+      .text(`⟡ ${tag}`);
+  }
+
+  // ツールチップ
+  const tooltip = document.getElementById('universe-tooltip');
+  nodeGroup.on('mouseenter', (event, d) => {
+    tooltip.innerHTML = `<strong>${d.name}</strong><br>回数: ${d.count}<br>最終: ${d.days}日前<br>タグ: ${d.tags.join(', ') || 'なし'}`;
+    tooltip.style.opacity = 1;
+  }).on('mousemove', (event) => {
+    tooltip.style.left = (event.offsetX + 15) + 'px';
+    tooltip.style.top = (event.offsetY - 10) + 'px';
+  }).on('mouseleave', () => {
+    tooltip.style.opacity = 0;
+  });
+
+  simulation.on('tick', () => {
+    linkEls
+      .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+    nodeGroup.attr('transform', d => `translate(${d.x},${d.y})`);
+
+    // 星座ラベル位置更新
+    labelG.selectAll('text').each(function(d) {
+      const cx = d3.mean(d.members, m => m.x);
+      const cy = d3.mean(d.members, m => m.y) - 15;
+      d3.select(this).attr('x', cx).attr('y', cy);
+    });
+  });
+}
+
+// ===== ご縁一覧画面 =====
+function renderPeople() {
+  const container = document.getElementById('people-list');
+  const emptyEl = document.getElementById('people-empty');
+
+  if (!people.length) {
+    container.innerHTML = '';
+    emptyEl.classList.remove('hidden');
+    return;
+  }
+  emptyEl.classList.add('hidden');
+
+  const enriched = people.map(p => {
+    const encs = encounters.filter(e => e.personIds.includes(p.id));
+    const count = encs.length;
+    const sorted = [...encs].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const lastEnc = sorted[0];
+    const days = lastEnc ? daysBetween(lastEnc.createdAt) : 9999;
+    const lastText = lastEnc ? lastEnc.text : '';
+    return { ...p, count, days, lastText };
+  }).sort((a,b) => a.days - b.days);
+
+  function brightnessClass(days) {
+    if (days <= 7) return 'brightness-white';
+    if (days <= 30) return 'brightness-indigo';
+    if (days <= 90) return 'brightness-deep';
+    return 'brightness-dim';
+  }
+
+  container.innerHTML = enriched.map(p => `
+    <div class="bg-cosmos-surface rounded-xl p-4 card-hover">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="brightness-dot ${brightnessClass(p.days)}"></span>
+        <span class="font-medium text-sm">${p.name}</span>
+        <span class="text-xs text-cosmos-dim ml-auto">${p.count}回 · ${p.days === 9999 ? '—' : p.days + '日前'}</span>
+      </div>
+      <div class="flex gap-1 flex-wrap mb-2">${p.tags.slice(0, 5).map(t => `<span class="text-[10px] bg-cosmos-accent/15 text-cosmos-glow px-2 py-0.5 rounded-full">#${t}</span>`).join('')}</div>
+      ${p.lastText ? `<p class="text-xs text-cosmos-dim truncate">${escapeHtml(p.lastText)}</p>` : ''}
+    </div>
+  `).join('');
+}
+
+// ===== 画面切り替え =====
+function switchScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('text-cosmos-accent', b.dataset.nav === name);
+    b.classList.toggle('text-cosmos-dim', b.dataset.nav !== name);
+  });
+  if (name === 'universe') renderUniverse();
+  if (name === 'people') renderPeople();
+  if (name === 'home') renderHome();
+}
+
+// ===== デモデータ =====
+function seedDemoData() {
+  if (people.length || encounters.length) return;
+
+  const now = Date.now();
+  const day = 86400000;
+
+  const demoPersons = [
+    { id: 'p1', name: '田中', createdAt: new Date(now - 90*day).toISOString(), tags: ['起業','テクノロジー'] },
+    { id: 'p2', name: '鈴木', createdAt: new Date(now - 80*day).toISOString(), tags: ['投資','キャリア'] },
+    { id: 'p3', name: '山田', createdAt: new Date(now - 70*day).toISOString(), tags: ['クリエイティブ'] },
+    { id: 'p4', name: '佐藤', createdAt: new Date(now - 60*day).toISOString(), tags: ['海外','学び'] },
+    { id: 'p5', name: '高橋', createdAt: new Date(now - 50*day).toISOString(), tags: ['食事','イベント'] },
+    { id: 'p6', name: '伊藤', createdAt: new Date(now - 45*day).toISOString(), tags: ['テクノロジー','起業'] },
+    { id: 'p7', name: '渡辺', createdAt: new Date(now - 40*day).toISOString(), tags: ['キャリア'] },
+  ];
+
+  const demoEncounters = [
+    { id: 'e1', text: '田中さんとスタートアップの話で盛り上がった。すごい刺激を受けた！', personIds: ['p1'], personNames: ['田中'], tags: ['起業'], mood: 'inspired', createdAt: new Date(now - 3*day).toISOString() },
+    { id: 'e2', text: '鈴木さんに投資の相談。とても感謝している。', personIds: ['p2'], personNames: ['鈴木'], tags: ['投資'], mood: 'grateful', createdAt: new Date(now - 5*day).toISOString() },
+    { id: 'e3', text: '山田さんとデザインレビュー。クリエイティブな議論ができた。楽しい時間だった。', personIds: ['p3'], personNames: ['山田'], tags: ['クリエイティブ'], mood: 'warm', createdAt: new Date(now - 7*day).toISOString() },
+    { id: 'e4', text: '佐藤さんの海外経験の話が深くて考えさせられた。', personIds: ['p4'], personNames: ['佐藤'], tags: ['海外','学び'], mood: 'thoughtful', createdAt: new Date(now - 35*day).toISOString() },
+    { id: 'e5', text: '高橋さんとランチ。元気をもらった！', personIds: ['p5'], personNames: ['高橋'], tags: ['食事'], mood: 'energized', createdAt: new Date(now - 40*day).toISOString() },
+    { id: 'e6', text: '田中さんと伊藤さんとAI開発について議論。刺激的だった。', personIds: ['p1','p6'], personNames: ['田中','伊藤'], tags: ['テクノロジー','起業'], mood: 'inspired', createdAt: new Date(now - 10*day).toISOString() },
+    { id: 'e7', text: '渡辺さんのキャリア相談に乗った。温かい気持ちになった。', personIds: ['p7'], personNames: ['渡辺'], tags: ['キャリア'], mood: 'warm', createdAt: new Date(now - 50*day).toISOString() },
+    { id: 'e8', text: '鈴木さんと高橋さんと交流会に参加。盛り上がって元気が出た。', personIds: ['p2','p5'], personNames: ['鈴木','高橋'], tags: ['イベント'], mood: 'energized', createdAt: new Date(now - 15*day).toISOString() },
+    { id: 'e9', text: '伊藤さんと渡辺さんとカフェでAIの未来について話した。深い議論だった。', personIds: ['p6','p7'], personNames: ['伊藤','渡辺'], tags: ['テクノロジー'], mood: 'thoughtful', createdAt: new Date(now - 2*day).toISOString() },
+  ];
+
+  people = demoPersons;
+  encounters = demoEncounters;
+  saveData(STORAGE_KEY_PEOPLE, people);
+  saveData(STORAGE_KEY_ENCOUNTERS, encounters);
+}
+
+// ===== 初期化 =====
+seedDemoData();
+renderHome();
+</script>
+</body>
+</html>
