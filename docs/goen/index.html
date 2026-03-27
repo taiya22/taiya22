@@ -63,26 +63,27 @@ tailwind.config = {
   .brightness-deep { background: #3730a3; box-shadow: 0 0 4px #3730a3; }
   .brightness-dim { background: #4a4a6a; }
 
-  /* 流れ星 */
-  .shooting-star {
-    position: absolute; pointer-events: none; z-index: 25;
-    width: 3px; height: 3px; border-radius: 50%; background: #f59e0b;
-    box-shadow: 0 0 6px 2px rgba(245,158,11,0.6), 0 0 12px 4px rgba(245,158,11,0.3);
+  /* 流れ星（彗星）*/
+  .comet-container {
+    position: absolute; z-index: 25; pointer-events: none;
   }
-  .shooting-star-tail {
-    position: absolute; pointer-events: none; z-index: 24;
-    height: 1.5px; border-radius: 1px;
-    background: linear-gradient(to left, rgba(245,158,11,0.7), transparent);
+  .comet-container.orbiting { pointer-events: auto; cursor: pointer; }
+  .comet-head {
+    width: 6px; height: 6px; border-radius: 50%; background: #fbbf24;
+    box-shadow: 0 0 8px 3px rgba(251,191,36,0.7), 0 0 20px 6px rgba(245,158,11,0.3);
+    position: absolute; top: 0; left: 0;
   }
-
-  /* リコネクト通知バナー */
-  .reconnect-banner {
-    position: absolute; z-index: 30; left: 50%; transform: translateX(-50%);
-    top: 48px; opacity: 0; pointer-events: none;
-    transition: opacity 0.5s ease, top 0.5s ease;
-    max-width: 320px; width: 90%;
+  .comet-tail {
+    position: absolute; height: 2px; border-radius: 1px; top: 2px;
+    background: linear-gradient(to left, rgba(251,191,36,0.8), rgba(245,158,11,0.2), transparent);
+    transform-origin: right center;
   }
-  .reconnect-banner.visible { opacity: 1; top: 56px; pointer-events: auto; }
+  .comet-label {
+    position: absolute; top: -18px; left: 10px; white-space: nowrap;
+    font-size: 10px; color: #fbbf24; opacity: 0; transition: opacity 0.3s;
+    text-shadow: 0 0 8px rgba(251,191,36,0.5);
+  }
+  .comet-container.orbiting .comet-label { opacity: 1; }
 
   /* ボトムシート */
   .bottom-sheet-overlay {
@@ -146,18 +147,6 @@ tailwind.config = {
     <div class="absolute top-3 left-0 right-0 text-center pointer-events-none">
       <span class="text-xs font-medium glow opacity-40">スクロールして探索 · ダブルタップで中心に戻る</span>
     </div>
-    <!-- 流れ星リコネクト通知 -->
-    <div id="reconnect-banner" class="reconnect-banner">
-      <div class="bg-cosmos-surface/90 backdrop-blur-md border border-cosmos-warm/30 rounded-xl p-3 flex items-center gap-3 cursor-pointer shadow-lg shadow-amber-900/20" onclick="openReconnectSheet()">
-        <span class="text-2xl">☄️</span>
-        <div class="flex-1 min-w-0">
-          <div class="text-xs text-cosmos-warm font-medium" id="reconnect-banner-title">久しぶりのご縁</div>
-          <div class="text-[11px] text-cosmos-dim truncate" id="reconnect-banner-sub"></div>
-        </div>
-        <span class="text-cosmos-dim text-xs">タップ</span>
-      </div>
-    </div>
-
     <button id="btn-recenter" onclick="recenterSelf()" class="absolute bottom-4 right-4 bg-cosmos-surface/80 backdrop-blur-md border border-cosmos-dim/30 text-cosmos-glow text-xs px-3 py-2 rounded-full hover:bg-cosmos-accent/20 transition z-30">⊕ 中心に戻る</button>
   </div>
 </div>
@@ -518,25 +507,25 @@ function renderUniverse() {
     commTargets[key] = { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist };
   });
 
-  // ===== フォースシミュレーション =====
+  // ===== フォースシミュレーション（銀河的：すぐ安定して動き回らない） =====
   if (simulation) simulation.stop();
   simulation = d3.forceSimulation(nodes)
     .force('link', d3.forceLink(links).id(d => d.id)
-      .distance(d => d.isSelfLink ? 200 : 50)
-      .strength(d => d.isSelfLink ? 0.08 : 0.5))
-    .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -600 : -60))
-    .force('collision', d3.forceCollide().radius(d => d.r + 6))
+      .distance(d => d.isSelfLink ? 200 : 45)
+      .strength(d => d.isSelfLink ? 0.06 : 0.6))
+    .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -500 : -40))
+    .force('collision', d3.forceCollide().radius(d => d.r + 5))
     .force('community', () => {
       for (const n of nodes) {
         if (n.isSelf) continue;
         const target = commTargets[n.community];
         if (!target) continue;
-        n.vx += (target.x - n.x) * 0.005;
-        n.vy += (target.y - n.y) * 0.005;
+        n.vx += (target.x - n.x) * 0.008;
+        n.vy += (target.y - n.y) * 0.008;
       }
     })
-    .alphaDecay(0.015)
-    .velocityDecay(0.3);
+    .alphaDecay(0.06)
+    .velocityDecay(0.6);
 
   // ===== Zoom & Pan (ワールド座標系をビューポートに射影) =====
   const worldG = svg.append('g');
@@ -770,7 +759,7 @@ function switchScreen(name) {
 }
 
 // ===== デモデータ =====
-const DEMO_VERSION = 'v5_shootingstar';
+const DEMO_VERSION = 'v6_halley';
 function seedDemoData() {
   if (localStorage.getItem('goen_demo_version') === DEMO_VERSION && (people.length || encounters.length)) return;
   localStorage.setItem('goen_demo_version', DEMO_VERSION);
@@ -903,10 +892,11 @@ function seedDemoData() {
   saveData(STORAGE_KEY_ENCOUNTERS, encounters);
 }
 
-// ===== 流れ星リコネクティング =====
+// ===== ハレー彗星リコネクティング =====
 let reconnectQueue = [];
 let reconnectCurrent = null;
 let shootingStarTimer = null;
+let activeComets = []; // 周回中の彗星DOM
 
 function getStalePersons() {
   const stale = [];
@@ -924,92 +914,181 @@ function getStalePersons() {
   return stale.sort((a,b) => b.score - a.score);
 }
 
-function launchShootingStar(personData) {
+function clearActiveComets() {
+  for (const c of activeComets) {
+    if (c.raf) cancelAnimationFrame(c.raf);
+    if (c.el && c.el.parentNode) c.el.remove();
+  }
+  activeComets = [];
+}
+
+function launchComet(personData) {
   const container = document.getElementById('universe-container');
   if (!container) return;
   const w = container.clientWidth;
   const h = container.clientHeight;
+  const centerX = w / 2;
+  const centerY = h / 2;
 
-  // ランダムな画面端から中心方向へ飛ばす
-  const side = Math.random();
-  let startX, startY, endX, endY;
-  if (side < 0.25) { startX = -20; startY = Math.random() * h * 0.5; }
-  else if (side < 0.5) { startX = w + 20; startY = Math.random() * h * 0.5; }
-  else if (side < 0.75) { startX = Math.random() * w; startY = -20; }
-  else { startX = Math.random() * w; startY = -20; }
+  // 画面端のランダム出発点
+  const side = Math.floor(Math.random() * 4);
+  let startX, startY;
+  if (side === 0) { startX = -30; startY = Math.random() * h * 0.6; }
+  else if (side === 1) { startX = w + 30; startY = Math.random() * h * 0.6; }
+  else if (side === 2) { startX = Math.random() * w; startY = -30; }
+  else { startX = w * 0.2 + Math.random() * w * 0.6; startY = -30; }
 
-  // 中心付近に着弾（少しブレ）
-  endX = w * 0.5 + (Math.random() - 0.5) * 120;
-  endY = h * 0.35 + (Math.random() - 0.5) * 60;
+  // 彗星DOM
+  const comet = document.createElement('div');
+  comet.className = 'comet-container';
 
-  const star = document.createElement('div');
-  star.className = 'shooting-star';
-  star.style.left = startX + 'px';
-  star.style.top = startY + 'px';
-  container.appendChild(star);
+  const head = document.createElement('div');
+  head.className = 'comet-head';
+  comet.appendChild(head);
 
   const tail = document.createElement('div');
-  tail.className = 'shooting-star-tail';
-  container.appendChild(tail);
+  tail.className = 'comet-tail';
+  tail.style.width = '0px';
+  comet.appendChild(tail);
 
-  const dx = endX - startX;
-  const dy = endY - startY;
-  const dist = Math.sqrt(dx*dx + dy*dy);
-  const angle = Math.atan2(dy, dx);
-  const duration = 800 + dist * 0.5;
-  const startTime = performance.now();
+  const label = document.createElement('div');
+  label.className = 'comet-label';
+  label.textContent = `☄️ ${personData.person.name}  ${personData.days}日`;
+  comet.appendChild(label);
 
-  function animate(now) {
-    const elapsed = now - startTime;
-    const t = Math.min(1, elapsed / duration);
-    // ease-out cubic
-    const eased = 1 - Math.pow(1 - t, 3);
+  container.appendChild(comet);
 
-    const cx = startX + dx * eased;
-    const cy = startY + dy * eased;
-    star.style.left = cx + 'px';
-    star.style.top = cy + 'px';
-    star.style.opacity = t < 0.8 ? 1 : 1 - (t - 0.8) / 0.2;
+  // ===== フェーズ1: 飛来（画面端→周回軌道近接点） =====
+  // 楕円軌道パラメータ
+  const orbitRX = 80 + Math.random() * 40; // 楕円の横半径
+  const orbitRY = 50 + Math.random() * 30; // 楕円の縦半径
+  const orbitSpeed = 0.0008 + Math.random() * 0.0004; // 周回速度
+  const orbitStartAngle = Math.atan2(startY - centerY, startX - centerX);
 
-    // テール
-    const tailLen = Math.min(60, dist * eased * 0.15);
-    tail.style.width = tailLen + 'px';
-    tail.style.left = (cx - tailLen * Math.cos(angle)) + 'px';
-    tail.style.top = (cy - tailLen * Math.sin(angle)) + 'px';
-    tail.style.transform = `rotate(${angle}rad)`;
-    tail.style.transformOrigin = 'right center';
-    tail.style.opacity = t < 0.7 ? 0.8 : (1 - t) * 2.5;
+  const approachDist = Math.sqrt((startX-centerX)**2 + (startY-centerY)**2);
+  const approachDuration = 600 + approachDist * 0.4;
 
-    if (t < 1) {
-      requestAnimationFrame(animate);
-    } else {
-      star.remove();
-      tail.remove();
-      // 着弾後にバナー表示
-      showReconnectBanner(personData);
+  // 接近先: 軌道上の最も近い点
+  const arriveX = centerX + orbitRX * Math.cos(orbitStartAngle);
+  const arriveY = centerY + orbitRY * Math.sin(orbitStartAngle);
+
+  let phase = 'approach';
+  let phaseStart = performance.now();
+  let orbitAngle = orbitStartAngle;
+  let alive = true;
+
+  const cometState = { el: comet, raf: null };
+  activeComets.push(cometState);
+
+  // タップで開く
+  comet.addEventListener('click', () => {
+    reconnectCurrent = personData;
+    openReconnectSheet();
+  });
+  comet.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    reconnectCurrent = personData;
+    openReconnectSheet();
+  });
+
+  function tick(now) {
+    if (!alive) return;
+    if (!comet.parentNode) { alive = false; return; }
+
+    let cx, cy, angle;
+
+    if (phase === 'approach') {
+      const elapsed = now - phaseStart;
+      const t = Math.min(1, elapsed / approachDuration);
+      const eased = 1 - Math.pow(1 - t, 3);
+
+      cx = startX + (arriveX - startX) * eased;
+      cy = startY + (arriveY - startY) * eased;
+      angle = Math.atan2(arriveY - startY, arriveX - startX);
+
+      const tailLen = Math.min(50, approachDist * eased * 0.08);
+      tail.style.width = tailLen + 'px';
+      tail.style.left = (-tailLen) + 'px';
+      tail.style.transform = `rotate(${angle + Math.PI}rad)`;
+
+      if (t >= 1) {
+        phase = 'orbit';
+        phaseStart = now;
+        comet.classList.add('orbiting');
+      }
+    } else if (phase === 'orbit') {
+      const elapsed = now - phaseStart;
+      orbitAngle = orbitStartAngle + elapsed * orbitSpeed;
+
+      cx = centerX + orbitRX * Math.cos(orbitAngle);
+      cy = centerY + orbitRY * Math.sin(orbitAngle);
+
+      // テールの向き＝進行方向の逆
+      const nextAngle = orbitAngle + 0.05;
+      const nx = centerX + orbitRX * Math.cos(nextAngle);
+      const ny = centerY + orbitRY * Math.sin(nextAngle);
+      angle = Math.atan2(ny - cy, nx - cx);
+
+      const tailLen = 35 + Math.sin(elapsed * 0.002) * 10;
+      tail.style.width = tailLen + 'px';
+      tail.style.left = (-tailLen) + 'px';
+      tail.style.transform = `rotate(${angle + Math.PI}rad)`;
+
+      // 頭の明滅
+      const glow = 0.6 + Math.sin(elapsed * 0.003) * 0.4;
+      head.style.opacity = glow;
+
+      // 20秒周回したら離脱
+      if (elapsed > 20000) {
+        phase = 'depart';
+        phaseStart = now;
+        comet.classList.remove('orbiting');
+      }
+    } else if (phase === 'depart') {
+      const elapsed = now - phaseStart;
+      const t = Math.min(1, elapsed / 800);
+      const eased = t * t;
+
+      // 接線方向に飛び去る
+      const departAngle = orbitAngle + Math.PI * 0.3;
+      const departDist = 400 * eased;
+      const baseX = centerX + orbitRX * Math.cos(orbitAngle);
+      const baseY = centerY + orbitRY * Math.sin(orbitAngle);
+      cx = baseX + Math.cos(departAngle) * departDist;
+      cy = baseY + Math.sin(departAngle) * departDist;
+      angle = departAngle;
+
+      tail.style.width = (35 * (1-t)) + 'px';
+      tail.style.left = (-(35*(1-t))) + 'px';
+      tail.style.transform = `rotate(${angle + Math.PI}rad)`;
+      comet.style.opacity = 1 - eased;
+
+      if (t >= 1) {
+        alive = false;
+        comet.remove();
+        activeComets = activeComets.filter(c => c !== cometState);
+        return;
+      }
     }
+
+    comet.style.left = cx + 'px';
+    comet.style.top = cy + 'px';
+
+    cometState.raf = requestAnimationFrame(tick);
   }
-  requestAnimationFrame(animate);
-}
 
-function showReconnectBanner(personData) {
-  reconnectCurrent = personData;
-  const banner = document.getElementById('reconnect-banner');
-  document.getElementById('reconnect-banner-title').textContent = `${personData.person.name}さんと${personData.days}日ぶり`;
-  document.getElementById('reconnect-banner-sub').textContent = personData.lastEnc.text;
-  banner.classList.add('visible');
-
-  // 6秒後に自動で消す
-  setTimeout(() => {
-    banner.classList.remove('visible');
-  }, 6000);
+  cometState.raf = requestAnimationFrame(tick);
 }
 
 function openReconnectSheet() {
   if (!reconnectCurrent) return;
-  document.getElementById('reconnect-banner').classList.remove('visible');
   const d = reconnectCurrent;
   const content = document.getElementById('reconnect-sheet-content');
+
+  // DM用テンプレート
+  const dmText = `${d.person.name}さん、お久しぶりです！最後にお会いしてから${d.days}日経ちましたね。お元気ですか？`;
+  const encodedDM = encodeURIComponent(dmText);
+
   content.innerHTML = `
     <div class="flex items-center gap-3 mb-4">
       <div class="w-10 h-10 rounded-full bg-cosmos-warm/20 flex items-center justify-center text-lg">☄️</div>
@@ -1024,10 +1103,22 @@ function openReconnectSheet() {
       <div class="text-[10px] text-cosmos-dim mt-2">${formatDate(d.lastEnc.createdAt)} · ${moodIcon(d.lastEnc.mood)} ${d.lastEnc.mood}</div>
     </div>
     <div class="flex gap-1 flex-wrap mb-4">${d.person.tags.slice(0,5).map(t => `<span class="text-[10px] bg-cosmos-accent/15 text-cosmos-glow px-2 py-0.5 rounded-full">#${t}</span>`).join('')}</div>
+
+    <div class="text-[10px] text-cosmos-dim mb-2 font-medium">DMで連絡する</div>
+    <div class="flex gap-2 mb-4">
+      <a href="https://line.me/R/oaMessage/?${encodedDM}" target="_blank" rel="noopener"
+        class="flex-1 bg-[#06C755] hover:bg-[#05b34d] text-white text-xs font-medium py-2.5 rounded-lg text-center transition">LINE</a>
+      <a href="https://www.messenger.com/new?text=${encodedDM}" target="_blank" rel="noopener"
+        class="flex-1 bg-[#0084FF] hover:bg-[#0073e6] text-white text-xs font-medium py-2.5 rounded-lg text-center transition">Messenger</a>
+      <a href="mailto:?subject=${encodeURIComponent(d.person.name + 'さんへ')}&body=${encodedDM}" target="_blank"
+        class="flex-1 bg-cosmos-dim/30 hover:bg-cosmos-dim/50 text-cosmos-star text-xs font-medium py-2.5 rounded-lg text-center transition">メール</a>
+    </div>
+
+    <div class="text-[10px] text-cosmos-dim mb-2 font-medium">リコネクトを記録</div>
     <textarea id="reconnect-text" rows="2" placeholder="${d.person.name}さんとの近況を記録..."
       class="w-full bg-cosmos-bg/50 text-cosmos-star placeholder-cosmos-dim text-sm rounded-lg p-3 resize-none outline-none border border-cosmos-dim/20 focus:border-cosmos-accent/50 mb-3"></textarea>
     <div class="flex gap-2">
-      <button onclick="submitReconnect('${d.person.id}')" class="flex-1 bg-cosmos-warm hover:bg-amber-500 text-cosmos-bg text-sm font-medium py-2.5 rounded-lg transition">リコネクトを記録</button>
+      <button onclick="submitReconnect('${d.person.id}')" class="flex-1 bg-cosmos-warm hover:bg-amber-500 text-cosmos-bg text-sm font-medium py-2.5 rounded-lg transition">記録する</button>
       <button onclick="closeReconnectSheet()" class="px-4 bg-cosmos-surface text-cosmos-dim text-sm py-2.5 rounded-lg border border-cosmos-dim/20 hover:border-cosmos-dim/40 transition">閉じる</button>
     </div>
   `;
@@ -1065,7 +1156,7 @@ function submitReconnect(personId) {
   saveData(STORAGE_KEY_ENCOUNTERS, encounters);
 
   closeReconnectSheet();
-  // ユニバースを再描画して星が明るくなるフィードバック
+  clearActiveComets();
   renderUniverse();
   startShootingStarCycle();
 }
@@ -1077,21 +1168,21 @@ function startShootingStarCycle() {
 
   let index = 0;
   function scheduleNext() {
-    if (document.getElementById('screen-universe').classList.contains('active') && reconnectQueue.length > 0) {
+    if (!document.getElementById('screen-universe').classList.contains('active')) return;
+    if (reconnectQueue.length > 0 && activeComets.length < 2) {
       const item = reconnectQueue[index % reconnectQueue.length];
       index++;
-      launchShootingStar(item);
+      launchComet(item);
     }
-    // 15〜30秒間隔でランダムに
-    const delay = 15000 + Math.random() * 15000;
+    const delay = 18000 + Math.random() * 12000;
     shootingStarTimer = setTimeout(scheduleNext, delay);
   }
-  // 初回は3秒後
   shootingStarTimer = setTimeout(scheduleNext, 3000);
 }
 
 function stopShootingStarCycle() {
   if (shootingStarTimer) { clearTimeout(shootingStarTimer); shootingStarTimer = null; }
+  clearActiveComets();
 }
 
 // ===== 初期化 =====
