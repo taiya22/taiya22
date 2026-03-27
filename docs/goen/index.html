@@ -46,12 +46,17 @@ tailwind.config = {
   .card-hover:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(99,102,241,0.15); }
   @keyframes twinkle { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
   .star-bg { position: absolute; border-radius: 50%; background: #f0f0ff; }
-  #universe-svg { width: 100%; height: calc(100vh - 120px); }
+  #universe-svg { width: 100%; height: 100%; }
+  #universe-container { overflow: hidden; touch-action: none; }
   .tooltip-universe {
-    position: absolute; background: #12122a; border: 1px solid #6366f1; border-radius: 8px;
+    position: fixed; background: #12122a; border: 1px solid #6366f1; border-radius: 8px;
     padding: 10px 14px; font-size: 12px; pointer-events: none; opacity: 0;
     transition: opacity 0.2s; z-index: 50; max-width: 220px;
   }
+  .community-hull { fill-opacity: 0.04; stroke-opacity: 0.12; stroke-width: 1.5; }
+  .self-node { filter: drop-shadow(0 0 12px #818cf8) drop-shadow(0 0 24px rgba(99,102,241,0.4)); }
+  .self-ring { animation: pulse-ring 2.5s ease-in-out infinite; }
+  @keyframes pulse-ring { 0%,100% { opacity: 0.15; r: 22; } 50% { opacity: 0.35; r: 28; } }
   .brightness-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
   .brightness-white { background: #f0f0ff; box-shadow: 0 0 6px #f0f0ff; }
   .brightness-indigo { background: #6366f1; box-shadow: 0 0 6px #6366f1; }
@@ -93,11 +98,14 @@ tailwind.config = {
 </div>
 
 <!-- ===== ユニバース画面 ===== -->
-<div id="screen-universe" class="screen active px-2 pt-4">
-  <h2 class="text-center text-lg font-medium glow mb-2">ユニバース</h2>
-  <div id="universe-container" class="relative w-full" style="height:calc(100vh - 120px);">
+<div id="screen-universe" class="screen active" style="padding:0;">
+  <div id="universe-container" class="relative w-full" style="height:calc(100vh - 56px);">
     <svg id="universe-svg"></svg>
     <div id="universe-tooltip" class="tooltip-universe"></div>
+    <div class="absolute top-3 left-0 right-0 text-center pointer-events-none">
+      <span class="text-sm font-medium glow opacity-60">山脇のユニバース</span>
+    </div>
+    <button id="btn-recenter" onclick="recenterSelf()" class="absolute bottom-4 right-4 bg-cosmos-surface/80 backdrop-blur-md border border-cosmos-dim/30 text-cosmos-glow text-xs px-3 py-2 rounded-full hover:bg-cosmos-accent/20 transition z-30">⊕ 中心に戻る</button>
   </div>
 </div>
 
@@ -111,11 +119,11 @@ tailwind.config = {
 <!-- ===== 底部ナビゲーション ===== -->
 <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[42rem] bg-cosmos-surface/80 backdrop-blur-md border-t border-cosmos-dim/30 z-40">
   <div class="flex justify-around py-3">
-    <button onclick="switchScreen('home')" data-nav="home" class="nav-btn flex flex-col items-center text-xs text-cosmos-dim">
-      <span class="text-lg mb-0.5">🏠</span>ホーム
-    </button>
     <button onclick="switchScreen('universe')" data-nav="universe" class="nav-btn flex flex-col items-center text-xs text-cosmos-accent">
       <span class="text-lg mb-0.5">✨</span>ユニバース
+    </button>
+    <button onclick="switchScreen('home')" data-nav="home" class="nav-btn flex flex-col items-center text-xs text-cosmos-dim">
+      <span class="text-lg mb-0.5">🏠</span>記録
     </button>
     <button onclick="switchScreen('people')" data-nav="people" class="nav-btn flex flex-col items-center text-xs text-cosmos-dim">
       <span class="text-lg mb-0.5">👥</span>ご縁
@@ -339,7 +347,42 @@ function escapeHtml(s) {
 }
 
 // ===== ユニバース画面 =====
+const SELF_ID = '__self__';
+const SELF_NAME = '山脇';
 let simulation = null;
+let currentZoom = null;
+let selfNode = null;
+
+// コミュニティ色
+const COMMUNITY_COLORS = {
+  '起業': '#f59e0b',
+  'テクノロジー': '#6366f1',
+  '投資': '#10b981',
+  'クリエイティブ': '#ec4899',
+  'キャリア': '#8b5cf6',
+  '海外': '#06b6d4',
+  '食事': '#f97316',
+  'イベント': '#ef4444',
+  '学び': '#14b8a6',
+};
+
+function assignCommunity(tags) {
+  // 最も代表的なタグをコミュニティとする
+  const priority = ['起業','テクノロジー','投資','クリエイティブ','キャリア','海外','食事','イベント','学び'];
+  for (const p of priority) { if (tags.includes(p)) return p; }
+  return 'その他';
+}
+
+function recenterSelf() {
+  if (!selfNode || !currentZoom) return;
+  const container = document.getElementById('universe-container');
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+  const svg = d3.select('#universe-svg');
+  const t = d3.zoomIdentity.translate(width/2 - selfNode.x, height/2 - selfNode.y);
+  svg.transition().duration(600).call(currentZoom.transform, t);
+}
+
 function renderUniverse() {
   const svg = d3.select('#universe-svg');
   svg.selectAll('*').remove();
@@ -348,38 +391,43 @@ function renderUniverse() {
   const height = container.clientHeight;
   svg.attr('width', width).attr('height', height);
 
-  // 背景星
-  const bgStars = svg.append('g');
-  for (let i = 0; i < 150; i++) {
-    bgStars.append('circle')
-      .attr('cx', Math.random() * width)
-      .attr('cy', Math.random() * height)
-      .attr('r', Math.random() * 1.2 + 0.3)
-      .attr('fill', '#f0f0ff')
-      .attr('opacity', Math.random() * 0.5 + 0.1)
-      .style('animation', `twinkle ${2 + Math.random()*4}s ease-in-out infinite`)
-      .style('animation-delay', `${Math.random()*3}s`);
-  }
-
-  // ノード・リンク構築
+  // ===== ノード構築 =====
   const nodes = [];
   const nodeMap = {};
+
+  // 自分ノード (全エンカウンターに関与)
+  const allSelfTags = [...new Set(encounters.flatMap(e => e.tags))];
+  selfNode = { id: SELF_ID, name: SELF_NAME, count: encounters.length, days: 0, brightness: 1, r: 14, tags: allSelfTags, isSelf: true, community: 'self' };
+  nodes.push(selfNode);
+  nodeMap[SELF_ID] = selfNode;
+
   for (const p of people) {
     const encs = encounters.filter(e => e.personIds.includes(p.id));
     const count = encs.length;
     if (!count) continue;
-    const lastEnc = encs.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    const lastEnc = [...encs].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
     const days = daysBetween(lastEnc.createdAt);
     const brightness = Math.max(0, 1 - days / 120);
-    const r = Math.min(8, 3 + count * 1.5);
+    const r = Math.min(10, 3 + count * 1.5);
     const allTags = [...new Set(encs.flatMap(e => e.tags))];
-    const node = { id: p.id, name: p.name, count, days, brightness, r, tags: allTags };
+    const community = assignCommunity(allTags);
+    const node = { id: p.id, name: p.name, count, days, brightness, r, tags: allTags, isSelf: false, community };
     nodes.push(node);
     nodeMap[p.id] = node;
   }
 
+  // ===== リンク構築（自分↔各人 + 共起リンク） =====
   const links = [];
   const linkSet = new Set();
+
+  // 自分と各人物を繋ぐ
+  for (const n of nodes) {
+    if (n.isSelf) continue;
+    links.push({ source: SELF_ID, target: n.id, isSelfLink: true });
+    linkSet.add([SELF_ID, n.id].sort().join('-'));
+  }
+
+  // 共起リンク
   for (const enc of encounters) {
     const ids = enc.personIds.filter(id => nodeMap[id]);
     for (let i = 0; i < ids.length; i++) {
@@ -387,44 +435,147 @@ function renderUniverse() {
         const key = [ids[i], ids[j]].sort().join('-');
         if (!linkSet.has(key)) {
           linkSet.add(key);
-          links.push({ source: ids[i], target: ids[j] });
+          links.push({ source: ids[i], target: ids[j], isSelfLink: false });
         }
       }
     }
   }
 
-  // 星座ラベル（共通タグ2人以上）
-  const tagGroups = {};
+  // ===== コミュニティグルーピング =====
+  const communities = {};
   for (const n of nodes) {
-    for (const t of n.tags) {
-      if (!tagGroups[t]) tagGroups[t] = [];
-      tagGroups[t].push(n);
+    if (n.isSelf) continue;
+    if (!communities[n.community]) communities[n.community] = [];
+    communities[n.community].push(n);
+  }
+
+  // コミュニティごとにクラスタリングフォース用の目標座標
+  const commKeys = Object.keys(communities);
+  const commTargets = {};
+  commKeys.forEach((key, i) => {
+    const angle = (2 * Math.PI * i) / commKeys.length - Math.PI/2;
+    const dist = 180;
+    commTargets[key] = { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist };
+  });
+
+  // ===== フォースシミュレーション =====
+  if (simulation) simulation.stop();
+  simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id).distance(d => d.isSelfLink ? 100 : 60).strength(d => d.isSelfLink ? 0.15 : 0.4))
+    .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -300 : -80))
+    .force('collision', d3.forceCollide().radius(d => d.r + 4))
+    .force('community', () => {
+      for (const n of nodes) {
+        if (n.isSelf) continue;
+        const target = commTargets[n.community];
+        if (!target) continue;
+        // selfNode位置を中心としたコミュニティ配置
+        const cx = (selfNode.x || 0) + target.x;
+        const cy = (selfNode.y || 0) + target.y;
+        n.vx += (cx - n.x) * 0.003;
+        n.vy += (cy - n.y) * 0.003;
+      }
+    })
+    .force('centerSelf', () => {
+      // 自分を画面中心に引き寄せる
+      selfNode.vx += (width/2 - selfNode.x) * 0.05;
+      selfNode.vy += (height/2 - selfNode.y) * 0.05;
+    });
+
+  // 初期位置
+  selfNode.x = width / 2;
+  selfNode.y = height / 2;
+
+  // ===== Zoom & Pan =====
+  const worldG = svg.append('g');
+  currentZoom = d3.zoom()
+    .scaleExtent([0.3, 3])
+    .on('zoom', (event) => { worldG.attr('transform', event.transform); });
+  svg.call(currentZoom);
+  // ダブルタップで中心に戻る
+  svg.on('dblclick.zoom', null);
+  svg.on('dblclick', () => recenterSelf());
+
+  // ===== 背景星（広範囲に配置） =====
+  const bgStars = worldG.append('g');
+  for (let i = 0; i < 300; i++) {
+    bgStars.append('circle')
+      .attr('cx', (Math.random() - 0.5) * width * 4 + width/2)
+      .attr('cy', (Math.random() - 0.5) * height * 4 + height/2)
+      .attr('r', Math.random() * 1.0 + 0.2)
+      .attr('fill', '#f0f0ff')
+      .attr('opacity', Math.random() * 0.4 + 0.05);
+  }
+
+  // ===== コミュニティ背景（convex hull） =====
+  const hullG = worldG.append('g').attr('class', 'hulls');
+
+  function updateHulls() {
+    hullG.selectAll('path').remove();
+    for (const [comm, members] of Object.entries(communities)) {
+      if (members.length < 3) continue;
+      const points = members.map(m => [m.x, m.y]);
+      const hull = d3.polygonHull(points);
+      if (!hull) continue;
+      const color = COMMUNITY_COLORS[comm] || '#6366f1';
+      // 少し膨らませたhull
+      const cx = d3.mean(hull, d => d[0]);
+      const cy = d3.mean(hull, d => d[1]);
+      const expanded = hull.map(([x, y]) => {
+        const dx = x - cx, dy = y - cy;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        const scale = (dist + 30) / (dist || 1);
+        return [cx + dx * scale, cy + dy * scale];
+      });
+      hullG.append('path')
+        .attr('d', 'M' + expanded.join('L') + 'Z')
+        .attr('class', 'community-hull')
+        .attr('fill', color)
+        .attr('stroke', color);
     }
   }
 
-  if (simulation) simulation.stop();
-  simulation = d3.forceSimulation(nodes)
-    .force('link', d3.forceLink(links).id(d => d.id).distance(80))
-    .force('charge', d3.forceManyBody().strength(-120))
-    .force('center', d3.forceCenter(width / 2, height / 2))
-    .force('collision', d3.forceCollide().radius(d => d.r + 5));
-
-  const linkEls = svg.append('g')
+  // ===== リンク描画 =====
+  const linkEls = worldG.append('g')
     .selectAll('line')
     .data(links)
     .join('line')
-    .attr('stroke', '#6366f1')
-    .attr('stroke-opacity', 0.25)
-    .attr('stroke-width', 0.8);
+    .attr('stroke', d => d.isSelfLink ? '#818cf8' : '#6366f1')
+    .attr('stroke-opacity', d => d.isSelfLink ? 0.08 : 0.2)
+    .attr('stroke-width', d => d.isSelfLink ? 0.5 : 0.8);
 
-  const nodeGroup = svg.append('g')
+  // ===== 星座ラベル =====
+  const labelG = worldG.append('g');
+  const labelData = [];
+  for (const [comm, members] of Object.entries(communities)) {
+    if (members.length < 2) continue;
+    labelData.push({ comm, members });
+  }
+  const labelEls = labelG.selectAll('text')
+    .data(labelData)
+    .join('text')
+    .attr('fill', d => COMMUNITY_COLORS[d.comm] || '#f59e0b')
+    .attr('font-size', '11px')
+    .attr('text-anchor', 'middle')
+    .attr('opacity', 0.5)
+    .attr('font-weight', '500')
+    .text(d => `⟡ ${d.comm}`);
+
+  // ===== ノード描画 =====
+  const nodeGroup = worldG.append('g')
     .selectAll('g')
     .data(nodes)
     .join('g')
     .call(d3.drag()
-      .on('start', (event, d) => { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+      .on('start', (event, d) => {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x; d.fy = d.y;
+      })
       .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
-      .on('end', (event, d) => { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
+      .on('end', (event, d) => {
+        if (!event.active) simulation.alphaTarget(0);
+        if (!d.isSelf) { d.fx = null; d.fy = null; }
+      })
     );
 
   function starColor(b) {
@@ -433,59 +584,80 @@ function renderUniverse() {
     return '#4a4a6a';
   }
 
+  // 自分ノード — パルスリング
+  nodeGroup.filter(d => d.isSelf).append('circle')
+    .attr('class', 'self-ring')
+    .attr('r', 22)
+    .attr('fill', 'none')
+    .attr('stroke', '#818cf8')
+    .attr('stroke-width', 1.5);
+
+  // メイン円
   nodeGroup.append('circle')
     .attr('r', d => d.r)
-    .attr('fill', d => starColor(d.brightness))
-    .attr('opacity', d => 0.4 + d.brightness * 0.6)
-    .style('filter', d => d.brightness > 0.5 ? 'drop-shadow(0 0 4px #818cf8)' : 'none');
+    .attr('fill', d => {
+      if (d.isSelf) return '#c4b5fd';
+      return starColor(d.brightness);
+    })
+    .attr('opacity', d => d.isSelf ? 1 : 0.4 + d.brightness * 0.6)
+    .attr('class', d => d.isSelf ? 'self-node' : '')
+    .style('filter', d => {
+      if (d.isSelf) return '';
+      return d.brightness > 0.5 ? 'drop-shadow(0 0 4px #818cf8)' : 'none';
+    });
 
+  // 名前ラベル
   nodeGroup.append('text')
     .text(d => d.name)
     .attr('dy', d => d.r + 12)
     .attr('text-anchor', 'middle')
-    .attr('fill', '#f0f0ff')
-    .attr('font-size', '10px')
-    .attr('opacity', 0.7);
+    .attr('fill', d => d.isSelf ? '#c4b5fd' : '#f0f0ff')
+    .attr('font-size', d => d.isSelf ? '13px' : '10px')
+    .attr('font-weight', d => d.isSelf ? '700' : '400')
+    .attr('opacity', d => d.isSelf ? 1 : 0.7);
 
-  // 星座ラベル
-  const labelG = svg.append('g');
-  for (const [tag, members] of Object.entries(tagGroups)) {
-    if (members.length < 2) continue;
-    const labelNode = { tag, members };
-    const label = labelG.append('text')
-      .datum(labelNode)
-      .attr('fill', '#f59e0b')
-      .attr('font-size', '9px')
-      .attr('text-anchor', 'middle')
-      .attr('opacity', 0.6)
-      .text(`⟡ ${tag}`);
-  }
-
-  // ツールチップ
+  // ===== ツールチップ =====
   const tooltip = document.getElementById('universe-tooltip');
-  nodeGroup.on('mouseenter', (event, d) => {
-    tooltip.innerHTML = `<strong>${d.name}</strong><br>回数: ${d.count}<br>最終: ${d.days}日前<br>タグ: ${d.tags.join(', ') || 'なし'}`;
-    tooltip.style.opacity = 1;
-  }).on('mousemove', (event) => {
-    tooltip.style.left = (event.offsetX + 15) + 'px';
-    tooltip.style.top = (event.offsetY - 10) + 'px';
-  }).on('mouseleave', () => {
-    tooltip.style.opacity = 0;
-  });
+  nodeGroup.filter(d => !d.isSelf)
+    .on('mouseenter', (event, d) => {
+      tooltip.innerHTML = `<strong>${d.name}</strong><br>回数: ${d.count}<br>最終: ${d.days}日前<br>タグ: ${d.tags.join(', ') || 'なし'}<br>コミュニティ: ${d.community}`;
+      tooltip.style.opacity = 1;
+    })
+    .on('mousemove', (event) => {
+      tooltip.style.left = (event.clientX + 15) + 'px';
+      tooltip.style.top = (event.clientY - 10) + 'px';
+    })
+    .on('mouseleave', () => { tooltip.style.opacity = 0; });
 
+  // タッチ対応
+  nodeGroup.filter(d => !d.isSelf)
+    .on('touchstart', (event, d) => {
+      event.preventDefault();
+      tooltip.innerHTML = `<strong>${d.name}</strong><br>回数: ${d.count} · ${d.days}日前<br>${d.tags.join(', ')}`;
+      tooltip.style.opacity = 1;
+      const touch = event.touches[0];
+      tooltip.style.left = (touch.clientX + 10) + 'px';
+      tooltip.style.top = (touch.clientY - 40) + 'px';
+      setTimeout(() => { tooltip.style.opacity = 0; }, 2000);
+    });
+
+  // ===== Tick =====
   simulation.on('tick', () => {
     linkEls
       .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
       .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
     nodeGroup.attr('transform', d => `translate(${d.x},${d.y})`);
-
-    // 星座ラベル位置更新
-    labelG.selectAll('text').each(function(d) {
-      const cx = d3.mean(d.members, m => m.x);
-      const cy = d3.mean(d.members, m => m.y) - 15;
-      d3.select(this).attr('x', cx).attr('y', cy);
+    labelEls.each(function(d) {
+      d3.select(this)
+        .attr('x', d3.mean(d.members, m => m.x))
+        .attr('y', d3.mean(d.members, m => m.y) - 20);
     });
+    updateHulls();
   });
+
+  // 安定後に中心へスムーズ移動
+  simulation.on('end', () => recenterSelf());
+  setTimeout(() => recenterSelf(), 1500);
 }
 
 // ===== ご縁一覧画面 =====
@@ -544,7 +716,7 @@ function switchScreen(name) {
 }
 
 // ===== デモデータ =====
-const DEMO_VERSION = 'v2_50people';
+const DEMO_VERSION = 'v3_universe';
 function seedDemoData() {
   if (localStorage.getItem('goen_demo_version') === DEMO_VERSION && (people.length || encounters.length)) return;
   localStorage.setItem('goen_demo_version', DEMO_VERSION);
