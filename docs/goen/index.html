@@ -103,7 +103,7 @@ tailwind.config = {
     <svg id="universe-svg"></svg>
     <div id="universe-tooltip" class="tooltip-universe"></div>
     <div class="absolute top-3 left-0 right-0 text-center pointer-events-none">
-      <span class="text-sm font-medium glow opacity-60">山脇のユニバース</span>
+      <span class="text-xs font-medium glow opacity-40">スクロールして探索 · ダブルタップで中心に戻る</span>
     </div>
     <button id="btn-recenter" onclick="recenterSelf()" class="absolute bottom-4 right-4 bg-cosmos-surface/80 backdrop-blur-md border border-cosmos-dim/30 text-cosmos-glow text-xs px-3 py-2 rounded-full hover:bg-cosmos-accent/20 transition z-30">⊕ 中心に戻る</button>
   </div>
@@ -374,12 +374,13 @@ function assignCommunity(tags) {
 }
 
 function recenterSelf() {
-  if (!selfNode || !currentZoom) return;
+  if (!currentZoom) return;
   const container = document.getElementById('universe-container');
   const width = container.clientWidth;
   const height = container.clientHeight;
   const svg = d3.select('#universe-svg');
-  const t = d3.zoomIdentity.translate(width/2 - selfNode.x, height/2 - selfNode.y);
+  // selfNodeは常に(0,0)なので、ビューポート中心を(0,0)に合わせる
+  const t = d3.zoomIdentity.translate(width/2, height/2);
   svg.transition().duration(600).call(currentZoom.transform, t);
 }
 
@@ -395,9 +396,9 @@ function renderUniverse() {
   const nodes = [];
   const nodeMap = {};
 
-  // 自分ノード (全エンカウンターに関与)
+  // 自分ノード — 原点(0,0)に完全固定
   const allSelfTags = [...new Set(encounters.flatMap(e => e.tags))];
-  selfNode = { id: SELF_ID, name: SELF_NAME, count: encounters.length, days: 0, brightness: 1, r: 14, tags: allSelfTags, isSelf: true, community: 'self' };
+  selfNode = { id: SELF_ID, name: SELF_NAME, count: encounters.length, days: 0, brightness: 1, r: 16, tags: allSelfTags, isSelf: true, community: 'self', fx: 0, fy: 0 };
   nodes.push(selfNode);
   nodeMap[SELF_ID] = selfNode;
 
@@ -420,14 +421,12 @@ function renderUniverse() {
   const links = [];
   const linkSet = new Set();
 
-  // 自分と各人物を繋ぐ
   for (const n of nodes) {
     if (n.isSelf) continue;
     links.push({ source: SELF_ID, target: n.id, isSelfLink: true });
     linkSet.add([SELF_ID, n.id].sort().join('-'));
   }
 
-  // 共起リンク
   for (const enc of encounters) {
     const ids = enc.personIds.filter(id => nodeMap[id]);
     for (let i = 0; i < ids.length; i++) {
@@ -449,65 +448,61 @@ function renderUniverse() {
     communities[n.community].push(n);
   }
 
-  // コミュニティごとにクラスタリングフォース用の目標座標
+  // コミュニティ目標座標 — 原点(0,0)の周囲に放射状配置、遠めに
   const commKeys = Object.keys(communities);
   const commTargets = {};
   commKeys.forEach((key, i) => {
-    const angle = (2 * Math.PI * i) / commKeys.length - Math.PI/2;
-    const dist = 180;
+    const angle = (2 * Math.PI * i) / commKeys.length - Math.PI / 2;
+    const dist = 350;
     commTargets[key] = { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist };
   });
 
   // ===== フォースシミュレーション =====
   if (simulation) simulation.stop();
   simulation = d3.forceSimulation(nodes)
-    .force('link', d3.forceLink(links).id(d => d.id).distance(d => d.isSelfLink ? 100 : 60).strength(d => d.isSelfLink ? 0.15 : 0.4))
-    .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -300 : -80))
-    .force('collision', d3.forceCollide().radius(d => d.r + 4))
+    .force('link', d3.forceLink(links).id(d => d.id)
+      .distance(d => d.isSelfLink ? 200 : 50)
+      .strength(d => d.isSelfLink ? 0.08 : 0.5))
+    .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -600 : -60))
+    .force('collision', d3.forceCollide().radius(d => d.r + 6))
     .force('community', () => {
       for (const n of nodes) {
         if (n.isSelf) continue;
         const target = commTargets[n.community];
         if (!target) continue;
-        // selfNode位置を中心としたコミュニティ配置
-        const cx = (selfNode.x || 0) + target.x;
-        const cy = (selfNode.y || 0) + target.y;
-        n.vx += (cx - n.x) * 0.003;
-        n.vy += (cy - n.y) * 0.003;
+        n.vx += (target.x - n.x) * 0.005;
+        n.vy += (target.y - n.y) * 0.005;
       }
     })
-    .force('centerSelf', () => {
-      // 自分を画面中心に引き寄せる
-      selfNode.vx += (width/2 - selfNode.x) * 0.05;
-      selfNode.vy += (height/2 - selfNode.y) * 0.05;
-    });
+    .alphaDecay(0.015)
+    .velocityDecay(0.3);
 
-  // 初期位置
-  selfNode.x = width / 2;
-  selfNode.y = height / 2;
-
-  // ===== Zoom & Pan =====
+  // ===== Zoom & Pan (ワールド座標系をビューポートに射影) =====
   const worldG = svg.append('g');
+
   currentZoom = d3.zoom()
-    .scaleExtent([0.3, 3])
+    .scaleExtent([0.2, 4])
     .on('zoom', (event) => { worldG.attr('transform', event.transform); });
   svg.call(currentZoom);
-  // ダブルタップで中心に戻る
   svg.on('dblclick.zoom', null);
   svg.on('dblclick', () => recenterSelf());
 
-  // ===== 背景星（広範囲に配置） =====
+  // 初期ビューを原点中心に設定
+  const initTransform = d3.zoomIdentity.translate(width / 2, height / 2);
+  svg.call(currentZoom.transform, initTransform);
+
+  // ===== 背景星（広範囲、ワールド座標系） =====
   const bgStars = worldG.append('g');
-  for (let i = 0; i < 300; i++) {
+  for (let i = 0; i < 400; i++) {
     bgStars.append('circle')
-      .attr('cx', (Math.random() - 0.5) * width * 4 + width/2)
-      .attr('cy', (Math.random() - 0.5) * height * 4 + height/2)
+      .attr('cx', (Math.random() - 0.5) * 3000)
+      .attr('cy', (Math.random() - 0.5) * 3000)
       .attr('r', Math.random() * 1.0 + 0.2)
       .attr('fill', '#f0f0ff')
-      .attr('opacity', Math.random() * 0.4 + 0.05);
+      .attr('opacity', Math.random() * 0.35 + 0.05);
   }
 
-  // ===== コミュニティ背景（convex hull） =====
+  // ===== コミュニティ背景 (convex hull) =====
   const hullG = worldG.append('g').attr('class', 'hulls');
 
   function updateHulls() {
@@ -518,13 +513,12 @@ function renderUniverse() {
       const hull = d3.polygonHull(points);
       if (!hull) continue;
       const color = COMMUNITY_COLORS[comm] || '#6366f1';
-      // 少し膨らませたhull
       const cx = d3.mean(hull, d => d[0]);
       const cy = d3.mean(hull, d => d[1]);
       const expanded = hull.map(([x, y]) => {
         const dx = x - cx, dy = y - cy;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        const scale = (dist + 30) / (dist || 1);
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const scale = (dist + 40) / (dist || 1);
         return [cx + dx * scale, cy + dy * scale];
       });
       hullG.append('path')
@@ -541,10 +535,10 @@ function renderUniverse() {
     .data(links)
     .join('line')
     .attr('stroke', d => d.isSelfLink ? '#818cf8' : '#6366f1')
-    .attr('stroke-opacity', d => d.isSelfLink ? 0.08 : 0.2)
-    .attr('stroke-width', d => d.isSelfLink ? 0.5 : 0.8);
+    .attr('stroke-opacity', d => d.isSelfLink ? 0.1 : 0.22)
+    .attr('stroke-width', d => d.isSelfLink ? 0.6 : 0.8);
 
-  // ===== 星座ラベル =====
+  // ===== コミュニティラベル =====
   const labelG = worldG.append('g');
   const labelData = [];
   for (const [comm, members] of Object.entries(communities)) {
@@ -555,9 +549,9 @@ function renderUniverse() {
     .data(labelData)
     .join('text')
     .attr('fill', d => COMMUNITY_COLORS[d.comm] || '#f59e0b')
-    .attr('font-size', '11px')
+    .attr('font-size', '12px')
     .attr('text-anchor', 'middle')
-    .attr('opacity', 0.5)
+    .attr('opacity', 0.45)
     .attr('font-weight', '500')
     .text(d => `⟡ ${d.comm}`);
 
@@ -568,13 +562,18 @@ function renderUniverse() {
     .join('g')
     .call(d3.drag()
       .on('start', (event, d) => {
+        if (d.isSelf) return; // 自分はドラッグ不可
         if (!event.active) simulation.alphaTarget(0.3).restart();
         d.fx = d.x; d.fy = d.y;
       })
-      .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
+      .on('drag', (event, d) => {
+        if (d.isSelf) return;
+        d.fx = event.x; d.fy = event.y;
+      })
       .on('end', (event, d) => {
+        if (d.isSelf) return;
         if (!event.active) simulation.alphaTarget(0);
-        if (!d.isSelf) { d.fx = null; d.fy = null; }
+        d.fx = null; d.fy = null;
       })
     );
 
@@ -587,7 +586,7 @@ function renderUniverse() {
   // 自分ノード — パルスリング
   nodeGroup.filter(d => d.isSelf).append('circle')
     .attr('class', 'self-ring')
-    .attr('r', 22)
+    .attr('r', 26)
     .attr('fill', 'none')
     .attr('stroke', '#818cf8')
     .attr('stroke-width', 1.5);
@@ -595,10 +594,7 @@ function renderUniverse() {
   // メイン円
   nodeGroup.append('circle')
     .attr('r', d => d.r)
-    .attr('fill', d => {
-      if (d.isSelf) return '#c4b5fd';
-      return starColor(d.brightness);
-    })
+    .attr('fill', d => d.isSelf ? '#c4b5fd' : starColor(d.brightness))
     .attr('opacity', d => d.isSelf ? 1 : 0.4 + d.brightness * 0.6)
     .attr('class', d => d.isSelf ? 'self-node' : '')
     .style('filter', d => {
@@ -609,10 +605,10 @@ function renderUniverse() {
   // 名前ラベル
   nodeGroup.append('text')
     .text(d => d.name)
-    .attr('dy', d => d.r + 12)
+    .attr('dy', d => d.r + 14)
     .attr('text-anchor', 'middle')
     .attr('fill', d => d.isSelf ? '#c4b5fd' : '#f0f0ff')
-    .attr('font-size', d => d.isSelf ? '13px' : '10px')
+    .attr('font-size', d => d.isSelf ? '14px' : '10px')
     .attr('font-weight', d => d.isSelf ? '700' : '400')
     .attr('opacity', d => d.isSelf ? 1 : 0.7);
 
@@ -650,14 +646,10 @@ function renderUniverse() {
     labelEls.each(function(d) {
       d3.select(this)
         .attr('x', d3.mean(d.members, m => m.x))
-        .attr('y', d3.mean(d.members, m => m.y) - 20);
+        .attr('y', d3.mean(d.members, m => m.y) - 25);
     });
     updateHulls();
   });
-
-  // 安定後に中心へスムーズ移動
-  simulation.on('end', () => recenterSelf());
-  setTimeout(() => recenterSelf(), 1500);
 }
 
 // ===== ご縁一覧画面 =====
@@ -716,7 +708,7 @@ function switchScreen(name) {
 }
 
 // ===== デモデータ =====
-const DEMO_VERSION = 'v3_universe';
+const DEMO_VERSION = 'v4_firstperson';
 function seedDemoData() {
   if (localStorage.getItem('goen_demo_version') === DEMO_VERSION && (people.length || encounters.length)) return;
   localStorage.setItem('goen_demo_version', DEMO_VERSION);
