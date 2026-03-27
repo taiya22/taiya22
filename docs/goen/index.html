@@ -62,6 +62,43 @@ tailwind.config = {
   .brightness-indigo { background: #6366f1; box-shadow: 0 0 6px #6366f1; }
   .brightness-deep { background: #3730a3; box-shadow: 0 0 4px #3730a3; }
   .brightness-dim { background: #4a4a6a; }
+
+  /* 流れ星 */
+  .shooting-star {
+    position: absolute; pointer-events: none; z-index: 25;
+    width: 3px; height: 3px; border-radius: 50%; background: #f59e0b;
+    box-shadow: 0 0 6px 2px rgba(245,158,11,0.6), 0 0 12px 4px rgba(245,158,11,0.3);
+  }
+  .shooting-star-tail {
+    position: absolute; pointer-events: none; z-index: 24;
+    height: 1.5px; border-radius: 1px;
+    background: linear-gradient(to left, rgba(245,158,11,0.7), transparent);
+  }
+
+  /* リコネクト通知バナー */
+  .reconnect-banner {
+    position: absolute; z-index: 30; left: 50%; transform: translateX(-50%);
+    top: 48px; opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease, top 0.5s ease;
+    max-width: 320px; width: 90%;
+  }
+  .reconnect-banner.visible { opacity: 1; top: 56px; pointer-events: auto; }
+
+  /* ボトムシート */
+  .bottom-sheet-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 60;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .bottom-sheet-overlay.open { opacity: 1; pointer-events: auto; }
+  .bottom-sheet {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+    width: 100%; max-width: 42rem; z-index: 61;
+    background: #12122a; border-top: 1px solid #6366f1;
+    border-radius: 16px 16px 0 0; padding: 20px 20px 32px;
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .bottom-sheet-overlay.open .bottom-sheet { transform: translateX(-50%) translateY(0); }
+  .bottom-sheet-handle { width: 36px; height: 4px; background: #4a4a6a; border-radius: 2px; margin: 0 auto 16px; }
 </style>
 </head>
 <body class="max-w-[42rem] mx-auto relative pb-20">
@@ -109,7 +146,27 @@ tailwind.config = {
     <div class="absolute top-3 left-0 right-0 text-center pointer-events-none">
       <span class="text-xs font-medium glow opacity-40">スクロールして探索 · ダブルタップで中心に戻る</span>
     </div>
+    <!-- 流れ星リコネクト通知 -->
+    <div id="reconnect-banner" class="reconnect-banner">
+      <div class="bg-cosmos-surface/90 backdrop-blur-md border border-cosmos-warm/30 rounded-xl p-3 flex items-center gap-3 cursor-pointer shadow-lg shadow-amber-900/20" onclick="openReconnectSheet()">
+        <span class="text-2xl">☄️</span>
+        <div class="flex-1 min-w-0">
+          <div class="text-xs text-cosmos-warm font-medium" id="reconnect-banner-title">久しぶりのご縁</div>
+          <div class="text-[11px] text-cosmos-dim truncate" id="reconnect-banner-sub"></div>
+        </div>
+        <span class="text-cosmos-dim text-xs">タップ</span>
+      </div>
+    </div>
+
     <button id="btn-recenter" onclick="recenterSelf()" class="absolute bottom-4 right-4 bg-cosmos-surface/80 backdrop-blur-md border border-cosmos-dim/30 text-cosmos-glow text-xs px-3 py-2 rounded-full hover:bg-cosmos-accent/20 transition z-30">⊕ 中心に戻る</button>
+  </div>
+</div>
+
+<!-- ===== リコネクト ボトムシート ===== -->
+<div id="reconnect-overlay" class="bottom-sheet-overlay" onclick="closeReconnectSheet(event)">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="bottom-sheet-handle"></div>
+    <div id="reconnect-sheet-content"></div>
   </div>
 </div>
 
@@ -706,13 +763,14 @@ function switchScreen(name) {
     b.classList.toggle('text-cosmos-accent', b.dataset.nav === name);
     b.classList.toggle('text-cosmos-dim', b.dataset.nav !== name);
   });
-  if (name === 'universe') renderUniverse();
+  if (name === 'universe') { renderUniverse(); startShootingStarCycle(); }
+  else { stopShootingStarCycle(); }
   if (name === 'people') renderPeople();
   if (name === 'home') renderHome();
 }
 
 // ===== デモデータ =====
-const DEMO_VERSION = 'v4_firstperson';
+const DEMO_VERSION = 'v5_shootingstar';
 function seedDemoData() {
   if (localStorage.getItem('goen_demo_version') === DEMO_VERSION && (people.length || encounters.length)) return;
   localStorage.setItem('goen_demo_version', DEMO_VERSION);
@@ -845,9 +903,201 @@ function seedDemoData() {
   saveData(STORAGE_KEY_ENCOUNTERS, encounters);
 }
 
+// ===== 流れ星リコネクティング =====
+let reconnectQueue = [];
+let reconnectCurrent = null;
+let shootingStarTimer = null;
+
+function getStalePersons() {
+  const stale = [];
+  for (const p of people) {
+    const encs = encounters.filter(e => e.personIds.includes(p.id));
+    if (!encs.length) continue;
+    const last = [...encs].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    const days = daysBetween(last.createdAt);
+    if (days >= 30) {
+      const freq = encs.length;
+      const score = days * 0.7 + (1/freq) * 100;
+      stale.push({ person: p, lastEnc: last, days, score });
+    }
+  }
+  return stale.sort((a,b) => b.score - a.score);
+}
+
+function launchShootingStar(personData) {
+  const container = document.getElementById('universe-container');
+  if (!container) return;
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+
+  // ランダムな画面端から中心方向へ飛ばす
+  const side = Math.random();
+  let startX, startY, endX, endY;
+  if (side < 0.25) { startX = -20; startY = Math.random() * h * 0.5; }
+  else if (side < 0.5) { startX = w + 20; startY = Math.random() * h * 0.5; }
+  else if (side < 0.75) { startX = Math.random() * w; startY = -20; }
+  else { startX = Math.random() * w; startY = -20; }
+
+  // 中心付近に着弾（少しブレ）
+  endX = w * 0.5 + (Math.random() - 0.5) * 120;
+  endY = h * 0.35 + (Math.random() - 0.5) * 60;
+
+  const star = document.createElement('div');
+  star.className = 'shooting-star';
+  star.style.left = startX + 'px';
+  star.style.top = startY + 'px';
+  container.appendChild(star);
+
+  const tail = document.createElement('div');
+  tail.className = 'shooting-star-tail';
+  container.appendChild(tail);
+
+  const dx = endX - startX;
+  const dy = endY - startY;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  const angle = Math.atan2(dy, dx);
+  const duration = 800 + dist * 0.5;
+  const startTime = performance.now();
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    const t = Math.min(1, elapsed / duration);
+    // ease-out cubic
+    const eased = 1 - Math.pow(1 - t, 3);
+
+    const cx = startX + dx * eased;
+    const cy = startY + dy * eased;
+    star.style.left = cx + 'px';
+    star.style.top = cy + 'px';
+    star.style.opacity = t < 0.8 ? 1 : 1 - (t - 0.8) / 0.2;
+
+    // テール
+    const tailLen = Math.min(60, dist * eased * 0.15);
+    tail.style.width = tailLen + 'px';
+    tail.style.left = (cx - tailLen * Math.cos(angle)) + 'px';
+    tail.style.top = (cy - tailLen * Math.sin(angle)) + 'px';
+    tail.style.transform = `rotate(${angle}rad)`;
+    tail.style.transformOrigin = 'right center';
+    tail.style.opacity = t < 0.7 ? 0.8 : (1 - t) * 2.5;
+
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      star.remove();
+      tail.remove();
+      // 着弾後にバナー表示
+      showReconnectBanner(personData);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function showReconnectBanner(personData) {
+  reconnectCurrent = personData;
+  const banner = document.getElementById('reconnect-banner');
+  document.getElementById('reconnect-banner-title').textContent = `${personData.person.name}さんと${personData.days}日ぶり`;
+  document.getElementById('reconnect-banner-sub').textContent = personData.lastEnc.text;
+  banner.classList.add('visible');
+
+  // 6秒後に自動で消す
+  setTimeout(() => {
+    banner.classList.remove('visible');
+  }, 6000);
+}
+
+function openReconnectSheet() {
+  if (!reconnectCurrent) return;
+  document.getElementById('reconnect-banner').classList.remove('visible');
+  const d = reconnectCurrent;
+  const content = document.getElementById('reconnect-sheet-content');
+  content.innerHTML = `
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-10 h-10 rounded-full bg-cosmos-warm/20 flex items-center justify-center text-lg">☄️</div>
+      <div>
+        <div class="text-base font-bold text-cosmos-star">${d.person.name}</div>
+        <div class="text-xs text-cosmos-warm">${d.days}日間ご無沙汰</div>
+      </div>
+    </div>
+    <div class="bg-cosmos-bg/50 rounded-lg p-3 mb-4">
+      <div class="text-[10px] text-cosmos-dim mb-1">最後の記録</div>
+      <p class="text-xs text-cosmos-star/80 leading-relaxed">${escapeHtml(d.lastEnc.text)}</p>
+      <div class="text-[10px] text-cosmos-dim mt-2">${formatDate(d.lastEnc.createdAt)} · ${moodIcon(d.lastEnc.mood)} ${d.lastEnc.mood}</div>
+    </div>
+    <div class="flex gap-1 flex-wrap mb-4">${d.person.tags.slice(0,5).map(t => `<span class="text-[10px] bg-cosmos-accent/15 text-cosmos-glow px-2 py-0.5 rounded-full">#${t}</span>`).join('')}</div>
+    <textarea id="reconnect-text" rows="2" placeholder="${d.person.name}さんとの近況を記録..."
+      class="w-full bg-cosmos-bg/50 text-cosmos-star placeholder-cosmos-dim text-sm rounded-lg p-3 resize-none outline-none border border-cosmos-dim/20 focus:border-cosmos-accent/50 mb-3"></textarea>
+    <div class="flex gap-2">
+      <button onclick="submitReconnect('${d.person.id}')" class="flex-1 bg-cosmos-warm hover:bg-amber-500 text-cosmos-bg text-sm font-medium py-2.5 rounded-lg transition">リコネクトを記録</button>
+      <button onclick="closeReconnectSheet()" class="px-4 bg-cosmos-surface text-cosmos-dim text-sm py-2.5 rounded-lg border border-cosmos-dim/20 hover:border-cosmos-dim/40 transition">閉じる</button>
+    </div>
+  `;
+  document.getElementById('reconnect-overlay').classList.add('open');
+}
+
+function closeReconnectSheet(event) {
+  if (event && event.target !== event.currentTarget) return;
+  document.getElementById('reconnect-overlay').classList.remove('open');
+}
+
+function submitReconnect(personId) {
+  const textEl = document.getElementById('reconnect-text');
+  const text = textEl.value.trim();
+  if (!text) { textEl.focus(); return; }
+
+  const person = people.find(p => p.id === personId);
+  if (!person) return;
+
+  const tags = extractTags(text);
+  const mood = detectMood(text);
+  for (const t of tags) { if (!person.tags.includes(t)) person.tags.push(t); }
+
+  const enc = {
+    id: uuid(),
+    text,
+    personIds: [personId],
+    personNames: [person.name],
+    tags,
+    mood,
+    createdAt: new Date().toISOString(),
+  };
+  encounters.push(enc);
+  saveData(STORAGE_KEY_PEOPLE, people);
+  saveData(STORAGE_KEY_ENCOUNTERS, encounters);
+
+  closeReconnectSheet();
+  // ユニバースを再描画して星が明るくなるフィードバック
+  renderUniverse();
+  startShootingStarCycle();
+}
+
+function startShootingStarCycle() {
+  if (shootingStarTimer) clearTimeout(shootingStarTimer);
+  reconnectQueue = getStalePersons();
+  if (!reconnectQueue.length) return;
+
+  let index = 0;
+  function scheduleNext() {
+    if (document.getElementById('screen-universe').classList.contains('active') && reconnectQueue.length > 0) {
+      const item = reconnectQueue[index % reconnectQueue.length];
+      index++;
+      launchShootingStar(item);
+    }
+    // 15〜30秒間隔でランダムに
+    const delay = 15000 + Math.random() * 15000;
+    shootingStarTimer = setTimeout(scheduleNext, delay);
+  }
+  // 初回は3秒後
+  shootingStarTimer = setTimeout(scheduleNext, 3000);
+}
+
+function stopShootingStarCycle() {
+  if (shootingStarTimer) { clearTimeout(shootingStarTimer); shootingStarTimer = null; }
+}
+
 // ===== 初期化 =====
 seedDemoData();
 renderUniverse();
+startShootingStarCycle();
 </script>
 </body>
 </html>
