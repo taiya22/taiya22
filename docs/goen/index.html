@@ -85,6 +85,32 @@ tailwind.config = {
   }
   .comet-container.orbiting .comet-label { opacity: 1; }
 
+  /* 水紋エフェクト */
+  .ripple-ring {
+    position: absolute; border-radius: 50%; pointer-events: none;
+    border: 1.5px solid; transform: translate(-50%, -50%);
+    animation: ripple-expand 0.8s ease-out forwards;
+  }
+  @keyframes ripple-expand {
+    0% { width: 0; height: 0; opacity: 0.8; }
+    100% { width: 80px; height: 80px; opacity: 0; }
+  }
+  .ripple-ring:nth-child(2) { animation-delay: 0.15s; }
+  .ripple-ring:nth-child(3) { animation-delay: 0.3s; }
+
+  /* メディアスライダー */
+  .media-slider { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 4px 0; scrollbar-width: none; }
+  .media-slider::-webkit-scrollbar { display: none; }
+  .media-card {
+    flex: 0 0 auto; width: 100px; scroll-snap-align: center;
+    border: 2px solid transparent; border-radius: 12px; padding: 12px 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    cursor: pointer; transition: all 0.25s; background: rgba(255,255,255,0.03);
+  }
+  .media-card.selected { border-color: #f59e0b; background: rgba(245,158,11,0.08); }
+  .media-card .media-icon { font-size: 24px; }
+  .media-card .media-name { font-size: 11px; font-weight: 500; }
+
   /* ボトムシート */
   .bottom-sheet-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 60;
@@ -662,7 +688,28 @@ function renderUniverse() {
     .attr('font-weight', d => d.isSelf ? '700' : '400')
     .attr('opacity', d => d.isSelf ? 1 : 0.7);
 
-  // ===== ツールチップ =====
+  // ===== 水紋エフェクト =====
+  function spawnRipple(svgGroup, d) {
+    const color = d.isSelf ? '#818cf8' : (COMMUNITY_COLORS[d.community] || '#6366f1');
+    for (let i = 0; i < 3; i++) {
+      const ring = svgGroup.append('circle')
+        .attr('cx', d.x).attr('cy', d.y)
+        .attr('r', d.r)
+        .attr('fill', 'none')
+        .attr('stroke', color)
+        .attr('stroke-width', 1.5)
+        .attr('opacity', 0.7);
+      ring.transition()
+        .delay(i * 150)
+        .duration(800)
+        .ease(d3.easeCubicOut)
+        .attr('r', d.r + 40)
+        .attr('opacity', 0)
+        .remove();
+    }
+  }
+
+  // ===== ツールチップ + 水紋タップ =====
   const tooltip = document.getElementById('universe-tooltip');
   nodeGroup.filter(d => !d.isSelf)
     .on('mouseenter', (event, d) => {
@@ -675,10 +722,14 @@ function renderUniverse() {
     })
     .on('mouseleave', () => { tooltip.style.opacity = 0; });
 
+  // クリック/タップで水紋
+  nodeGroup.on('click', (event, d) => {
+    spawnRipple(worldG, d);
+  });
+
   // タッチ対応
   nodeGroup.filter(d => !d.isSelf)
     .on('touchstart', (event, d) => {
-      event.preventDefault();
       tooltip.innerHTML = `<strong>${d.name}</strong><br>回数: ${d.count} · ${d.days}日前<br>${d.tags.join(', ')}`;
       tooltip.style.opacity = 1;
       const touch = event.touches[0];
@@ -759,7 +810,7 @@ function switchScreen(name) {
 }
 
 // ===== デモデータ =====
-const DEMO_VERSION = 'v6_halley';
+const DEMO_VERSION = 'v7_ripple';
 function seedDemoData() {
   if (localStorage.getItem('goen_demo_version') === DEMO_VERSION && (people.length || encounters.length)) return;
   localStorage.setItem('goen_demo_version', DEMO_VERSION);
@@ -1038,8 +1089,8 @@ function launchComet(personData) {
       const glow = 0.6 + Math.sin(elapsed * 0.003) * 0.4;
       head.style.opacity = glow;
 
-      // 20秒周回したら離脱
-      if (elapsed > 20000) {
+      // 45秒周回したら離脱
+      if (elapsed > 45000) {
         phase = 'depart';
         phaseStart = now;
         comet.classList.remove('orbiting');
@@ -1080,75 +1131,144 @@ function launchComet(personData) {
   cometState.raf = requestAnimationFrame(tick);
 }
 
+// DM自動生成テンプレート
+function generateDMText(d) {
+  const greetings = [
+    `${d.person.name}さん、お久しぶりです！`,
+    `${d.person.name}さん、ご無沙汰しております！`,
+    `${d.person.name}さん！お元気ですか？`,
+  ];
+  const bodies = [];
+  if (d.days > 90) bodies.push(`もう${d.days}日も経ってしまいました。`);
+  else if (d.days > 60) bodies.push(`気づけば${d.days}日ぶりですね。`);
+  else bodies.push(`前回お会いしてから${d.days}日経ちましたね。`);
+
+  // 前回の話題に触れる
+  const tagRef = d.person.tags[0];
+  const topicMap = {
+    '起業': 'その後、事業の方はいかがですか？',
+    'テクノロジー': 'テック周りで最近面白い話はありますか？',
+    '投資': '投資の方、最近どうですか？',
+    'クリエイティブ': '最近のクリエイティブ活動はどうですか？',
+    'キャリア': 'お仕事の方は順調ですか？',
+    '海外': '海外の方はいかがですか？',
+    '食事': 'また一緒にご飯行きませんか？',
+    'イベント': 'また何かイベントで一緒できたら嬉しいです！',
+    '学び': '最近何か面白い学びはありましたか？',
+  };
+  const topic = topicMap[tagRef] || 'ぜひまたお話しましょう！';
+
+  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+  return `${greeting}\n${bodies[0]}\n${topic}`;
+}
+
+let selectedMedia = 'line'; // デフォルト
+
 function openReconnectSheet() {
   if (!reconnectCurrent) return;
   const d = reconnectCurrent;
   const content = document.getElementById('reconnect-sheet-content');
-
-  // DM用テンプレート
-  const dmText = `${d.person.name}さん、お久しぶりです！最後にお会いしてから${d.days}日経ちましたね。お元気ですか？`;
-  const encodedDM = encodeURIComponent(dmText);
+  const dmText = generateDMText(d);
+  selectedMedia = 'line';
 
   content.innerHTML = `
-    <div class="flex items-center gap-3 mb-4">
+    <div class="flex items-center gap-3 mb-3">
       <div class="w-10 h-10 rounded-full bg-cosmos-warm/20 flex items-center justify-center text-lg">☄️</div>
-      <div>
+      <div class="flex-1">
         <div class="text-base font-bold text-cosmos-star">${d.person.name}</div>
         <div class="text-xs text-cosmos-warm">${d.days}日間ご無沙汰</div>
       </div>
-    </div>
-    <div class="bg-cosmos-bg/50 rounded-lg p-3 mb-4">
-      <div class="text-[10px] text-cosmos-dim mb-1">最後の記録</div>
-      <p class="text-xs text-cosmos-star/80 leading-relaxed">${escapeHtml(d.lastEnc.text)}</p>
-      <div class="text-[10px] text-cosmos-dim mt-2">${formatDate(d.lastEnc.createdAt)} · ${moodIcon(d.lastEnc.mood)} ${d.lastEnc.mood}</div>
-    </div>
-    <div class="flex gap-1 flex-wrap mb-4">${d.person.tags.slice(0,5).map(t => `<span class="text-[10px] bg-cosmos-accent/15 text-cosmos-glow px-2 py-0.5 rounded-full">#${t}</span>`).join('')}</div>
-
-    <div class="text-[10px] text-cosmos-dim mb-2 font-medium">DMで連絡する</div>
-    <div class="flex gap-2 mb-4">
-      <a href="https://line.me/R/oaMessage/?${encodedDM}" target="_blank" rel="noopener"
-        class="flex-1 bg-[#06C755] hover:bg-[#05b34d] text-white text-xs font-medium py-2.5 rounded-lg text-center transition">LINE</a>
-      <a href="https://www.messenger.com/new?text=${encodedDM}" target="_blank" rel="noopener"
-        class="flex-1 bg-[#0084FF] hover:bg-[#0073e6] text-white text-xs font-medium py-2.5 rounded-lg text-center transition">Messenger</a>
-      <a href="mailto:?subject=${encodeURIComponent(d.person.name + 'さんへ')}&body=${encodedDM}" target="_blank"
-        class="flex-1 bg-cosmos-dim/30 hover:bg-cosmos-dim/50 text-cosmos-star text-xs font-medium py-2.5 rounded-lg text-center transition">メール</a>
+      <button onclick="closeReconnectSheet()" class="text-cosmos-dim hover:text-cosmos-star text-lg transition">✕</button>
     </div>
 
-    <div class="text-[10px] text-cosmos-dim mb-2 font-medium">リコネクトを記録</div>
-    <textarea id="reconnect-text" rows="2" placeholder="${d.person.name}さんとの近況を記録..."
-      class="w-full bg-cosmos-bg/50 text-cosmos-star placeholder-cosmos-dim text-sm rounded-lg p-3 resize-none outline-none border border-cosmos-dim/20 focus:border-cosmos-accent/50 mb-3"></textarea>
-    <div class="flex gap-2">
-      <button onclick="submitReconnect('${d.person.id}')" class="flex-1 bg-cosmos-warm hover:bg-amber-500 text-cosmos-bg text-sm font-medium py-2.5 rounded-lg transition">記録する</button>
-      <button onclick="closeReconnectSheet()" class="px-4 bg-cosmos-surface text-cosmos-dim text-sm py-2.5 rounded-lg border border-cosmos-dim/20 hover:border-cosmos-dim/40 transition">閉じる</button>
+    <div class="bg-cosmos-bg/50 rounded-lg p-3 mb-3">
+      <div class="text-[10px] text-cosmos-dim mb-1">前回の記録</div>
+      <p class="text-xs text-cosmos-star/70 leading-relaxed">${escapeHtml(d.lastEnc.text)}</p>
+      <div class="text-[10px] text-cosmos-dim mt-1">${formatDate(d.lastEnc.createdAt)} · ${moodIcon(d.lastEnc.mood)}</div>
     </div>
+
+    <div class="text-[10px] text-cosmos-dim mb-2 font-medium">自動生成メッセージ</div>
+    <div class="bg-cosmos-bg/50 rounded-lg p-3 mb-4 border border-cosmos-dim/15">
+      <p class="text-xs text-cosmos-star/90 leading-relaxed whitespace-pre-line" id="dm-preview">${escapeHtml(dmText)}</p>
+    </div>
+
+    <div class="text-[10px] text-cosmos-dim mb-2 font-medium">送信先を選択</div>
+    <div class="media-slider mb-4" id="media-slider">
+      <div class="media-card selected" data-media="line" onclick="selectMedia('line')">
+        <span class="media-icon">💬</span>
+        <span class="media-name" style="color:#06C755">LINE</span>
+      </div>
+      <div class="media-card" data-media="messenger" onclick="selectMedia('messenger')">
+        <span class="media-icon">💭</span>
+        <span class="media-name" style="color:#0084FF">Messenger</span>
+      </div>
+      <div class="media-card" data-media="email" onclick="selectMedia('email')">
+        <span class="media-icon">📧</span>
+        <span class="media-name" style="color:#f0f0ff">メール</span>
+      </div>
+      <div class="media-card" data-media="x" onclick="selectMedia('x')">
+        <span class="media-icon">𝕏</span>
+        <span class="media-name" style="color:#f0f0ff">X (DM)</span>
+      </div>
+      <div class="media-card" data-media="sms" onclick="selectMedia('sms')">
+        <span class="media-icon">📱</span>
+        <span class="media-name" style="color:#34d399">SMS</span>
+      </div>
+    </div>
+
+    <button onclick="executeReconnect('${d.person.id}')"
+      class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-cosmos-bg text-sm font-bold py-3.5 rounded-xl transition shadow-lg shadow-amber-900/30 active:scale-[0.98]">
+      ☄️ リコネクトする
+    </button>
   `;
   document.getElementById('reconnect-overlay').classList.add('open');
 }
 
+function selectMedia(media) {
+  selectedMedia = media;
+  document.querySelectorAll('#media-slider .media-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.media === media);
+  });
+}
+
 function closeReconnectSheet(event) {
-  if (event && event.target !== event.currentTarget) return;
+  if (event && event.target && event.target !== event.currentTarget) return;
   document.getElementById('reconnect-overlay').classList.remove('open');
 }
 
-function submitReconnect(personId) {
-  const textEl = document.getElementById('reconnect-text');
-  const text = textEl.value.trim();
-  if (!text) { textEl.focus(); return; }
+function executeReconnect(personId) {
+  const d = reconnectCurrent;
+  if (!d) return;
+  const dmText = document.getElementById('dm-preview').textContent;
+  const encoded = encodeURIComponent(dmText);
+  const subj = encodeURIComponent(`${d.person.name}さんへ`);
 
+  // メディア別にリンクを開く
+  const urls = {
+    line: `https://line.me/R/oaMessage/?${encoded}`,
+    messenger: `https://www.messenger.com/new?text=${encoded}`,
+    email: `mailto:?subject=${subj}&body=${encoded}`,
+    x: `https://twitter.com/messages/compose?text=${encoded}`,
+    sms: `sms:?body=${encoded}`,
+  };
+  const url = urls[selectedMedia];
+  if (url) window.open(url, '_blank');
+
+  // エンカウンター自動記録
   const person = people.find(p => p.id === personId);
   if (!person) return;
 
-  const tags = extractTags(text);
-  const mood = detectMood(text);
+  const autoText = `${person.name}さんにリコネクト（${selectedMedia.toUpperCase()}）。${d.days}日ぶりの連絡。`;
+  const tags = [...person.tags.slice(0, 2)];
   for (const t of tags) { if (!person.tags.includes(t)) person.tags.push(t); }
 
   const enc = {
     id: uuid(),
-    text,
+    text: autoText,
     personIds: [personId],
     personNames: [person.name],
     tags,
-    mood,
+    mood: 'warm',
     createdAt: new Date().toISOString(),
   };
   encounters.push(enc);
