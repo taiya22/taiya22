@@ -102,14 +102,16 @@ tailwind.config = {
   .media-slider { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 4px 0; scrollbar-width: none; }
   .media-slider::-webkit-scrollbar { display: none; }
   .media-card {
-    flex: 0 0 auto; width: 100px; scroll-snap-align: center;
-    border: 2px solid transparent; border-radius: 12px; padding: 12px 8px;
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
-    cursor: pointer; transition: all 0.25s; background: rgba(255,255,255,0.03);
+    flex: 0 0 auto; width: 72px; scroll-snap-align: center;
+    border: 2px solid transparent; border-radius: 12px; padding: 10px 6px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; transition: all 0.25s; background: rgba(255,255,255,0.02);
+    opacity: 0.35;
   }
-  .media-card.selected { border-color: #f59e0b; background: rgba(245,158,11,0.08); }
-  .media-card .media-icon { font-size: 24px; }
-  .media-card .media-name { font-size: 11px; font-weight: 500; }
+  .media-card.selected { border-color: #f59e0b; background: rgba(245,158,11,0.1); opacity: 1; box-shadow: 0 0 16px rgba(245,158,11,0.15); }
+  .media-card .media-icon { font-size: 22px; transition: transform 0.2s; }
+  .media-card.selected .media-icon { transform: scale(1.15); }
+  .media-card .media-name { font-size: 10px; font-weight: 500; }
 
   /* ボトムシート */
   .bottom-sheet-overlay {
@@ -533,7 +535,7 @@ function renderUniverse() {
     commTargets[key] = { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist };
   });
 
-  // ===== フォースシミュレーション（銀河的：すぐ安定して動き回らない） =====
+  // ===== フォースシミュレーション（銀河的：ほぼ静止、タップ時のみ微動） =====
   if (simulation) simulation.stop();
   simulation = d3.forceSimulation(nodes)
     .force('link', d3.forceLink(links).id(d => d.id)
@@ -550,8 +552,9 @@ function renderUniverse() {
         n.vy += (target.y - n.y) * 0.008;
       }
     })
-    .alphaDecay(0.06)
-    .velocityDecay(0.6);
+    .alphaDecay(0.12)
+    .velocityDecay(0.75)
+    .alpha(0.3);
 
   // ===== Zoom & Pan (ワールド座標系をビューポートに射影) =====
   const worldG = svg.append('g');
@@ -810,7 +813,7 @@ function switchScreen(name) {
 }
 
 // ===== デモデータ =====
-const DEMO_VERSION = 'v7_ripple';
+const DEMO_VERSION = 'v8_quiet';
 function seedDemoData() {
   if (localStorage.getItem('goen_demo_version') === DEMO_VERSION && (people.length || encounters.length)) return;
   localStorage.setItem('goen_demo_version', DEMO_VERSION);
@@ -1163,6 +1166,7 @@ function generateDMText(d) {
 }
 
 let selectedMedia = 'line'; // デフォルト
+const MEDIA_NAMES = { line:'LINE', messenger:'Messenger', email:'メール', x:'X', sms:'SMS' };
 
 function openReconnectSheet() {
   if (!reconnectCurrent) return;
@@ -1187,13 +1191,8 @@ function openReconnectSheet() {
       <div class="text-[10px] text-cosmos-dim mt-1">${formatDate(d.lastEnc.createdAt)} · ${moodIcon(d.lastEnc.mood)}</div>
     </div>
 
-    <div class="text-[10px] text-cosmos-dim mb-2 font-medium">自動生成メッセージ</div>
-    <div class="bg-cosmos-bg/50 rounded-lg p-3 mb-4 border border-cosmos-dim/15">
-      <p class="text-xs text-cosmos-star/90 leading-relaxed whitespace-pre-line" id="dm-preview">${escapeHtml(dmText)}</p>
-    </div>
-
-    <div class="text-[10px] text-cosmos-dim mb-2 font-medium">送信先を選択</div>
-    <div class="media-slider mb-4" id="media-slider">
+    <div class="text-[10px] text-cosmos-dim mb-2 font-medium">送信先</div>
+    <div class="media-slider mb-3" id="media-slider">
       <div class="media-card selected" data-media="line" onclick="selectMedia('line')">
         <span class="media-icon">💬</span>
         <span class="media-name" style="color:#06C755">LINE</span>
@@ -1208,7 +1207,7 @@ function openReconnectSheet() {
       </div>
       <div class="media-card" data-media="x" onclick="selectMedia('x')">
         <span class="media-icon">𝕏</span>
-        <span class="media-name" style="color:#f0f0ff">X (DM)</span>
+        <span class="media-name" style="color:#f0f0ff">X</span>
       </div>
       <div class="media-card" data-media="sms" onclick="selectMedia('sms')">
         <span class="media-icon">📱</span>
@@ -1216,12 +1215,28 @@ function openReconnectSheet() {
       </div>
     </div>
 
-    <button onclick="executeReconnect('${d.person.id}')"
+    <div class="text-[10px] text-cosmos-dim mb-1.5 font-medium">メッセージ</div>
+    <div class="relative mb-3">
+      <textarea id="reconnect-msg" rows="4"
+        class="w-full bg-cosmos-bg/60 text-cosmos-star text-sm rounded-xl p-3 pr-10 resize-none outline-none border border-cosmos-dim/20 focus:border-cosmos-warm/50 transition leading-relaxed">${escapeHtml(dmText)}</textarea>
+      <button onclick="regenerateMsg()" title="メッセージを再生成"
+        class="absolute top-2 right-2 text-cosmos-dim hover:text-cosmos-warm transition text-sm">🔄</button>
+    </div>
+
+    <button onclick="executeReconnect('${d.person.id}')" id="btn-reconnect"
       class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-cosmos-bg text-sm font-bold py-3.5 rounded-xl transition shadow-lg shadow-amber-900/30 active:scale-[0.98]">
-      ☄️ リコネクトする
+      ☄️ <span id="media-label">LINE</span> でリコネクト
     </button>
+    <p class="text-[9px] text-cosmos-dim/50 text-center mt-2">デモ版: 実際の送信はMCP連携で実現予定</p>
   `;
   document.getElementById('reconnect-overlay').classList.add('open');
+}
+
+function regenerateMsg() {
+  if (!reconnectCurrent) return;
+  const newMsg = generateDMText(reconnectCurrent);
+  const el = document.getElementById('reconnect-msg');
+  if (el) el.value = newMsg;
 }
 
 function selectMedia(media) {
@@ -1229,6 +1244,8 @@ function selectMedia(media) {
   document.querySelectorAll('#media-slider .media-card').forEach(c => {
     c.classList.toggle('selected', c.dataset.media === media);
   });
+  const label = document.getElementById('media-label');
+  if (label) label.textContent = MEDIA_NAMES[media] || media;
 }
 
 function closeReconnectSheet(event) {
@@ -1239,32 +1256,20 @@ function closeReconnectSheet(event) {
 function executeReconnect(personId) {
   const d = reconnectCurrent;
   if (!d) return;
-  const dmText = document.getElementById('dm-preview').textContent;
-  const encoded = encodeURIComponent(dmText);
-  const subj = encodeURIComponent(`${d.person.name}さんへ`);
+  const msgEl = document.getElementById('reconnect-msg');
+  const msgText = msgEl ? msgEl.value.trim() : '';
+  if (!msgText) { if (msgEl) msgEl.focus(); return; }
 
-  // メディア別にリンクを開く
-  const urls = {
-    line: `https://line.me/R/oaMessage/?${encoded}`,
-    messenger: `https://www.messenger.com/new?text=${encoded}`,
-    email: `mailto:?subject=${subj}&body=${encoded}`,
-    x: `https://twitter.com/messages/compose?text=${encoded}`,
-    sms: `sms:?body=${encoded}`,
-  };
-  const url = urls[selectedMedia];
-  if (url) window.open(url, '_blank');
-
-  // エンカウンター自動記録
   const person = people.find(p => p.id === personId);
   if (!person) return;
 
-  const autoText = `${person.name}さんにリコネクト（${selectedMedia.toUpperCase()}）。${d.days}日ぶりの連絡。`;
+  // エンカウンター記録（送信メッセージ含む）
+  const recordText = `${person.name}さんに${MEDIA_NAMES[selectedMedia]}でリコネクト:「${msgText.substring(0,60)}${msgText.length>60?'...':''}」`;
   const tags = [...person.tags.slice(0, 2)];
-  for (const t of tags) { if (!person.tags.includes(t)) person.tags.push(t); }
 
   const enc = {
     id: uuid(),
-    text: autoText,
+    text: recordText,
     personIds: [personId],
     personNames: [person.name],
     tags,
@@ -1275,10 +1280,19 @@ function executeReconnect(personId) {
   saveData(STORAGE_KEY_PEOPLE, people);
   saveData(STORAGE_KEY_ENCOUNTERS, encounters);
 
-  closeReconnectSheet();
-  clearActiveComets();
-  renderUniverse();
-  startShootingStarCycle();
+  // 送信完了フィードバック
+  const btn = document.getElementById('btn-reconnect');
+  if (btn) {
+    btn.innerHTML = '✓ リコネクト記録しました';
+    btn.classList.remove('from-amber-500','to-orange-500');
+    btn.classList.add('from-emerald-500','to-teal-500');
+  }
+  setTimeout(() => {
+    closeReconnectSheet();
+    clearActiveComets();
+    renderUniverse();
+    startShootingStarCycle();
+  }, 800);
 }
 
 function startShootingStarCycle() {
