@@ -62,7 +62,7 @@ tailwind.config = {
 <body class="max-w-[42rem] mx-auto relative pb-20">
 
 <!-- ===== ホーム画面 ===== -->
-<div id="screen-home" class="screen active px-4 pt-6">
+<div id="screen-home" class="screen px-4 pt-6">
   <header class="text-center mb-6">
     <h1 class="text-3xl font-bold glow tracking-wider">ご縁</h1>
     <p class="text-cosmos-dim text-sm mt-1">出会いを星のように記録する</p>
@@ -93,7 +93,7 @@ tailwind.config = {
 </div>
 
 <!-- ===== ユニバース画面 ===== -->
-<div id="screen-universe" class="screen px-2 pt-4">
+<div id="screen-universe" class="screen active px-2 pt-4">
   <h2 class="text-center text-lg font-medium glow mb-2">ユニバース</h2>
   <div id="universe-container" class="relative w-full" style="height:calc(100vh - 120px);">
     <svg id="universe-svg"></svg>
@@ -111,10 +111,10 @@ tailwind.config = {
 <!-- ===== 底部ナビゲーション ===== -->
 <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[42rem] bg-cosmos-surface/80 backdrop-blur-md border-t border-cosmos-dim/30 z-40">
   <div class="flex justify-around py-3">
-    <button onclick="switchScreen('home')" data-nav="home" class="nav-btn flex flex-col items-center text-xs text-cosmos-accent">
+    <button onclick="switchScreen('home')" data-nav="home" class="nav-btn flex flex-col items-center text-xs text-cosmos-dim">
       <span class="text-lg mb-0.5">🏠</span>ホーム
     </button>
-    <button onclick="switchScreen('universe')" data-nav="universe" class="nav-btn flex flex-col items-center text-xs text-cosmos-dim">
+    <button onclick="switchScreen('universe')" data-nav="universe" class="nav-btn flex flex-col items-center text-xs text-cosmos-accent">
       <span class="text-lg mb-0.5">✨</span>ユニバース
     </button>
     <button onclick="switchScreen('people')" data-nav="people" class="nav-btn flex flex-col items-center text-xs text-cosmos-dim">
@@ -544,8 +544,10 @@ function switchScreen(name) {
 }
 
 // ===== デモデータ =====
+const DEMO_VERSION = 'v2_50people';
 function seedDemoData() {
-  if (people.length || encounters.length) return;
+  if (localStorage.getItem('goen_demo_version') === DEMO_VERSION && (people.length || encounters.length)) return;
+  localStorage.setItem('goen_demo_version', DEMO_VERSION);
 
   const now = Date.now();
   const day = 86400000;
@@ -677,7 +679,7 @@ function seedDemoData() {
 
 // ===== 初期化 =====
 seedDemoData();
-renderHome();
+renderUniverse();
 </script>
 </body>
 </html>
