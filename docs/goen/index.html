@@ -1690,7 +1690,39 @@ function generateDMText(d) {
 }
 
 let selectedMedia = 'line'; // デフォルト
-const MEDIA_NAMES = { line:'LINE', messenger:'Messenger', email:'メール', x:'X', sms:'SMS' };
+const MEDIA_NAMES = { line:'LINE', messenger:'Messenger', instagram:'Instagram', email:'メール', x:'X', sms:'SMS' };
+
+// URLスキーム / Web Intent 生成
+function buildSendURL(media, msgText, personName) {
+  const encoded = encodeURIComponent(msgText);
+  const subj = encodeURIComponent(`${personName}さんへ`);
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  switch (media) {
+    case 'line':
+      // LINE: URLスキーム(モバイル) or Web Share(デスクトップ)
+      if (isMobile) return `line://msg/text/${encoded}`;
+      return `https://line.me/R/share?text=${encoded}`;
+    case 'messenger':
+      // Messenger: ディープリンク(モバイル) or Web(デスクトップ)
+      if (isMobile) return `fb-messenger://share/?link=&quote=${encoded}`;
+      return `https://www.facebook.com/dialog/send?display=popup&link=https://goen.app&quote=${encoded}&app_id=0&redirect_uri=https://goen.app`;
+    case 'instagram':
+      // Instagram: アプリを開く（DMの直接プレフィルは不可）
+      if (isMobile) return `instagram://direct-inbox`;
+      return `https://www.instagram.com/direct/inbox/`;
+    case 'email':
+      return `mailto:?subject=${subj}&body=${encoded}`;
+    case 'x':
+      // X: DM画面を開く
+      if (isMobile) return `twitter://messages/compose?text=${encoded}`;
+      return `https://twitter.com/messages/compose`;
+    case 'sms':
+      return `sms:?body=${encoded}`;
+    default:
+      return null;
+  }
+}
 
 function openReconnectSheet() {
   if (!reconnectCurrent) return;
@@ -1725,6 +1757,10 @@ function openReconnectSheet() {
         <span class="media-icon">💭</span>
         <span class="media-name" style="color:#0084FF">Messenger</span>
       </div>
+      <div class="media-card" data-media="instagram" onclick="selectMedia('instagram')">
+        <span class="media-icon">📸</span>
+        <span class="media-name" style="color:#E1306C">Instagram</span>
+      </div>
       <div class="media-card" data-media="email" onclick="selectMedia('email')">
         <span class="media-icon">📧</span>
         <span class="media-name" style="color:#f0f0ff">メール</span>
@@ -1741,7 +1777,7 @@ function openReconnectSheet() {
 
     <div class="text-[10px] text-cosmos-dim mb-1.5 font-medium">メッセージ</div>
     <div class="relative mb-3">
-      <textarea id="reconnect-msg" rows="4"
+      <textarea id="reconnect-msg" rows="3"
         class="w-full bg-cosmos-bg/60 text-cosmos-star text-sm rounded-xl p-3 pr-10 resize-none outline-none border border-cosmos-dim/20 focus:border-cosmos-warm/50 transition leading-relaxed">${escapeHtml(dmText)}</textarea>
       <button onclick="regenerateMsg()" title="メッセージを再生成"
         class="absolute top-2 right-2 text-cosmos-dim hover:text-cosmos-warm transition text-sm">🔄</button>
@@ -1751,7 +1787,7 @@ function openReconnectSheet() {
       class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-cosmos-bg text-sm font-bold py-3.5 rounded-xl transition shadow-lg shadow-amber-900/30 active:scale-[0.98]">
       ☄️ <span id="media-label">LINE</span> でリコネクト
     </button>
-    <p class="text-[9px] text-cosmos-dim/50 text-center mt-2">デモ版: 実際の送信はMCP連携で実現予定</p>
+    <p class="text-[9px] text-cosmos-dim/50 text-center mt-2">アプリが起動しメッセージがコピーされます</p>
   `;
   document.getElementById('reconnect-overlay').classList.add('open');
 }
@@ -1789,6 +1825,15 @@ function executeReconnect(personId) {
   const person = people.find(p => p.id === personId);
   if (!person) return;
 
+  // メッセージをクリップボードにコピー
+  navigator.clipboard.writeText(msgText).catch(() => {});
+
+  // SNSアプリを起動（URLスキーム / Web Intent）
+  const sendURL = buildSendURL(selectedMedia, msgText, person.name);
+  if (sendURL) {
+    window.open(sendURL, '_blank');
+  }
+
   // リコネクト履歴に保存
   const rec = {
     id: uuid(),
@@ -1800,7 +1845,6 @@ function executeReconnect(personId) {
     createdAt: new Date().toISOString(),
   };
   reconnects.push(rec);
-  saveAllData();
 
   // エンカウンターにも記録
   const enc = {
@@ -1824,18 +1868,18 @@ function executeReconnect(personId) {
     btn.innerHTML = '';
     btn.classList.remove('from-amber-500','to-orange-500','hover:from-amber-400','hover:to-orange-400');
     btn.classList.add('from-emerald-500','to-teal-500');
-    btn.innerHTML = `<span class="inline-block animate-bounce">✓</span> ${person.name}さんに送信しました`;
+    btn.innerHTML = `<span class="inline-block animate-bounce">✓</span> ${MEDIA_NAMES[selectedMedia]}を起動しました`;
   }
-  // シート内を送信完了画面に
   setTimeout(() => {
     if (sheet) {
+      const copyNote = selectedMedia === 'instagram' ? 'メッセージはクリップボードにコピー済み。Instagram DMに貼り付けてください。' : 'メッセージはクリップボードにもコピー済みです。';
       sheet.innerHTML = `
         <div class="text-center py-6">
           <div class="text-4xl mb-3">☄️</div>
           <div class="text-lg font-bold text-cosmos-star mb-1">${person.name}さんにリコネクト！</div>
-          <div class="text-xs text-cosmos-dim mb-1">${MEDIA_NAMES[selectedMedia]}で送信完了</div>
+          <div class="text-xs text-cosmos-dim mb-1">${MEDIA_NAMES[selectedMedia]}を起動しました</div>
+          <div class="text-xs text-cosmos-star/50 mt-2 leading-relaxed max-w-[260px] mx-auto">${copyNote}</div>
           <div class="text-xs text-cosmos-warm/70 mt-3 leading-relaxed max-w-[250px] mx-auto">"${msgText.length > 50 ? msgText.substring(0,50) + '...' : msgText}"</div>
-          <div class="mt-5 text-[10px] text-cosmos-dim/40">MCP連携で実際に送信予定</div>
         </div>
       `;
     }
@@ -1844,7 +1888,7 @@ function executeReconnect(personId) {
       clearActiveComets();
       renderUniverse();
       startShootingStarCycle();
-    }, 1500);
+    }, 2000);
   }, 600);
 }
 
