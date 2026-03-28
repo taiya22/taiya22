@@ -194,6 +194,22 @@ tailwind.config = {
   <div id="people-empty" class="text-center text-cosmos-dim text-sm mt-12 hidden">まだ誰も記録されていません</div>
 </div>
 
+<!-- ===== リコネクト履歴画面 ===== -->
+<div id="screen-reconnect" class="screen px-4 pt-6 pb-24">
+  <h2 class="text-center text-lg font-medium glow mb-4">リコネクト</h2>
+  <!-- KPIカード -->
+  <div class="grid grid-cols-3 gap-2 mb-5" id="reconnect-kpi"></div>
+  <!-- 月別グラフ -->
+  <div class="bg-cosmos-surface rounded-xl p-4 mb-5">
+    <div class="text-xs text-cosmos-dim mb-3 font-medium">月別リコネクト数</div>
+    <div id="reconnect-chart" class="flex items-end gap-1 h-24"></div>
+  </div>
+  <!-- 履歴一覧 -->
+  <div class="text-xs text-cosmos-dim mb-2 font-medium">履歴</div>
+  <div id="reconnect-history-list" class="space-y-2"></div>
+  <div id="reconnect-history-empty" class="text-center text-cosmos-dim text-sm mt-8 hidden">まだリコネクトの記録がありません</div>
+</div>
+
 <!-- ===== 底部ナビゲーション ===== -->
 <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[42rem] bg-cosmos-surface/80 backdrop-blur-md border-t border-cosmos-dim/30 z-40">
   <div class="flex justify-around py-3">
@@ -202,6 +218,9 @@ tailwind.config = {
     </button>
     <button onclick="switchScreen('home')" data-nav="home" class="nav-btn flex flex-col items-center text-xs text-cosmos-dim">
       <span class="text-lg mb-0.5">🏠</span>記録
+    </button>
+    <button onclick="switchScreen('reconnect')" data-nav="reconnect" class="nav-btn flex flex-col items-center text-xs text-cosmos-dim">
+      <span class="text-lg mb-0.5">☄️</span>リコネクト
     </button>
     <button onclick="switchScreen('people')" data-nav="people" class="nav-btn flex flex-col items-center text-xs text-cosmos-dim">
       <span class="text-lg mb-0.5">👥</span>ご縁
@@ -810,10 +829,11 @@ function switchScreen(name) {
   else { stopShootingStarCycle(); }
   if (name === 'people') renderPeople();
   if (name === 'home') renderHome();
+  if (name === 'reconnect') renderReconnectHistory();
 }
 
 // ===== デモデータ =====
-const DEMO_VERSION = 'v8_quiet';
+const DEMO_VERSION = 'v9_warm';
 function seedDemoData() {
   if (localStorage.getItem('goen_demo_version') === DEMO_VERSION && (people.length || encounters.length)) return;
   localStorage.setItem('goen_demo_version', DEMO_VERSION);
@@ -822,128 +842,144 @@ function seedDemoData() {
   const day = 86400000;
 
   const demoPersons = [
-    { id:'p1',  name:'田中',   createdAt:new Date(now-90*day).toISOString(), tags:['起業','テクノロジー'] },
-    { id:'p2',  name:'鈴木',   createdAt:new Date(now-85*day).toISOString(), tags:['投資','キャリア'] },
-    { id:'p3',  name:'山田',   createdAt:new Date(now-80*day).toISOString(), tags:['クリエイティブ'] },
-    { id:'p4',  name:'佐藤',   createdAt:new Date(now-75*day).toISOString(), tags:['海外','学び'] },
-    { id:'p5',  name:'高橋',   createdAt:new Date(now-70*day).toISOString(), tags:['食事','イベント'] },
-    { id:'p6',  name:'伊藤',   createdAt:new Date(now-68*day).toISOString(), tags:['テクノロジー','起業'] },
-    { id:'p7',  name:'渡辺',   createdAt:new Date(now-65*day).toISOString(), tags:['キャリア'] },
-    { id:'p8',  name:'中村',   createdAt:new Date(now-60*day).toISOString(), tags:['投資','起業'] },
-    { id:'p9',  name:'小林',   createdAt:new Date(now-58*day).toISOString(), tags:['テクノロジー','学び'] },
-    { id:'p10', name:'加藤',   createdAt:new Date(now-55*day).toISOString(), tags:['海外'] },
-    { id:'p11', name:'吉田',   createdAt:new Date(now-52*day).toISOString(), tags:['クリエイティブ','テクノロジー'] },
-    { id:'p12', name:'松本',   createdAt:new Date(now-50*day).toISOString(), tags:['食事'] },
-    { id:'p13', name:'井上',   createdAt:new Date(now-48*day).toISOString(), tags:['キャリア','学び'] },
-    { id:'p14', name:'木村',   createdAt:new Date(now-45*day).toISOString(), tags:['イベント','起業'] },
-    { id:'p15', name:'林',     createdAt:new Date(now-43*day).toISOString(), tags:['投資'] },
-    { id:'p16', name:'清水',   createdAt:new Date(now-40*day).toISOString(), tags:['テクノロジー'] },
-    { id:'p17', name:'山口',   createdAt:new Date(now-38*day).toISOString(), tags:['海外','クリエイティブ'] },
-    { id:'p18', name:'阿部',   createdAt:new Date(now-36*day).toISOString(), tags:['キャリア'] },
-    { id:'p19', name:'池田',   createdAt:new Date(now-34*day).toISOString(), tags:['起業','投資'] },
-    { id:'p20', name:'橋本',   createdAt:new Date(now-32*day).toISOString(), tags:['食事','イベント'] },
-    { id:'p21', name:'石川',   createdAt:new Date(now-30*day).toISOString(), tags:['テクノロジー','学び'] },
-    { id:'p22', name:'前田',   createdAt:new Date(now-28*day).toISOString(), tags:['クリエイティブ'] },
-    { id:'p23', name:'藤田',   createdAt:new Date(now-26*day).toISOString(), tags:['海外'] },
-    { id:'p24', name:'後藤',   createdAt:new Date(now-24*day).toISOString(), tags:['キャリア','起業'] },
-    { id:'p25', name:'岡田',   createdAt:new Date(now-22*day).toISOString(), tags:['投資'] },
-    { id:'p26', name:'村上',   createdAt:new Date(now-20*day).toISOString(), tags:['テクノロジー','起業'] },
-    { id:'p27', name:'近藤',   createdAt:new Date(now-18*day).toISOString(), tags:['食事'] },
-    { id:'p28', name:'坂本',   createdAt:new Date(now-16*day).toISOString(), tags:['学び','海外'] },
-    { id:'p29', name:'遠藤',   createdAt:new Date(now-14*day).toISOString(), tags:['イベント'] },
-    { id:'p30', name:'青木',   createdAt:new Date(now-12*day).toISOString(), tags:['クリエイティブ','テクノロジー'] },
-    { id:'p31', name:'藤井',   createdAt:new Date(now-11*day).toISOString(), tags:['投資','学び'] },
-    { id:'p32', name:'西村',   createdAt:new Date(now-10*day).toISOString(), tags:['キャリア'] },
-    { id:'p33', name:'福田',   createdAt:new Date(now-9*day).toISOString(),  tags:['起業'] },
-    { id:'p34', name:'太田',   createdAt:new Date(now-8*day).toISOString(),  tags:['海外','テクノロジー'] },
-    { id:'p35', name:'三浦',   createdAt:new Date(now-7*day).toISOString(),  tags:['食事','イベント'] },
-    { id:'p36', name:'岡本',   createdAt:new Date(now-6*day).toISOString(),  tags:['クリエイティブ'] },
-    { id:'p37', name:'中島',   createdAt:new Date(now-5*day).toISOString(),  tags:['投資','起業'] },
-    { id:'p38', name:'原田',   createdAt:new Date(now-5*day).toISOString(),  tags:['学び'] },
-    { id:'p39', name:'松田',   createdAt:new Date(now-4*day).toISOString(),  tags:['テクノロジー'] },
-    { id:'p40', name:'竹内',   createdAt:new Date(now-4*day).toISOString(),  tags:['キャリア','海外'] },
-    { id:'p41', name:'金子',   createdAt:new Date(now-3*day).toISOString(),  tags:['イベント'] },
-    { id:'p42', name:'和田',   createdAt:new Date(now-3*day).toISOString(),  tags:['起業','テクノロジー'] },
-    { id:'p43', name:'石田',   createdAt:new Date(now-2*day).toISOString(),  tags:['食事'] },
-    { id:'p44', name:'上田',   createdAt:new Date(now-2*day).toISOString(),  tags:['クリエイティブ','学び'] },
-    { id:'p45', name:'森田',   createdAt:new Date(now-1*day).toISOString(),  tags:['投資'] },
-    { id:'p46', name:'内田',   createdAt:new Date(now-1*day).toISOString(),  tags:['海外','キャリア'] },
-    { id:'p47', name:'柴田',   createdAt:new Date(now-1*day).toISOString(),  tags:['テクノロジー','起業'] },
-    { id:'p48', name:'原',     createdAt:new Date(now-0*day).toISOString(),  tags:['イベント','食事'] },
-    { id:'p49', name:'宮崎',   createdAt:new Date(now-0*day).toISOString(),  tags:['学び','テクノロジー'] },
-    { id:'p50', name:'酒井',   createdAt:new Date(now-0*day).toISOString(),  tags:['クリエイティブ','投資'] },
+    { id:'p1',  name:'田中',   createdAt:new Date(now-90*day).toISOString(), tags:['起業','テクノロジー'], context:'大学の同期。SaaSスタートアップのCEO。麻布十番でよく飲む仲' },
+    { id:'p2',  name:'鈴木',   createdAt:new Date(now-85*day).toISOString(), tags:['投資','キャリア'], context:'元同僚のVCパートナー。ファンド立ち上げたばかり' },
+    { id:'p3',  name:'山田',   createdAt:new Date(now-80*day).toISOString(), tags:['クリエイティブ'], context:'フリーランスのUIデザイナー。渋谷のコワーキングで出会った' },
+    { id:'p4',  name:'佐藤',   createdAt:new Date(now-75*day).toISOString(), tags:['海外','学び'], context:'シンガポール在住の商社マン。年1回帰国時に必ず会う' },
+    { id:'p5',  name:'高橋',   createdAt:new Date(now-70*day).toISOString(), tags:['食事','イベント'], context:'地元の先輩。イベント企画が得意で顔が広い' },
+    { id:'p6',  name:'伊藤',   createdAt:new Date(now-68*day).toISOString(), tags:['テクノロジー','起業'], context:'AIエンジニア。田中と共同でプロダクト開発中' },
+    { id:'p7',  name:'渡辺',   createdAt:new Date(now-65*day).toISOString(), tags:['キャリア'], context:'人事コンサルタント。キャリアの悩みをいつも聞いてくれる' },
+    { id:'p8',  name:'中村',   createdAt:new Date(now-60*day).toISOString(), tags:['投資','起業'], context:'連続起業家。3社目をExitしたばかり' },
+    { id:'p9',  name:'小林',   createdAt:new Date(now-58*day).toISOString(), tags:['テクノロジー','学び'], context:'大学の後輩。機械学習の研究者で論文をよく共有してくれる' },
+    { id:'p10', name:'加藤',   createdAt:new Date(now-55*day).toISOString(), tags:['海外'], context:'海外MBA仲間。ロンドンと東京を行き来してる' },
+    { id:'p11', name:'吉田',   createdAt:new Date(now-52*day).toISOString(), tags:['クリエイティブ','テクノロジー'], context:'3Dアーティスト。NFTアート界隈で活躍中' },
+    { id:'p12', name:'松本',   createdAt:new Date(now-50*day).toISOString(), tags:['食事'], context:'高校の同級生。今は恵比寿でビストロを経営' },
+    { id:'p13', name:'井上',   createdAt:new Date(now-48*day).toISOString(), tags:['キャリア','学び'], context:'ビジネススクール時代の恩師。組織論が専門' },
+    { id:'p14', name:'木村',   createdAt:new Date(now-45*day).toISOString(), tags:['イベント','起業'], context:'スタートアップコミュニティの運営者。月1でピッチイベント主催' },
+    { id:'p15', name:'林',     createdAt:new Date(now-43*day).toISOString(), tags:['投資'], context:'独立系ファンドのアナリスト。数字に強くて冷静な判断をくれる' },
+    { id:'p16', name:'清水',   createdAt:new Date(now-40*day).toISOString(), tags:['テクノロジー'], context:'ブロックチェーンエンジニア。Web3への情熱がすごい' },
+    { id:'p17', name:'山口',   createdAt:new Date(now-38*day).toISOString(), tags:['海外','クリエイティブ'], context:'パリ在住のフォトグラファー。展示会で意気投合した' },
+    { id:'p18', name:'阿部',   createdAt:new Date(now-36*day).toISOString(), tags:['キャリア'], context:'大手メーカーの部長。マネジメントの相談相手' },
+    { id:'p19', name:'池田',   createdAt:new Date(now-34*day).toISOString(), tags:['起業','投資'], context:'エンジェル投資家。自身も2社経営。温かい人柄' },
+    { id:'p20', name:'橋本',   createdAt:new Date(now-32*day).toISOString(), tags:['食事','イベント'], context:'BBQ・アウトドアの達人。集まりの幹事をよくやってくれる' },
+    { id:'p21', name:'石川',   createdAt:new Date(now-30*day).toISOString(), tags:['テクノロジー','学び'], context:'CTOとして活躍中。勉強会を定期開催している' },
+    { id:'p22', name:'前田',   createdAt:new Date(now-28*day).toISOString(), tags:['クリエイティブ'], context:'現代アーティスト。個展を年2回開催。感性が鋭い' },
+    { id:'p23', name:'藤田',   createdAt:new Date(now-26*day).toISOString(), tags:['海外'], context:'外資コンサルから独立。アジア市場に詳しい' },
+    { id:'p24', name:'後藤',   createdAt:new Date(now-24*day).toISOString(), tags:['キャリア','起業'], context:'最近独立したばかりの元同僚。意志が強い' },
+    { id:'p25', name:'岡田',   createdAt:new Date(now-22*day).toISOString(), tags:['投資'], context:'不動産投資家。堅実な資産運用の先生' },
+    { id:'p26', name:'村上',   createdAt:new Date(now-20*day).toISOString(), tags:['テクノロジー','起業'], context:'ハッカソン常連。プロトタイピングの天才' },
+    { id:'p27', name:'近藤',   createdAt:new Date(now-18*day).toISOString(), tags:['食事'], context:'ワインソムリエ。食の話になると止まらない' },
+    { id:'p28', name:'坂本',   createdAt:new Date(now-16*day).toISOString(), tags:['学び','海外'], context:'元JICAでアフリカ駐在経験あり。教育系NPOを立ち上げ中' },
+    { id:'p29', name:'遠藤',   createdAt:new Date(now-14*day).toISOString(), tags:['イベント'], context:'コミュニティマネージャー。人を繋げる才能がある' },
+    { id:'p30', name:'青木',   createdAt:new Date(now-12*day).toISOString(), tags:['クリエイティブ','テクノロジー'], context:'ジェネレーティブアートの作家。テクノロジーとアートの境界を探求' },
+    { id:'p31', name:'藤井',   createdAt:new Date(now-11*day).toISOString(), tags:['投資','学び'], context:'読書家。投資哲学が深く、本の交換をよくする' },
+    { id:'p32', name:'西村',   createdAt:new Date(now-10*day).toISOString(), tags:['キャリア'], context:'転職エージェント出身。今はスタートアップのHR' },
+    { id:'p33', name:'福田',   createdAt:new Date(now-9*day).toISOString(),  tags:['起業'], context:'D2Cブランドを創業。プロダクト愛がすごい' },
+    { id:'p34', name:'太田',   createdAt:new Date(now-8*day).toISOString(),  tags:['海外','テクノロジー'], context:'シリコンバレー帰り。海外テックトレンドに詳しい' },
+    { id:'p35', name:'三浦',   createdAt:new Date(now-7*day).toISOString(),  tags:['食事','イベント'], context:'料理研究家。ポップアップレストランを不定期開催' },
+    { id:'p36', name:'岡本',   createdAt:new Date(now-6*day).toISOString(),  tags:['クリエイティブ'], context:'写真家。ドキュメンタリー制作にも関わっている' },
+    { id:'p37', name:'中島',   createdAt:new Date(now-5*day).toISOString(),  tags:['投資','起業'], context:'クロスボーダーM&Aの専門家。静かだけど的確な人' },
+    { id:'p38', name:'原田',   createdAt:new Date(now-5*day).toISOString(),  tags:['学び'], context:'教育スタートアップ創業者。子供の未来を真剣に考えてる' },
+    { id:'p39', name:'松田',   createdAt:new Date(now-4*day).toISOString(),  tags:['テクノロジー'], context:'フルスタックエンジニア。ペアプロ仲間' },
+    { id:'p40', name:'竹内',   createdAt:new Date(now-4*day).toISOString(),  tags:['キャリア','海外'], context:'外資系の人事。グローバル採用に詳しい' },
+    { id:'p41', name:'金子',   createdAt:new Date(now-3*day).toISOString(),  tags:['イベント'], context:'PR会社経営。メディアとの繋がりが強い' },
+    { id:'p42', name:'和田',   createdAt:new Date(now-3*day).toISOString(),  tags:['起業','テクノロジー'], context:'AIスタートアップの共同創業者。ビジョナリー' },
+    { id:'p43', name:'石田',   createdAt:new Date(now-2*day).toISOString(),  tags:['食事'], context:'大学のゼミ仲間。今は日本橋で和食の店をやってる' },
+    { id:'p44', name:'上田',   createdAt:new Date(now-2*day).toISOString(),  tags:['クリエイティブ','学び'], context:'グラフィックデザイナー兼大学講師。丁寧な人' },
+    { id:'p45', name:'森田',   createdAt:new Date(now-1*day).toISOString(),  tags:['投資'], context:'ファミリーオフィス勤務。長期投資の考え方が参考になる' },
+    { id:'p46', name:'内田',   createdAt:new Date(now-1*day).toISOString(),  tags:['海外','キャリア'], context:'シンガポール赴任が決まった商社の友人' },
+    { id:'p47', name:'柴田',   createdAt:new Date(now-1*day).toISOString(),  tags:['テクノロジー','起業'], context:'元Googleのエンジニア。起業準備中' },
+    { id:'p48', name:'原',     createdAt:new Date(now-0*day).toISOString(),  tags:['イベント','食事'], context:'カンファレンス運営のプロ。ホスピタリティの塊' },
+    { id:'p49', name:'宮崎',   createdAt:new Date(now-0*day).toISOString(),  tags:['学び','テクノロジー'], context:'データサイエンティスト。好奇心の塊で話が尽きない' },
+    { id:'p50', name:'酒井',   createdAt:new Date(now-0*day).toISOString(),  tags:['クリエイティブ','投資'], context:'アートディレクター兼投資家。美意識が高い' },
   ];
 
   const demoEncounters = [
     // 最近 (1-7日前)
-    { id:'e1',  text:'田中さんとスタートアップの資金調達について熱く語った。すごい刺激を受けた！', personIds:['p1'], personNames:['田中'], tags:['起業'], mood:'inspired', createdAt:new Date(now-1*day).toISOString() },
-    { id:'e2',  text:'鈴木さんと森田さんに新しいファンドの話を聞いた。感謝しかない。', personIds:['p2','p45'], personNames:['鈴木','森田'], tags:['投資'], mood:'grateful', createdAt:new Date(now-1*day).toISOString() },
-    { id:'e3',  text:'山田さんと上田さんとデザインスプリント。楽しい時間だった。', personIds:['p3','p44'], personNames:['山田','上田'], tags:['クリエイティブ'], mood:'warm', createdAt:new Date(now-2*day).toISOString() },
-    { id:'e4',  text:'柴田さんと和田さんとAIエージェントの未来について議論。考えさせられた。', personIds:['p47','p42'], personNames:['柴田','和田'], tags:['テクノロジー','起業'], mood:'thoughtful', createdAt:new Date(now-2*day).toISOString() },
-    { id:'e5',  text:'原さんと宮崎さんと酒井さんとカンファレンス参加。元気をもらった！', personIds:['p48','p49','p50'], personNames:['原','宮崎','酒井'], tags:['イベント','学び'], mood:'energized', createdAt:new Date(now-0*day).toISOString() },
-    { id:'e6',  text:'石田さんと近くの新しいレストランでランチ。楽しかった。', personIds:['p43'], personNames:['石田'], tags:['食事'], mood:'warm', createdAt:new Date(now-2*day).toISOString() },
-    { id:'e7',  text:'内田さんのシンガポール赴任の話を聞いた。グローバルな視点で刺激的。', personIds:['p46'], personNames:['内田'], tags:['海外','キャリア'], mood:'inspired', createdAt:new Date(now-1*day).toISOString() },
-    { id:'e8',  text:'松田さんとプログラミングのペアプロ。とても勉強になった。', personIds:['p39'], personNames:['松田'], tags:['テクノロジー','学び'], mood:'grateful', createdAt:new Date(now-3*day).toISOString() },
-    { id:'e9',  text:'金子さんと竹内さんと交流会企画の打ち合わせ。盛り上がった！', personIds:['p41','p40'], personNames:['金子','竹内'], tags:['イベント','キャリア'], mood:'energized', createdAt:new Date(now-3*day).toISOString() },
-    { id:'e10', text:'中島さんから投資先の紹介を受けた。ありがたい。', personIds:['p37'], personNames:['中島'], tags:['投資','起業'], mood:'grateful', createdAt:new Date(now-4*day).toISOString() },
+    { id:'e1',  text:'田中さんと麻布十番で夜遅くまで。シリーズAの話が熱くて終電逃した笑。あの情熱はやっぱりすごい。', personIds:['p1'], personNames:['田中'], tags:['起業'], mood:'inspired', createdAt:new Date(now-1*day).toISOString() },
+    { id:'e2',  text:'鈴木さんと森田さんとファンドの話。鈴木さんの市場の読みが鋭すぎる。森田さんの長期視点も勉強になった。二人を繋げられてよかった。', personIds:['p2','p45'], personNames:['鈴木','森田'], tags:['投資'], mood:'grateful', createdAt:new Date(now-1*day).toISOString() },
+    { id:'e3',  text:'山田さんと上田さんとデザインスプリント。山田さんのUIの美意識と上田さんの構造的な思考が化学反応してた。最高のセッション。', personIds:['p3','p44'], personNames:['山田','上田'], tags:['クリエイティブ'], mood:'warm', createdAt:new Date(now-2*day).toISOString() },
+    { id:'e4',  text:'柴田さんと和田さんとAIエージェントの未来について3時間。元Googleの柴田さんの知見と和田さんのビジョンが合わさると本当に面白い。', personIds:['p47','p42'], personNames:['柴田','和田'], tags:['テクノロジー','起業'], mood:'thoughtful', createdAt:new Date(now-2*day).toISOString() },
+    { id:'e5',  text:'原さんが仕切るカンファレンスに宮崎さん・酒井さんと参加。原さんのホスピタリティに感動。宮崎さんのデータの話と酒井さんの美意識の掛け算が新鮮だった。', personIds:['p48','p49','p50'], personNames:['原','宮崎','酒井'], tags:['イベント','学び'], mood:'energized', createdAt:new Date(now-0*day).toISOString() },
+    { id:'e6',  text:'石田さんの日本橋のお店で板前おまかせ。仕事を忘れて旬の話で盛り上がった。あの鯛の昆布締めは忘れられない。', personIds:['p43'], personNames:['石田'], tags:['食事'], mood:'warm', createdAt:new Date(now-2*day).toISOString() },
+    { id:'e7',  text:'内田さんのシンガポール赴任壮行会。寂しいけど、向こうでも絶対活躍する人。「来たら案内するよ」って言ってくれた。', personIds:['p46'], personNames:['内田'], tags:['海外','キャリア'], mood:'inspired', createdAt:new Date(now-1*day).toISOString() },
+    { id:'e8',  text:'松田さんとペアプロ。彼のコードの美しさにいつも驚く。「動けばいいじゃなくて、読む人への手紙だと思って書く」って言葉が刺さった。', personIds:['p39'], personNames:['松田'], tags:['テクノロジー','学び'], mood:'grateful', createdAt:new Date(now-3*day).toISOString() },
+    { id:'e9',  text:'金子さんと竹内さんと次の交流会の企画会議。金子さんのメディア人脈と竹内さんのグローバル視点で、面白い会になりそう。', personIds:['p41','p40'], personNames:['金子','竹内'], tags:['イベント','キャリア'], mood:'energized', createdAt:new Date(now-3*day).toISOString() },
+    { id:'e10', text:'中島さんとコーヒー1杯だけの予定が2時間。静かに話す人だけど、M&Aの裏側の話はやっぱりすごく深い。紹介してくれた案件も気になる。', personIds:['p37'], personNames:['中島'], tags:['投資','起業'], mood:'grateful', createdAt:new Date(now-4*day).toISOString() },
 
     // やや最近 (7-20日前)
-    { id:'e11', text:'岡本さんと写真展に行った。クリエイティブな感性が刺激的だった。', personIds:['p36'], personNames:['岡本'], tags:['クリエイティブ'], mood:'inspired', createdAt:new Date(now-6*day).toISOString() },
-    { id:'e12', text:'三浦さんと原田さんとランチ会。和やかで温かい時間。', personIds:['p35','p38'], personNames:['三浦','原田'], tags:['食事','学び'], mood:'warm', createdAt:new Date(now-7*day).toISOString() },
-    { id:'e13', text:'太田さんと海外のテックカンファレンスの話。すごく面白かった。', personIds:['p34'], personNames:['太田'], tags:['海外','テクノロジー'], mood:'inspired', createdAt:new Date(now-8*day).toISOString() },
-    { id:'e14', text:'福田さんの新規事業アイデアを聞いた。やる気が出る！', personIds:['p33'], personNames:['福田'], tags:['起業'], mood:'energized', createdAt:new Date(now-9*day).toISOString() },
-    { id:'e15', text:'西村さんの転職相談に乗った。深い話ができた。', personIds:['p32'], personNames:['西村'], tags:['キャリア'], mood:'thoughtful', createdAt:new Date(now-10*day).toISOString() },
-    { id:'e16', text:'藤井さんと読書会に参加。投資の本質について考えさせられた。', personIds:['p31'], personNames:['藤井'], tags:['投資','学び'], mood:'thoughtful', createdAt:new Date(now-11*day).toISOString() },
-    { id:'e17', text:'青木さんと伊藤さんとAIアートの可能性について語った。楽しい！', personIds:['p30','p6'], personNames:['青木','伊藤'], tags:['クリエイティブ','テクノロジー'], mood:'warm', createdAt:new Date(now-12*day).toISOString() },
-    { id:'e18', text:'遠藤さんの主催イベントに参加。元気をもらった。', personIds:['p29'], personNames:['遠藤'], tags:['イベント'], mood:'energized', createdAt:new Date(now-14*day).toISOString() },
-    { id:'e19', text:'坂本さんの留学体験を聞いた。海外での学びが深い。', personIds:['p28'], personNames:['坂本'], tags:['学び','海外'], mood:'thoughtful', createdAt:new Date(now-16*day).toISOString() },
-    { id:'e20', text:'近藤さんと新しい焼肉店を開拓。最高だった！', personIds:['p27'], personNames:['近藤'], tags:['食事'], mood:'warm', createdAt:new Date(now-18*day).toISOString() },
+    { id:'e11', text:'岡本さんのドキュメンタリー上映会。彼のレンズを通すと日常が全く違って見える。帰り道、自分も何かを残したいと思った。', personIds:['p36'], personNames:['岡本'], tags:['クリエイティブ'], mood:'inspired', createdAt:new Date(now-6*day).toISOString() },
+    { id:'e12', text:'三浦さんのポップアップに原田さんと。三浦さんの料理への愛と原田さんの教育への想いが不思議と共鳴してて、温かい空間だった。', personIds:['p35','p38'], personNames:['三浦','原田'], tags:['食事','学び'], mood:'warm', createdAt:new Date(now-7*day).toISOString() },
+    { id:'e13', text:'太田さんからシリコンバレーの最新事情を聞く。あっちではもうAIエージェントが当たり前になりつつあるらしい。日本も急がないと。', personIds:['p34'], personNames:['太田'], tags:['海外','テクノロジー'], mood:'inspired', createdAt:new Date(now-8*day).toISOString() },
+    { id:'e14', text:'福田さんのD2Cブランドの新商品を見せてもらった。パッケージへのこだわりが半端ない。「妥協したらお客さんに伝わる」って言葉が良かった。', personIds:['p33'], personNames:['福田'], tags:['起業'], mood:'energized', createdAt:new Date(now-9*day).toISOString() },
+    { id:'e15', text:'西村さんとカフェで2時間。転職を考えてる後輩の相談に乗ってくれた。人のキャリアに向き合う西村さんの姿勢にいつも学ぶ。', personIds:['p32'], personNames:['西村'], tags:['キャリア'], mood:'thoughtful', createdAt:new Date(now-10*day).toISOString() },
+    { id:'e16', text:'藤井さんと本の交換会。彼が薦めてくれた「投資で一番大切な20の教え」が刺さりまくってる。感謝。', personIds:['p31'], personNames:['藤井'], tags:['投資','学び'], mood:'thoughtful', createdAt:new Date(now-11*day).toISOString() },
+    { id:'e17', text:'青木さんのジェネレーティブアートの新作を伊藤さんと見に行った。テクノロジーとアートの境界が溶けていく瞬間を目撃した感じ。', personIds:['p30','p6'], personNames:['青木','伊藤'], tags:['クリエイティブ','テクノロジー'], mood:'warm', createdAt:new Date(now-12*day).toISOString() },
+    { id:'e18', text:'遠藤さんが繋いでくれた人たちとの交流会。遠藤さんの「人と人を繋げる」才能は本物。参加者全員が笑顔だった。', personIds:['p29'], personNames:['遠藤'], tags:['イベント'], mood:'energized', createdAt:new Date(now-14*day).toISOString() },
+    { id:'e19', text:'坂本さんとアフリカでの教育支援の話。現地の子どもたちの写真を見ながら、自分には何ができるか考えさせられた。', personIds:['p28'], personNames:['坂本'], tags:['学び','海外'], mood:'thoughtful', createdAt:new Date(now-16*day).toISOString() },
+    { id:'e20', text:'近藤さんと新しいナチュラルワインのお店へ。ソムリエの彼が選ぶペアリングは毎回発見がある。「ワインは会話の潤滑油」って名言出た。', personIds:['p27'], personNames:['近藤'], tags:['食事'], mood:'warm', createdAt:new Date(now-18*day).toISOString() },
 
     // 少し前 (20-40日前)
-    { id:'e21', text:'村上さんと田中さんとスタートアップのピッチ練習。刺激的な時間。', personIds:['p26','p1'], personNames:['村上','田中'], tags:['起業','テクノロジー'], mood:'inspired', createdAt:new Date(now-20*day).toISOString() },
-    { id:'e22', text:'岡田さんに資産運用の相談。ありがたいアドバイスをもらった。', personIds:['p25'], personNames:['岡田'], tags:['投資'], mood:'grateful', createdAt:new Date(now-22*day).toISOString() },
-    { id:'e23', text:'後藤さんの独立の話を聞いた。すごいやる気だ。', personIds:['p24'], personNames:['後藤'], tags:['キャリア','起業'], mood:'energized', createdAt:new Date(now-24*day).toISOString() },
-    { id:'e24', text:'藤田さんとオンラインで海外の市場について情報交換。', personIds:['p23'], personNames:['藤田'], tags:['海外'], mood:'neutral', createdAt:new Date(now-26*day).toISOString() },
-    { id:'e25', text:'前田さんの個展に行った。感動した。', personIds:['p22'], personNames:['前田'], tags:['クリエイティブ'], mood:'inspired', createdAt:new Date(now-28*day).toISOString() },
-    { id:'e26', text:'石川さんと宮崎さんとテクノロジー勉強会。学びが多い。', personIds:['p21','p49'], personNames:['石川','宮崎'], tags:['テクノロジー','学び'], mood:'grateful', createdAt:new Date(now-30*day).toISOString() },
-    { id:'e27', text:'橋本さんの主催するBBQに参加。楽しすぎた！', personIds:['p20'], personNames:['橋本'], tags:['食事','イベント'], mood:'warm', createdAt:new Date(now-32*day).toISOString() },
-    { id:'e28', text:'池田さんと中村さんとエンジェル投資について深い話。', personIds:['p19','p8'], personNames:['池田','中村'], tags:['投資','起業'], mood:'thoughtful', createdAt:new Date(now-34*day).toISOString() },
-    { id:'e29', text:'阿部さんのマネジメント論に感銘。温かい人だ。', personIds:['p18'], personNames:['阿部'], tags:['キャリア'], mood:'warm', createdAt:new Date(now-36*day).toISOString() },
-    { id:'e30', text:'山口さんとパリでの展示会の話。クリエイティブで刺激的。', personIds:['p17'], personNames:['山口'], tags:['海外','クリエイティブ'], mood:'inspired', createdAt:new Date(now-38*day).toISOString() },
+    { id:'e21', text:'村上さんと田中さんとピッチ練習。村上さんがホワイトボードに描いたプロトタイプを見て田中さんが「これだ！」って。二人の掛け算が楽しい。', personIds:['p26','p1'], personNames:['村上','田中'], tags:['起業','テクノロジー'], mood:'inspired', createdAt:new Date(now-20*day).toISOString() },
+    { id:'e22', text:'岡田さんに不動産の相談。数字を丁寧に説明してくれて、焦らず長期で考えろと。岡田さんの堅実さにいつも救われる。', personIds:['p25'], personNames:['岡田'], tags:['投資'], mood:'grateful', createdAt:new Date(now-22*day).toISOString() },
+    { id:'e23', text:'後藤さんから独立の報告。「怖いけどワクワクしてる」って顔がキラキラしてた。退路を断つ覚悟にこっちが元気もらった。', personIds:['p24'], personNames:['後藤'], tags:['キャリア','起業'], mood:'energized', createdAt:new Date(now-24*day).toISOString() },
+    { id:'e24', text:'藤田さんとZoomで東南アジア市場の情報交換。現地のリアルな話は本やレポートでは分からないことばかり。', personIds:['p23'], personNames:['藤田'], tags:['海外'], mood:'neutral', createdAt:new Date(now-26*day).toISOString() },
+    { id:'e25', text:'前田さんの個展「静寂の色彩」。言葉にならない感動。隣で見てた知らない人と思わず目を合わせて頷いてしまった。', personIds:['p22'], personNames:['前田'], tags:['クリエイティブ'], mood:'inspired', createdAt:new Date(now-28*day).toISOString() },
+    { id:'e26', text:'石川さん主催の勉強会に宮崎さんと。石川さんのCTO視点と宮崎さんのデータサイエンス視点の両方から学べる贅沢な時間。', personIds:['p21','p49'], personNames:['石川','宮崎'], tags:['テクノロジー','学び'], mood:'grateful', createdAt:new Date(now-30*day).toISOString() },
+    { id:'e27', text:'橋本さんの河原BBQ。準備から片付けまで完璧に仕切ってくれて、みんな手ぶらで楽しめた。橋本さんの幹事力は本当にすごい。', personIds:['p20'], personNames:['橋本'], tags:['食事','イベント'], mood:'warm', createdAt:new Date(now-32*day).toISOString() },
+    { id:'e28', text:'池田さんと中村さんとエンジェル投資の話。3社Exitした中村さんの経験と池田さんの目利き。この二人の前で下手なこと言えない笑', personIds:['p19','p8'], personNames:['池田','中村'], tags:['投資','起業'], mood:'thoughtful', createdAt:new Date(now-34*day).toISOString() },
+    { id:'e29', text:'阿部さんとゆっくりランチ。部下育成の悩みを聞いてもらった。「人は正論じゃなくて物語で動く」って言葉がずっと頭に残ってる。', personIds:['p18'], personNames:['阿部'], tags:['キャリア'], mood:'warm', createdAt:new Date(now-36*day).toISOString() },
+    { id:'e30', text:'山口さんがパリから一時帰国。展示会の写真を見ながらワインを飲んだ。彼の目に映る世界はいつも美しい。', personIds:['p17'], personNames:['山口'], tags:['海外','クリエイティブ'], mood:'inspired', createdAt:new Date(now-38*day).toISOString() },
 
     // だいぶ前 (40-60日前)
-    { id:'e31', text:'清水さんとブロックチェーンの勉強会。考えさせられる内容。', personIds:['p16'], personNames:['清水'], tags:['テクノロジー'], mood:'thoughtful', createdAt:new Date(now-40*day).toISOString() },
-    { id:'e32', text:'林さんと鈴木さんと投資戦略ミーティング。感謝。', personIds:['p15','p2'], personNames:['林','鈴木'], tags:['投資'], mood:'grateful', createdAt:new Date(now-43*day).toISOString() },
-    { id:'e33', text:'木村さんのスタートアップイベントに登壇。やる気が出た！', personIds:['p14'], personNames:['木村'], tags:['イベント','起業'], mood:'energized', createdAt:new Date(now-45*day).toISOString() },
-    { id:'e34', text:'井上さんと長いキャリア相談。深い気づきがあった。', personIds:['p13'], personNames:['井上'], tags:['キャリア','学び'], mood:'thoughtful', createdAt:new Date(now-48*day).toISOString() },
-    { id:'e35', text:'松本さんと高橋さんとディナー。笑いが絶えなかった。', personIds:['p12','p5'], personNames:['松本','高橋'], tags:['食事'], mood:'warm', createdAt:new Date(now-50*day).toISOString() },
-    { id:'e36', text:'吉田さんと3Dプリンティングの未来について語り合った。刺激的！', personIds:['p11'], personNames:['吉田'], tags:['クリエイティブ','テクノロジー'], mood:'inspired', createdAt:new Date(now-52*day).toISOString() },
-    { id:'e37', text:'加藤さんの海外出張土産話。面白かった。', personIds:['p10'], personNames:['加藤'], tags:['海外'], mood:'warm', createdAt:new Date(now-55*day).toISOString() },
-    { id:'e38', text:'小林さんと機械学習の論文読み会。勉強になった。', personIds:['p9'], personNames:['小林'], tags:['テクノロジー','学び'], mood:'grateful', createdAt:new Date(now-58*day).toISOString() },
-    { id:'e39', text:'中村さんの新事業の進捗を聞いた。すごい勢い。', personIds:['p8'], personNames:['中村'], tags:['起業'], mood:'energized', createdAt:new Date(now-60*day).toISOString() },
+    { id:'e31', text:'清水さんとWeb3の勉強会。「分散化は技術じゃなくて思想だ」って話が面白くて、終わった後も駅まで議論が止まらなかった。', personIds:['p16'], personNames:['清水'], tags:['テクノロジー'], mood:'thoughtful', createdAt:new Date(now-40*day).toISOString() },
+    { id:'e32', text:'林さんと鈴木さんとポートフォリオの見直し。林さんの冷静な分析と鈴木さんの直感的な判断、どっちも大事だなと改めて思った。', personIds:['p15','p2'], personNames:['林','鈴木'], tags:['投資'], mood:'grateful', createdAt:new Date(now-43*day).toISOString() },
+    { id:'e33', text:'木村さんのピッチイベントに登壇させてもらった。木村さんの「失敗こそ共有しよう」というコンセプトが好き。会場の空気が温かかった。', personIds:['p14'], personNames:['木村'], tags:['イベント','起業'], mood:'energized', createdAt:new Date(now-45*day).toISOString() },
+    { id:'e34', text:'井上先生とじっくり2時間。組織の話から人生の話に。「リーダーは答えを出す人じゃなく問いを立てる人」という言葉を噛みしめてる。', personIds:['p13'], personNames:['井上'], tags:['キャリア','学び'], mood:'thoughtful', createdAt:new Date(now-48*day).toISOString() },
+    { id:'e35', text:'松本さんのビストロで高橋さんと3人ディナー。松本さんの手料理と高橋さんの笑い話で、仕事のストレスが全部飛んだ。こういう時間が宝物。', personIds:['p12','p5'], personNames:['松本','高橋'], tags:['食事'], mood:'warm', createdAt:new Date(now-50*day).toISOString() },
+    { id:'e36', text:'吉田さんのアトリエ訪問。3Dプリンタから生まれる造形が信じられないくらい美しい。テクノロジーがアートになる瞬間を見た。', personIds:['p11'], personNames:['吉田'], tags:['クリエイティブ','テクノロジー'], mood:'inspired', createdAt:new Date(now-52*day).toISOString() },
+    { id:'e37', text:'加藤さんがロンドンから帰国中にランチ。ヨーロッパのスタートアップ事情を聞きながら、世界は広いと実感。お土産のチョコも嬉しかった。', personIds:['p10'], personNames:['加藤'], tags:['海外'], mood:'warm', createdAt:new Date(now-55*day).toISOString() },
+    { id:'e38', text:'小林さんと最新の論文読み会。難しい内容を噛み砕いて説明してくれる小林さんの優しさにいつも助けられてる。', personIds:['p9'], personNames:['小林'], tags:['テクノロジー','学び'], mood:'grateful', createdAt:new Date(now-58*day).toISOString() },
+    { id:'e39', text:'中村さんの3社目の進捗報告会。「今度こそ世界を変える」って笑いながら言う中村さんの目は本気だった。応援したい。', personIds:['p8'], personNames:['中村'], tags:['起業'], mood:'energized', createdAt:new Date(now-60*day).toISOString() },
 
-    // かなり前 (60-100日前) — 複数人の繋がり多め
-    { id:'e40', text:'佐藤さんと加藤さんと海外展開について議論。視点が広がった。', personIds:['p4','p10'], personNames:['佐藤','加藤'], tags:['海外','学び'], mood:'thoughtful', createdAt:new Date(now-65*day).toISOString() },
-    { id:'e41', text:'渡辺さんと阿部さんと後藤さんとキャリア座談会。温かい雰囲気。', personIds:['p7','p18','p24'], personNames:['渡辺','阿部','後藤'], tags:['キャリア'], mood:'warm', createdAt:new Date(now-68*day).toISOString() },
-    { id:'e42', text:'田中さんと伊藤さんと村上さんとハッカソン参加。すごい刺激！', personIds:['p1','p6','p26'], personNames:['田中','伊藤','村上'], tags:['テクノロジー','起業'], mood:'inspired', createdAt:new Date(now-70*day).toISOString() },
-    { id:'e43', text:'山田さんと岡本さんと前田さんとアートフェア。感動の連続。', personIds:['p3','p36','p22'], personNames:['山田','岡本','前田'], tags:['クリエイティブ'], mood:'inspired', createdAt:new Date(now-72*day).toISOString() },
-    { id:'e44', text:'高橋さんと橋本さんと三浦さんとフードフェスティバル。最高に楽しかった！', personIds:['p5','p20','p35'], personNames:['高橋','橋本','三浦'], tags:['食事','イベント'], mood:'energized', createdAt:new Date(now-75*day).toISOString() },
-    { id:'e45', text:'鈴木さんと池田さんと中島さんと投資勉強会。深い学び。', personIds:['p2','p19','p37'], personNames:['鈴木','池田','中島'], tags:['投資'], mood:'thoughtful', createdAt:new Date(now-78*day).toISOString() },
-    { id:'e46', text:'藤田さんと太田さんと内田さんと海外ビジネスセミナー。', personIds:['p23','p34','p46'], personNames:['藤田','太田','内田'], tags:['海外','学び'], mood:'neutral', createdAt:new Date(now-80*day).toISOString() },
-    { id:'e47', text:'石川さんと小林さんと松田さんとテックミートアップ。元気になった。', personIds:['p21','p9','p39'], personNames:['石川','小林','松田'], tags:['テクノロジー'], mood:'energized', createdAt:new Date(now-82*day).toISOString() },
-    { id:'e48', text:'木村さんと金子さんと遠藤さんとコミュニティイベント運営。感謝。', personIds:['p14','p41','p29'], personNames:['木村','金子','遠藤'], tags:['イベント'], mood:'grateful', createdAt:new Date(now-85*day).toISOString() },
-    { id:'e49', text:'藤井さんと岡田さんと原田さんと読書×投資トーク。考えさせられた。', personIds:['p31','p25','p38'], personNames:['藤井','岡田','原田'], tags:['投資','学び'], mood:'thoughtful', createdAt:new Date(now-88*day).toISOString() },
-    { id:'e50', text:'福田さんと和田さんと柴田さんと起業家合宿。刺激と感動の2日間！', personIds:['p33','p42','p47'], personNames:['福田','和田','柴田'], tags:['起業','テクノロジー'], mood:'inspired', createdAt:new Date(now-90*day).toISOString() },
-    { id:'e51', text:'西村さんと井上さんとキャリアワークショップ。深い内省の時間。', personIds:['p32','p13'], personNames:['西村','井上'], tags:['キャリア','学び'], mood:'thoughtful', createdAt:new Date(now-92*day).toISOString() },
-    { id:'e52', text:'松本さんと石田さんと近藤さんと料理教室。笑いが止まらなかった。', personIds:['p12','p43','p27'], personNames:['松本','石田','近藤'], tags:['食事'], mood:'warm', createdAt:new Date(now-95*day).toISOString() },
-    { id:'e53', text:'吉田さんと青木さんと酒井さんとクリエイティブジャム。最高！', personIds:['p11','p30','p50'], personNames:['吉田','青木','酒井'], tags:['クリエイティブ'], mood:'energized', createdAt:new Date(now-98*day).toISOString() },
-    { id:'e54', text:'山口さんと坂本さんと竹内さんと異文化交流会。視野が広がった。', personIds:['p17','p28','p40'], personNames:['山口','坂本','竹内'], tags:['海外','イベント'], mood:'inspired', createdAt:new Date(now-100*day).toISOString() },
+    // かなり前 (60-100日前)
+    { id:'e40', text:'佐藤さんが帰国のタイミングで加藤さんも交えてアジア市場の話。シンガポールとロンドンの両方の視点が交差して面白すぎた。', personIds:['p4','p10'], personNames:['佐藤','加藤'], tags:['海外','学び'], mood:'thoughtful', createdAt:new Date(now-65*day).toISOString() },
+    { id:'e41', text:'渡辺さん・阿部さん・後藤さんとキャリア座談会。世代もバックグラウンドも違うのに「働くとは何か」で深く共鳴した夜。', personIds:['p7','p18','p24'], personNames:['渡辺','阿部','後藤'], tags:['キャリア'], mood:'warm', createdAt:new Date(now-68*day).toISOString() },
+    { id:'e42', text:'田中・伊藤・村上トリオでハッカソン48時間。寝不足でハイになりながらプロトタイプ完成。3人で抱き合って喜んだ。あの瞬間は忘れない。', personIds:['p1','p6','p26'], personNames:['田中','伊藤','村上'], tags:['テクノロジー','起業'], mood:'inspired', createdAt:new Date(now-70*day).toISOString() },
+    { id:'e43', text:'山田さん・岡本さん・前田さんとアートフェア巡り。3人の「美しい」の基準が全然違って、それが面白かった。帰り道、自分の審美眼のなさに笑った。', personIds:['p3','p36','p22'], personNames:['山田','岡本','前田'], tags:['クリエイティブ'], mood:'inspired', createdAt:new Date(now-72*day).toISOString() },
+    { id:'e44', text:'高橋さん・橋本さん・三浦さんとフードフェス。三浦さんが「これは本物」と太鼓判を押した出店が全部当たりだった。さすがプロ。', personIds:['p5','p20','p35'], personNames:['高橋','橋本','三浦'], tags:['食事','イベント'], mood:'energized', createdAt:new Date(now-75*day).toISOString() },
+    { id:'e45', text:'鈴木さん・池田さん・中島さんと投資の深い話。三者三様のアプローチがあって、正解は一つじゃないと改めて感じた。', personIds:['p2','p19','p37'], personNames:['鈴木','池田','中島'], tags:['投資'], mood:'thoughtful', createdAt:new Date(now-78*day).toISOString() },
+    { id:'e46', text:'藤田さん・太田さん・内田さんと海外ビジネスの話。3人とも住んだ国が違うから、グローバルの解像度が一気に上がった。', personIds:['p23','p34','p46'], personNames:['藤田','太田','内田'], tags:['海外','学び'], mood:'neutral', createdAt:new Date(now-80*day).toISOString() },
+    { id:'e47', text:'石川さん・小林さん・松田さんとテックミートアップ。CTOと研究者とエンジニア、それぞれの視座からの議論が最高に刺激的だった。', personIds:['p21','p9','p39'], personNames:['石川','小林','松田'], tags:['テクノロジー'], mood:'energized', createdAt:new Date(now-82*day).toISOString() },
+    { id:'e48', text:'木村さん・金子さん・遠藤さんとコミュニティイベントの運営。裏方の3人が楽しそうにしてると、参加者も自然と笑顔になる。いいチーム。', personIds:['p14','p41','p29'], personNames:['木村','金子','遠藤'], tags:['イベント'], mood:'grateful', createdAt:new Date(now-85*day).toISOString() },
+    { id:'e49', text:'藤井さん・岡田さん・原田さんと「お金と教育」がテーマの読書会。藤井さんの哲学×岡田さんの実践×原田さんの理想が交差した良い時間。', personIds:['p31','p25','p38'], personNames:['藤井','岡田','原田'], tags:['投資','学び'], mood:'thoughtful', createdAt:new Date(now-88*day).toISOString() },
+    { id:'e50', text:'福田さん・和田さん・柴田さんと葉山で起業家合宿。海を見ながら語った夢の話。「5年後にまたここで乾杯しよう」って約束した。', personIds:['p33','p42','p47'], personNames:['福田','和田','柴田'], tags:['起業','テクノロジー'], mood:'inspired', createdAt:new Date(now-90*day).toISOString() },
+    { id:'e51', text:'西村さんと井上先生のキャリアワークショップ。自分の強みを他人に聞く時間があって、西村さんの言葉に不意に泣きそうになった。', personIds:['p32','p13'], personNames:['西村','井上'], tags:['キャリア','学び'], mood:'thoughtful', createdAt:new Date(now-92*day).toISOString() },
+    { id:'e52', text:'松本さん・石田さん・近藤さんと料理教室。プロ3人の手際に見惚れてたら自分の鍋が焦げた笑。でも最後はみんなで美味しく完食。', personIds:['p12','p43','p27'], personNames:['松本','石田','近藤'], tags:['食事'], mood:'warm', createdAt:new Date(now-95*day).toISOString() },
+    { id:'e53', text:'吉田さん・青木さん・酒井さんとクリエイティブジャム。3人が即興で作品を作る過程を見てるだけで鳥肌。創作の現場に立ち会えた幸せ。', personIds:['p11','p30','p50'], personNames:['吉田','青木','酒井'], tags:['クリエイティブ'], mood:'energized', createdAt:new Date(now-98*day).toISOString() },
+    { id:'e54', text:'山口さん・坂本さん・竹内さんと異文化交流会。パリ・アフリカ・NYの話が飛び交って、世界地図が頭の中で光った気がした。', personIds:['p17','p28','p40'], personNames:['山口','坂本','竹内'], tags:['海外','イベント'], mood:'inspired', createdAt:new Date(now-100*day).toISOString() },
+  ];
+
+  // デモ用リコネクト履歴
+  const demoReconnects = [
+    { id:'r1', personId:'p16', personName:'清水', media:'line', message:'清水さん！Web3の勉強会以来ですね。最近ブロックチェーン周りで面白い動きありますか？また語りたいです', daysSinceLast:40, createdAt:new Date(now-25*day).toISOString() },
+    { id:'r2', personId:'p17', personName:'山口', media:'messenger', message:'山口さん！パリの写真展の話がずっと頭に残ってて。次の帰国予定あったら教えてください😊', daysSinceLast:38, createdAt:new Date(now-20*day).toISOString() },
+    { id:'r3', personId:'p4', personName:'佐藤', media:'line', message:'佐藤さん、ふと思い出して連絡しました！シンガポールどうですか？次の帰国の時また飲みましょう', daysSinceLast:65, createdAt:new Date(now-15*day).toISOString() },
+    { id:'r4', personId:'p10', personName:'加藤', media:'email', message:'加藤さん、ロンドンの件その後どうなりましたか？前に話してたスタートアップの件も気になってます', daysSinceLast:55, createdAt:new Date(now-12*day).toISOString() },
+    { id:'r5', personId:'p12', personName:'松本', media:'line', message:'松本さん！ビストロの新メニュー出た？今度また高橋さんも誘って3人で行きたいです！', daysSinceLast:50, createdAt:new Date(now-8*day).toISOString() },
+    { id:'r6', personId:'p18', personName:'阿部', media:'line', message:'阿部さん、前に話してた「物語で人は動く」って言葉、最近すごく実感してます。またご飯行きませんか？', daysSinceLast:36, createdAt:new Date(now-5*day).toISOString() },
+    { id:'r7', personId:'p7', personName:'渡辺', media:'messenger', message:'渡辺さんお元気ですか？キャリアの相談したいことがあって。近々お時間もらえたら嬉しいです！', daysSinceLast:65, createdAt:new Date(now-45*day).toISOString() },
+    { id:'r8', personId:'p15', personName:'林', media:'line', message:'林さん！最近のマーケットどう見てます？鈴木さんとの3人会またやりたいなと思ってました', daysSinceLast:43, createdAt:new Date(now-30*day).toISOString() },
+    { id:'r9', personId:'p9', personName:'小林', media:'line', message:'小林さん！最近面白い論文ありました？LLMの新しいアーキテクチャの話、また聞きたいです', daysSinceLast:58, createdAt:new Date(now-38*day).toISOString() },
+    { id:'r10', personId:'p13', personName:'井上', media:'email', message:'井上先生、ご無沙汰しております。前回のワークショップでの気づきを実践してみています。また近況報告させてください', daysSinceLast:48, createdAt:new Date(now-55*day).toISOString() },
   ];
 
   people = demoPersons;
   encounters = demoEncounters;
+  reconnects = demoReconnects;
   saveData(STORAGE_KEY_PEOPLE, people);
   saveData(STORAGE_KEY_ENCOUNTERS, encounters);
+  saveData(STORAGE_KEY_RECONNECTS, reconnects);
 }
 
 // ===== ハレー彗星リコネクティング =====
@@ -1134,35 +1170,88 @@ function launchComet(personData) {
   cometState.raf = requestAnimationFrame(tick);
 }
 
-// DM自動生成テンプレート
+// DM自動生成（人間らしい温かみのある文面）
 function generateDMText(d) {
-  const greetings = [
-    `${d.person.name}さん、お久しぶりです！`,
-    `${d.person.name}さん、ご無沙汰しております！`,
-    `${d.person.name}さん！お元気ですか？`,
+  const name = d.person.name;
+  const ctx = d.person.context || '';
+  const tag = d.person.tags[0] || '';
+
+  // 前回の内容からキーワードを拾う
+  const lastText = d.lastEnc.text || '';
+
+  // 挨拶パターン（カジュアル〜丁寧のバリエーション）
+  const openers = [
+    `${name}さん！ふと${name}さんのこと思い出して連絡しました😊`,
+    `${name}さん、お元気ですか？なんだか急に${name}さんに会いたくなって！`,
+    `${name}さん！ご無沙汰してます。元気にしてますか？`,
+    `${name}さん、お久しぶりです！最近どうしてるかなと思って☺️`,
+    `${name}さん！この前ふと${name}さんとの話を思い出してました`,
   ];
-  const bodies = [];
-  if (d.days > 90) bodies.push(`もう${d.days}日も経ってしまいました。`);
-  else if (d.days > 60) bodies.push(`気づけば${d.days}日ぶりですね。`);
-  else bodies.push(`前回お会いしてから${d.days}日経ちましたね。`);
 
-  // 前回の話題に触れる
-  const tagRef = d.person.tags[0];
-  const topicMap = {
-    '起業': 'その後、事業の方はいかがですか？',
-    'テクノロジー': 'テック周りで最近面白い話はありますか？',
-    '投資': '投資の方、最近どうですか？',
-    'クリエイティブ': '最近のクリエイティブ活動はどうですか？',
-    'キャリア': 'お仕事の方は順調ですか？',
-    '海外': '海外の方はいかがですか？',
-    '食事': 'また一緒にご飯行きませんか？',
-    'イベント': 'また何かイベントで一緒できたら嬉しいです！',
-    '学び': '最近何か面白い学びはありましたか？',
+  // コンテクストに基づく中間文（前回の内容に自然に触れる）
+  const middles = {
+    '起業': [
+      `前に話してたプロジェクト、あれからどうなりました？`,
+      `事業の方、順調ですか？あの時の熱量すごかったから気になってて`,
+      `あの時の起業の話、まだ頭に残ってます。進展あったりします？`,
+    ],
+    'テクノロジー': [
+      `最近AIがまたすごいことになってますね。${name}さん的にどう見てます？`,
+      `テックの話、また${name}さんとしたいなと思ってました`,
+      `前に話してた技術の件、その後なにか面白い展開ありました？`,
+    ],
+    '投資': [
+      `最近のマーケット、${name}さんはどう動いてます？`,
+      `前に教えてもらった話、すごく参考になってます。また情報交換したいです`,
+      `投資の話、また聞かせてください！前回めちゃくちゃ勉強になったので`,
+    ],
+    'クリエイティブ': [
+      `${name}さんの作品、最近なにか新しいのありますか？見たいです！`,
+      `前のクリエイティブの話が忘れられなくて。また刺激もらいたいです`,
+      `最近なにか面白いもの作ってます？${name}さんのセンスいつも好きで`,
+    ],
+    'キャリア': [
+      `お仕事の方、最近どんな感じですか？`,
+      `前に話してた件、うまくいってるといいなと思ってます`,
+      `${name}さんとキャリアの話するといつも視野が広がるんですよね`,
+    ],
+    '海外': [
+      `海外の話、また聞きたいです！あの時の話すごく面白かった`,
+      `最近またどこか行ったりしてます？${name}さんの話いつもワクワクする`,
+      `グローバルな話、また${name}さんと語りたいです`,
+    ],
+    '食事': [
+      `そろそろまたご飯行きませんか？前のお店最高でしたよね`,
+      `最近いいお店見つけたんですけど、${name}さんと行きたいなと！`,
+      `ご飯の約束、ずっとしたいと思ってました。近々どうですか？`,
+    ],
+    'イベント': [
+      `また面白いイベントあったら一緒に行きたいです！`,
+      `前のイベント楽しかったですよね。また何かあったら誘ってください！`,
+      `そういえば最近面白いイベントとかあります？`,
+    ],
+    '学び': [
+      `最近なにか面白い本とか読みました？おすすめあったら教えてほしいです`,
+      `前の勉強会の話、あれからなにか新しい発見ありましたか？`,
+      `${name}さんとの学びの時間がいつも刺激的で。またやりたいです`,
+    ],
   };
-  const topic = topicMap[tagRef] || 'ぜひまたお話しましょう！';
 
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-  return `${greeting}\n${bodies[0]}\n${topic}`;
+  // 締め
+  const closings = [
+    'また近々お話しましょう！',
+    'タイミング合えばぜひ☺️',
+    'お互い忙しいけど、また会えたら嬉しいです！',
+    '返信はいつでも大丈夫なので、気が向いたら😊',
+    'よかったら近いうちにお茶でもしませんか？',
+  ];
+
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const opener = pick(openers);
+  const middle = middles[tag] ? pick(middles[tag]) : '最近どうしてるかなと思って連絡しました。';
+  const closing = pick(closings);
+
+  return `${opener}\n${middle}\n${closing}`;
 }
 
 let selectedMedia = 'line'; // デフォルト
@@ -1253,6 +1342,9 @@ function closeReconnectSheet(event) {
   document.getElementById('reconnect-overlay').classList.remove('open');
 }
 
+const STORAGE_KEY_RECONNECTS = 'goen_reconnects';
+let reconnects = loadData(STORAGE_KEY_RECONNECTS);
+
 function executeReconnect(personId) {
   const d = reconnectCurrent;
   if (!d) return;
@@ -1263,18 +1355,29 @@ function executeReconnect(personId) {
   const person = people.find(p => p.id === personId);
   if (!person) return;
 
-  // エンカウンター記録（送信メッセージ含む）
-  const recordText = `${person.name}さんに${MEDIA_NAMES[selectedMedia]}でリコネクト:「${msgText.substring(0,60)}${msgText.length>60?'...':''}」`;
-  const tags = [...person.tags.slice(0, 2)];
+  // リコネクト履歴に保存
+  const rec = {
+    id: uuid(),
+    personId,
+    personName: person.name,
+    media: selectedMedia,
+    message: msgText,
+    daysSinceLast: d.days,
+    createdAt: new Date().toISOString(),
+  };
+  reconnects.push(rec);
+  saveData(STORAGE_KEY_RECONNECTS, reconnects);
 
+  // エンカウンターにも記録
   const enc = {
     id: uuid(),
-    text: recordText,
+    text: `${person.name}さんに${MEDIA_NAMES[selectedMedia]}でリコネクト`,
     personIds: [personId],
     personNames: [person.name],
-    tags,
+    tags: person.tags.slice(0, 2),
     mood: 'warm',
     createdAt: new Date().toISOString(),
+    isReconnect: true,
   };
   encounters.push(enc);
   saveData(STORAGE_KEY_PEOPLE, people);
@@ -1282,17 +1385,109 @@ function executeReconnect(personId) {
 
   // 送信完了フィードバック
   const btn = document.getElementById('btn-reconnect');
+  const sheet = document.getElementById('reconnect-sheet-content');
   if (btn) {
-    btn.innerHTML = '✓ リコネクト記録しました';
-    btn.classList.remove('from-amber-500','to-orange-500');
+    btn.disabled = true;
+    btn.innerHTML = '';
+    btn.classList.remove('from-amber-500','to-orange-500','hover:from-amber-400','hover:to-orange-400');
     btn.classList.add('from-emerald-500','to-teal-500');
+    btn.innerHTML = `<span class="inline-block animate-bounce">✓</span> ${person.name}さんに送信しました`;
   }
+  // シート内を送信完了画面に
   setTimeout(() => {
-    closeReconnectSheet();
-    clearActiveComets();
-    renderUniverse();
-    startShootingStarCycle();
-  }, 800);
+    if (sheet) {
+      sheet.innerHTML = `
+        <div class="text-center py-6">
+          <div class="text-4xl mb-3">☄️</div>
+          <div class="text-lg font-bold text-cosmos-star mb-1">${person.name}さんにリコネクト！</div>
+          <div class="text-xs text-cosmos-dim mb-1">${MEDIA_NAMES[selectedMedia]}で送信完了</div>
+          <div class="text-xs text-cosmos-warm/70 mt-3 leading-relaxed max-w-[250px] mx-auto">"${msgText.length > 50 ? msgText.substring(0,50) + '...' : msgText}"</div>
+          <div class="mt-5 text-[10px] text-cosmos-dim/40">MCP連携で実際に送信予定</div>
+        </div>
+      `;
+    }
+    setTimeout(() => {
+      closeReconnectSheet();
+      clearActiveComets();
+      renderUniverse();
+      startShootingStarCycle();
+    }, 1500);
+  }, 600);
+}
+
+// ===== リコネクト履歴画面 =====
+function renderReconnectHistory() {
+  const kpiEl = document.getElementById('reconnect-kpi');
+  const chartEl = document.getElementById('reconnect-chart');
+  const listEl = document.getElementById('reconnect-history-list');
+  const emptyEl = document.getElementById('reconnect-history-empty');
+
+  // KPI算出
+  const now = Date.now();
+  const day = 86400000;
+  const thisMonth = reconnects.filter(r => now - new Date(r.createdAt).getTime() < 30 * day).length;
+  const total = reconnects.length;
+  const uniquePersons = new Set(reconnects.map(r => r.personId)).size;
+
+  kpiEl.innerHTML = `
+    <div class="bg-cosmos-surface rounded-xl p-3 text-center">
+      <div class="text-2xl font-bold text-cosmos-warm">${thisMonth}</div>
+      <div class="text-[10px] text-cosmos-dim mt-0.5">今月</div>
+    </div>
+    <div class="bg-cosmos-surface rounded-xl p-3 text-center">
+      <div class="text-2xl font-bold text-cosmos-glow">${total}</div>
+      <div class="text-[10px] text-cosmos-dim mt-0.5">累計</div>
+    </div>
+    <div class="bg-cosmos-surface rounded-xl p-3 text-center">
+      <div class="text-2xl font-bold text-cosmos-star">${uniquePersons}</div>
+      <div class="text-[10px] text-cosmos-dim mt-0.5">人数</div>
+    </div>
+  `;
+
+  // 月別チャート（過去6ヶ月）
+  const months = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const label = `${d.getMonth()+1}月`;
+    const count = reconnects.filter(r => {
+      const rd = new Date(r.createdAt);
+      return rd.getFullYear() === d.getFullYear() && rd.getMonth() === d.getMonth();
+    }).length;
+    months.push({ key, label, count });
+  }
+  const maxCount = Math.max(1, ...months.map(m => m.count));
+  chartEl.innerHTML = months.map(m => {
+    const h = Math.max(4, (m.count / maxCount) * 80);
+    return `<div class="flex-1 flex flex-col items-center gap-1">
+      <div class="text-[9px] text-cosmos-star/70 font-medium">${m.count}</div>
+      <div class="w-full rounded-t" style="height:${h}px;background:linear-gradient(to top,#f59e0b,#f97316);opacity:${m.count ? 0.8 : 0.15}"></div>
+      <div class="text-[9px] text-cosmos-dim">${m.label}</div>
+    </div>`;
+  }).join('');
+
+  // 履歴一覧
+  if (!reconnects.length) {
+    listEl.innerHTML = '';
+    emptyEl.classList.remove('hidden');
+    return;
+  }
+  emptyEl.classList.add('hidden');
+  const sorted = [...reconnects].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  listEl.innerHTML = sorted.map(r => `
+    <div class="bg-cosmos-surface rounded-lg p-3 card-hover">
+      <div class="flex items-center justify-between mb-1">
+        <div class="flex items-center gap-2">
+          <span class="text-xs">☄️</span>
+          <span class="text-sm font-medium text-cosmos-star">${r.personName}</span>
+          <span class="text-[10px] bg-cosmos-warm/15 text-cosmos-warm px-1.5 py-0.5 rounded">${MEDIA_NAMES[r.media] || r.media}</span>
+        </div>
+        <span class="text-[10px] text-cosmos-dim">${formatDate(r.createdAt)}</span>
+      </div>
+      <p class="text-xs text-cosmos-dim/70 truncate leading-relaxed">${escapeHtml(r.message)}</p>
+    </div>
+  `).join('');
 }
 
 function startShootingStarCycle() {
