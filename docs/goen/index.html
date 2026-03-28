@@ -579,14 +579,16 @@ function renderUniverse() {
         if (n.isSelf) continue;
         const center = commCenters[n.community];
         if (!center) continue;
-        // コミュニティ中心への弱い引力
         n.vx += (center.x - n.x) * 0.003;
         n.vy += (center.y - n.y) * 0.003;
+        // 常時微動: ランダムな微小力で平衡状態を破り続ける
+        n.vx += (Math.random() - 0.5) * 0.15;
+        n.vy += (Math.random() - 0.5) * 0.15;
       }
     })
     .alphaDecay(0)
-    .velocityDecay(0.92)
-    .alpha(0.08);
+    .velocityDecay(0.88)
+    .alpha(0.1);
 
   // ===== Zoom & Pan (ワールド座標系をビューポートに射影) =====
   const worldG = svg.append('g');
@@ -844,7 +846,7 @@ function switchScreen(name) {
 }
 
 // ===== デモデータ =====
-const DEMO_VERSION = 'v11_polygon';
+const DEMO_VERSION = 'v12_alive';
 function seedDemoData() {
   if (localStorage.getItem('goen_demo_version') === DEMO_VERSION && (people.length || encounters.length)) return;
   localStorage.setItem('goen_demo_version', DEMO_VERSION);
