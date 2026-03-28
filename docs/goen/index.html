@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
 tailwind.config = {
   theme: {
@@ -201,6 +202,39 @@ tailwind.config = {
   <div id="panel-recent" class="mb-6">
     <h2 class="text-sm font-medium text-cosmos-glow mb-3">✦ 最近の記録</h2>
     <div id="recent-list" class="space-y-2"></div>
+  </div>
+
+  <!-- インポート -->
+  <div class="mb-6 pt-4 border-t border-cosmos-dim/15">
+    <h2 class="text-sm font-medium text-cosmos-glow mb-3">✦ データ取り込み</h2>
+    <div id="import-dropzone"
+      class="border-2 border-dashed border-cosmos-dim/30 rounded-xl p-6 text-center cursor-pointer hover:border-cosmos-accent/50 transition"
+      onclick="document.getElementById('import-file').click()"
+      ondragover="event.preventDefault(); this.classList.add('border-cosmos-accent')"
+      ondragleave="this.classList.remove('border-cosmos-accent')"
+      ondrop="event.preventDefault(); this.classList.remove('border-cosmos-accent'); handleImportFile(event.dataTransfer.files[0])">
+      <div class="text-2xl mb-2">📂</div>
+      <div class="text-xs text-cosmos-star/70 mb-1">Excel (.xlsx) または CSV をドロップ</div>
+      <div class="text-[10px] text-cosmos-dim">タップしてファイルを選択</div>
+      <input type="file" id="import-file" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleImportFile(this.files[0])">
+    </div>
+    <div id="import-preview" class="mt-3 hidden">
+      <div class="bg-cosmos-surface rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs text-cosmos-star font-medium" id="import-summary"></span>
+          <button onclick="cancelImport()" class="text-xs text-cosmos-dim hover:text-cosmos-star">✕</button>
+        </div>
+        <div id="import-mapping" class="space-y-2 mb-3"></div>
+        <div id="import-sample" class="bg-cosmos-bg/50 rounded-lg p-3 mb-3 max-h-32 overflow-y-auto"></div>
+        <div class="flex gap-2">
+          <button onclick="executeImport()" class="flex-1 bg-cosmos-accent hover:bg-indigo-500 text-white text-xs font-medium py-2.5 rounded-lg transition">取り込む</button>
+          <button onclick="cancelImport()" class="px-4 bg-cosmos-surface text-cosmos-dim text-xs py-2.5 rounded-lg border border-cosmos-dim/20 transition">キャンセル</button>
+        </div>
+      </div>
+    </div>
+    <div class="mt-2">
+      <button onclick="downloadTemplate()" class="text-[10px] text-cosmos-dim hover:text-cosmos-glow transition underline">テンプレートをダウンロード</button>
+    </div>
   </div>
 </div>
 
@@ -1068,6 +1102,190 @@ function switchScreen(name) {
   if (name === 'people') renderPeople();
   if (name === 'home') renderHome();
   if (name === 'reconnect') renderReconnectHistory();
+}
+
+// ===== インポート機能 =====
+let importedRows = [];
+let importColMap = { name: -1, tags: -1, context: -1, lastDate: -1, memo: -1 };
+
+const COL_CANDIDATES = {
+  name: ['名前','name','氏名','人名','person','相手'],
+  tags: ['タグ','tags','カテゴリ','category','分野'],
+  context: ['関係性','context','メモ','備考','note','関係','どんな人'],
+  lastDate: ['最終日','last_date','日付','date','最後に会った日','最終会話'],
+  memo: ['記録','memo','出会いメモ','エピソード','encounter','内容'],
+};
+
+function autoMapColumns(headers) {
+  const lower = headers.map(h => (h || '').toString().trim().toLowerCase());
+  for (const [field, candidates] of Object.entries(COL_CANDIDATES)) {
+    importColMap[field] = lower.findIndex(h => candidates.some(c => h.includes(c)));
+  }
+  // 名前が見つからない場合、最初の列をname扱い
+  if (importColMap.name === -1) importColMap.name = 0;
+}
+
+function handleImportFile(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  if (ext === 'csv') {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/).filter(l => l.trim());
+      if (lines.length < 2) { alert('データが空です'); return; }
+      const headers = lines[0].split(',').map(s => s.trim().replace(/^"|"$/g, ''));
+      const rows = lines.slice(1).map(l => {
+        // CSV parse (簡易: ダブルクォート対応)
+        const cells = [];
+        let current = '', inQuote = false;
+        for (const ch of l) {
+          if (ch === '"') { inQuote = !inQuote; }
+          else if (ch === ',' && !inQuote) { cells.push(current.trim()); current = ''; }
+          else { current += ch; }
+        }
+        cells.push(current.trim());
+        return cells;
+      });
+      processImportData(headers, rows, file.name);
+    };
+    reader.readAsText(file, 'UTF-8');
+  } else if (ext === 'xlsx' || ext === 'xls') {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const wb = XLSX.read(e.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        if (data.length < 2) { alert('データが空です'); return; }
+        const headers = data[0].map(h => (h || '').toString().trim());
+        const rows = data.slice(1).filter(r => r.some(c => c));
+        processImportData(headers, rows, file.name);
+      } catch (err) { alert('ファイルの読み込みに失敗しました: ' + err.message); }
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    alert('対応形式: .xlsx, .xls, .csv');
+  }
+}
+
+function processImportData(headers, rows, fileName) {
+  autoMapColumns(headers);
+  importedRows = rows;
+
+  document.getElementById('import-summary').textContent = `${fileName} — ${rows.length}件の人物データ`;
+
+  // マッピングUI
+  const mappingEl = document.getElementById('import-mapping');
+  const fields = [
+    { key: 'name', label: '名前', required: true },
+    { key: 'tags', label: 'タグ' },
+    { key: 'context', label: '関係性' },
+    { key: 'lastDate', label: '最終日' },
+    { key: 'memo', label: '記録メモ' },
+  ];
+  mappingEl.innerHTML = fields.map(f => {
+    const options = headers.map((h, i) => `<option value="${i}" ${importColMap[f.key] === i ? 'selected' : ''}>${h}</option>`).join('');
+    return `<div class="flex items-center gap-2">
+      <span class="text-[10px] text-cosmos-dim w-14">${f.label}${f.required ? '*' : ''}</span>
+      <select onchange="importColMap['${f.key}']=parseInt(this.value)" class="flex-1 bg-cosmos-bg/50 text-cosmos-star text-xs rounded px-2 py-1.5 border border-cosmos-dim/20 outline-none">
+        <option value="-1">—</option>${options}
+      </select>
+    </div>`;
+  }).join('');
+
+  // サンプルプレビュー（最初の3行）
+  const sampleEl = document.getElementById('import-sample');
+  const preview = rows.slice(0, 3);
+  sampleEl.innerHTML = preview.map(r => {
+    const name = importColMap.name >= 0 ? (r[importColMap.name] || '—') : '—';
+    const ctx = importColMap.context >= 0 ? (r[importColMap.context] || '') : '';
+    return `<div class="text-xs text-cosmos-star/70 mb-1"><strong>${escapeHtml(String(name))}</strong> ${ctx ? '<span class="text-cosmos-dim">'+escapeHtml(String(ctx))+'</span>' : ''}</div>`;
+  }).join('') + (rows.length > 3 ? `<div class="text-[10px] text-cosmos-dim">...他 ${rows.length - 3}件</div>` : '');
+
+  document.getElementById('import-preview').classList.remove('hidden');
+}
+
+function cancelImport() {
+  importedRows = [];
+  document.getElementById('import-preview').classList.add('hidden');
+  document.getElementById('import-file').value = '';
+}
+
+function executeImport() {
+  if (!importedRows.length) return;
+  if (importColMap.name === -1) { alert('「名前」列を選択してください'); return; }
+
+  let imported = 0;
+  for (const row of importedRows) {
+    const name = (row[importColMap.name] || '').toString().trim();
+    if (!name) continue;
+
+    // 既存の人物と重複チェック
+    let person = people.find(p => p.name === name);
+    if (!person) {
+      person = { id: uuid(), name, createdAt: new Date().toISOString(), tags: [], context: '' };
+      people.push(person);
+    }
+
+    // タグ
+    if (importColMap.tags >= 0) {
+      const tagStr = (row[importColMap.tags] || '').toString();
+      const tags = tagStr.split(/[,、\/\s]+/).map(t => t.replace('#', '').trim()).filter(Boolean);
+      for (const t of tags) { if (!person.tags.includes(t)) person.tags.push(t); }
+    }
+
+    // コンテクスト
+    if (importColMap.context >= 0) {
+      const ctx = (row[importColMap.context] || '').toString().trim();
+      if (ctx) person.context = ctx;
+    }
+
+    // 記録メモ → エンカウンターとして追加
+    const memoText = importColMap.memo >= 0 ? (row[importColMap.memo] || '').toString().trim() : '';
+    let encDate = new Date().toISOString();
+    if (importColMap.lastDate >= 0) {
+      const dateStr = (row[importColMap.lastDate] || '').toString().trim();
+      if (dateStr) {
+        const parsed = new Date(dateStr);
+        if (!isNaN(parsed.getTime())) encDate = parsed.toISOString();
+      }
+    }
+
+    if (memoText || importColMap.lastDate >= 0) {
+      const enc = {
+        id: uuid(),
+        text: memoText || `${name}さんのデータをインポート`,
+        personIds: [person.id],
+        personNames: [name],
+        tags: person.tags.slice(0, 3),
+        mood: detectMood(memoText) || 'neutral',
+        createdAt: encDate,
+      };
+      encounters.push(enc);
+    }
+    imported++;
+  }
+
+  saveAllData();
+  cancelImport();
+  renderHome();
+  alert(`${imported}人のデータを取り込みました`);
+}
+
+function downloadTemplate() {
+  const header = '名前,タグ,関係性,最後に会った日,記録メモ';
+  const sample = [
+    '田中太郎,起業/テクノロジー,大学の同期。SaaSスタートアップCEO,2025-03-01,資金調達の話で盛り上がった',
+    '鈴木花子,投資/キャリア,元同僚のVCパートナー,2025-02-15,新ファンドの話を聞いた',
+  ].join('\n');
+  const bom = '\uFEFF';
+  const blob = new Blob([bom + header + '\n' + sample], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'goen_template.csv'; a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ===== デモデータ =====
