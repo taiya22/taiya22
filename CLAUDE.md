@@ -11,6 +11,18 @@ Taiga Capital Group 30年ビジネスシミュレーションエンジン。
 - **Linter/Formatter**: ruff
 - **Type checker**: mypy
 
+## Knowledge Base
+
+Detailed documentation lives in `docs/` — this file is a table of contents:
+- `docs/architecture.md` — system overview, data flow, engine interface contract
+- `docs/requirements_v1.1.md` — full requirements specification (Japanese)
+- `docs/brand_identity.md` — corporate branding guidelines
+- `docs/founding_story.md` — philosophy & founding narrative
+
+## Progress Tracking
+
+`claude-progress.json` tracks multi-session agent progress. Update it at the end of each session.
+
 ## Architecture
 
 ```
