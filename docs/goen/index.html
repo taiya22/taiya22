@@ -760,9 +760,19 @@ function renderUniverse() {
     })
     .on('mouseleave', () => { tooltip.style.opacity = 0; });
 
-  // クリック/タップで水紋
+  // クリック/タップで水紋 + リコネクトシート
   nodeGroup.on('click', (event, d) => {
     spawnRipple(worldG, d);
+    if (d.isSelf) return;
+    // personデータを構築してリコネクトシートを開く
+    const person = people.find(p => p.id === d.id);
+    if (!person) return;
+    const encs = encounters.filter(e => e.personIds.includes(d.id));
+    if (!encs.length) return;
+    const lastEnc = [...encs].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    reconnectCurrent = { person, lastEnc, days: d.days };
+    tooltip.style.opacity = 0;
+    openReconnectSheet();
   });
 
   // タッチ対応
