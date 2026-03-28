@@ -550,18 +550,18 @@ function renderUniverse() {
   const commTargets = {};
   commKeys.forEach((key, i) => {
     const angle = (2 * Math.PI * i) / commKeys.length - Math.PI / 2;
-    const dist = 350;
+    const dist = 500;
     commTargets[key] = { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist };
   });
 
-  // ===== フォースシミュレーション（銀河的：ほぼ静止、タップ時のみ微動） =====
+  // ===== フォースシミュレーション（銀河的：ゆっくり安定、常時微動） =====
   if (simulation) simulation.stop();
   simulation = d3.forceSimulation(nodes)
     .force('link', d3.forceLink(links).id(d => d.id)
-      .distance(d => d.isSelfLink ? 200 : 45)
-      .strength(d => d.isSelfLink ? 0.06 : 0.6))
-    .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -500 : -40))
-    .force('collision', d3.forceCollide().radius(d => d.r + 5))
+      .distance(d => d.isSelfLink ? 300 : 50)
+      .strength(d => d.isSelfLink ? 0.04 : 0.5))
+    .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -800 : -50))
+    .force('collision', d3.forceCollide().radius(d => d.r + 8))
     .force('community', () => {
       for (const n of nodes) {
         if (n.isSelf) continue;
@@ -571,9 +571,10 @@ function renderUniverse() {
         n.vy += (target.y - n.y) * 0.008;
       }
     })
-    .alphaDecay(0.12)
-    .velocityDecay(0.75)
-    .alpha(0.3);
+    .alphaDecay(0.005)
+    .alphaMin(0.005)
+    .velocityDecay(0.85)
+    .alpha(0.15);
 
   // ===== Zoom & Pan (ワールド座標系をビューポートに射影) =====
   const worldG = svg.append('g');
@@ -833,7 +834,7 @@ function switchScreen(name) {
 }
 
 // ===== デモデータ =====
-const DEMO_VERSION = 'v9_warm';
+const DEMO_VERSION = 'v10_spread';
 function seedDemoData() {
   if (localStorage.getItem('goen_demo_version') === DEMO_VERSION && (people.length || encounters.length)) return;
   localStorage.setItem('goen_demo_version', DEMO_VERSION);
@@ -1043,7 +1044,7 @@ function launchComet(personData) {
 
   const label = document.createElement('div');
   label.className = 'comet-label';
-  label.textContent = `☄️ ${personData.person.name}  ${personData.days}日`;
+  label.textContent = `☄️ ${personData.person.name}`;
   comet.appendChild(label);
 
   container.appendChild(comet);
@@ -1269,7 +1270,7 @@ function openReconnectSheet() {
       <div class="w-10 h-10 rounded-full bg-cosmos-warm/20 flex items-center justify-center text-lg">☄️</div>
       <div class="flex-1">
         <div class="text-base font-bold text-cosmos-star">${d.person.name}</div>
-        <div class="text-xs text-cosmos-warm">${d.days}日間ご無沙汰</div>
+        <div class="text-xs text-cosmos-warm">${d.person.context ? escapeHtml(d.person.context) : 'しばらく会えていない'}</div>
       </div>
       <button onclick="closeReconnectSheet()" class="text-cosmos-dim hover:text-cosmos-star text-lg transition">✕</button>
     </div>
