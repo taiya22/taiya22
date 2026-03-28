@@ -545,36 +545,48 @@ function renderUniverse() {
     communities[n.community].push(n);
   }
 
-  // コミュニティ目標座標 — 原点(0,0)の周囲に放射状配置、遠めに
+  // ===== 固定レイアウト: コミュニティを多角形に配置 =====
   const commKeys = Object.keys(communities);
-  const commTargets = {};
+  const commCenters = {};
+  const commRadius = 450;
   commKeys.forEach((key, i) => {
     const angle = (2 * Math.PI * i) / commKeys.length - Math.PI / 2;
-    const dist = 500;
-    commTargets[key] = { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist };
+    commCenters[key] = { x: Math.cos(angle) * commRadius, y: Math.sin(angle) * commRadius };
   });
 
-  // ===== フォースシミュレーション（銀河的：ゆっくり安定、常時微動） =====
+  // 各コミュニティ内のノードもその中心の周囲に配置
+  for (const [comm, members] of Object.entries(communities)) {
+    const center = commCenters[comm];
+    if (!center) continue;
+    const memberRadius = 30 + members.length * 12;
+    members.forEach((n, i) => {
+      const a = (2 * Math.PI * i) / members.length;
+      n.x = center.x + Math.cos(a) * memberRadius;
+      n.y = center.y + Math.sin(a) * memberRadius;
+    });
+  }
+
+  // ===== フォースシミュレーション（常時微動、決して止まらない） =====
   if (simulation) simulation.stop();
   simulation = d3.forceSimulation(nodes)
     .force('link', d3.forceLink(links).id(d => d.id)
-      .distance(d => d.isSelfLink ? 300 : 50)
-      .strength(d => d.isSelfLink ? 0.04 : 0.5))
-    .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -800 : -50))
-    .force('collision', d3.forceCollide().radius(d => d.r + 8))
+      .distance(d => d.isSelfLink ? 350 : 40)
+      .strength(d => d.isSelfLink ? 0.01 : 0.3))
+    .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -400 : -25))
+    .force('collision', d3.forceCollide().radius(d => d.r + 6))
     .force('community', () => {
       for (const n of nodes) {
         if (n.isSelf) continue;
-        const target = commTargets[n.community];
-        if (!target) continue;
-        n.vx += (target.x - n.x) * 0.008;
-        n.vy += (target.y - n.y) * 0.008;
+        const center = commCenters[n.community];
+        if (!center) continue;
+        // コミュニティ中心への弱い引力
+        n.vx += (center.x - n.x) * 0.003;
+        n.vy += (center.y - n.y) * 0.003;
       }
     })
-    .alphaDecay(0.005)
-    .alphaMin(0.005)
-    .velocityDecay(0.85)
-    .alpha(0.15);
+    .alphaDecay(0)
+    .velocityDecay(0.92)
+    .alpha(0.08);
 
   // ===== Zoom & Pan (ワールド座標系をビューポートに射影) =====
   const worldG = svg.append('g');
@@ -661,8 +673,7 @@ function renderUniverse() {
     .join('g')
     .call(d3.drag()
       .on('start', (event, d) => {
-        if (d.isSelf) return; // 自分はドラッグ不可
-        if (!event.active) simulation.alphaTarget(0.3).restart();
+        if (d.isSelf) return;
         d.fx = d.x; d.fy = d.y;
       })
       .on('drag', (event, d) => {
@@ -671,7 +682,6 @@ function renderUniverse() {
       })
       .on('end', (event, d) => {
         if (d.isSelf) return;
-        if (!event.active) simulation.alphaTarget(0);
         d.fx = null; d.fy = null;
       })
     );
@@ -834,7 +844,7 @@ function switchScreen(name) {
 }
 
 // ===== デモデータ =====
-const DEMO_VERSION = 'v10_spread';
+const DEMO_VERSION = 'v11_polygon';
 function seedDemoData() {
   if (localStorage.getItem('goen_demo_version') === DEMO_VERSION && (people.length || encounters.length)) return;
   localStorage.setItem('goen_demo_version', DEMO_VERSION);
@@ -1180,79 +1190,64 @@ function generateDMText(d) {
   // 前回の内容からキーワードを拾う
   const lastText = d.lastEnc.text || '';
 
-  // 挨拶パターン（カジュアル〜丁寧のバリエーション）
-  const openers = [
-    `${name}さん！ふと${name}さんのこと思い出して連絡しました😊`,
-    `${name}さん、お元気ですか？なんだか急に${name}さんに会いたくなって！`,
-    `${name}さん！ご無沙汰してます。元気にしてますか？`,
-    `${name}さん、お久しぶりです！最近どうしてるかなと思って☺️`,
-    `${name}さん！この前ふと${name}さんとの話を思い出してました`,
-  ];
-
-  // コンテクストに基づく中間文（前回の内容に自然に触れる）
-  const middles = {
+  // 全文パターン（投げかけで終わる短い1〜2文、話の入り口）
+  const templates = {
     '起業': [
-      `前に話してたプロジェクト、あれからどうなりました？`,
-      `事業の方、順調ですか？あの時の熱量すごかったから気になってて`,
-      `あの時の起業の話、まだ頭に残ってます。進展あったりします？`,
+      `${name}さん！前に話してたプロジェクトの件、あれからどうなりました？`,
+      `${name}さん、この前ふと思い出してて。事業の調子どうですか？`,
+      `${name}さん！あの時の話がずっと気になってて。最近どんな感じ？`,
     ],
     'テクノロジー': [
-      `最近AIがまたすごいことになってますね。${name}さん的にどう見てます？`,
-      `テックの話、また${name}さんとしたいなと思ってました`,
-      `前に話してた技術の件、その後なにか面白い展開ありました？`,
+      `${name}さん！最近AIがまたすごいことになってるけど、${name}さん的にどう見てます？`,
+      `${name}さん、前に話してた技術の件ってその後どうなった？`,
+      `${name}さん！テックの話またしたくて。最近なにか面白いのあった？`,
     ],
     '投資': [
-      `最近のマーケット、${name}さんはどう動いてます？`,
-      `前に教えてもらった話、すごく参考になってます。また情報交換したいです`,
-      `投資の話、また聞かせてください！前回めちゃくちゃ勉強になったので`,
+      `${name}さん！最近のマーケットどう見てます？`,
+      `${name}さん、この前教えてもらった件がすごく効いてて。また情報交換できない？`,
+      `${name}さん！ちょっと相談したいことがあって。近々時間もらえたりする？`,
     ],
     'クリエイティブ': [
-      `${name}さんの作品、最近なにか新しいのありますか？見たいです！`,
-      `前のクリエイティブの話が忘れられなくて。また刺激もらいたいです`,
-      `最近なにか面白いもの作ってます？${name}さんのセンスいつも好きで`,
+      `${name}さん！最近なにか新しいの作ってる？見たい！`,
+      `${name}さん、前の作品の話がずっと頭に残ってて。次のやつも楽しみにしてるよ！`,
+      `${name}さん！最近のクリエイティブどう？刺激もらいたくて😊`,
     ],
     'キャリア': [
-      `お仕事の方、最近どんな感じですか？`,
-      `前に話してた件、うまくいってるといいなと思ってます`,
-      `${name}さんとキャリアの話するといつも視野が広がるんですよね`,
+      `${name}さん！最近お仕事どんな感じ？`,
+      `${name}さん、前に話してた件ってうまくいった？`,
+      `${name}さん！ちょっとキャリアのことで相談したくて。時間ある時教えて！`,
     ],
     '海外': [
-      `海外の話、また聞きたいです！あの時の話すごく面白かった`,
-      `最近またどこか行ったりしてます？${name}さんの話いつもワクワクする`,
-      `グローバルな話、また${name}さんと語りたいです`,
+      `${name}さん！最近またどこか行った？`,
+      `${name}さん、そっちの生活どう？近況聞きたい！`,
+      `${name}さん！この前の海外の話が面白すぎて。続き聞かせて！`,
     ],
     '食事': [
-      `そろそろまたご飯行きませんか？前のお店最高でしたよね`,
-      `最近いいお店見つけたんですけど、${name}さんと行きたいなと！`,
-      `ご飯の約束、ずっとしたいと思ってました。近々どうですか？`,
+      `${name}さん！そろそろまたご飯行かない？`,
+      `${name}さん、最近いい店見つけたんだけど一緒にどう？`,
+      `${name}さん！前のあのお店また行きたくない？`,
     ],
     'イベント': [
-      `また面白いイベントあったら一緒に行きたいです！`,
-      `前のイベント楽しかったですよね。また何かあったら誘ってください！`,
-      `そういえば最近面白いイベントとかあります？`,
+      `${name}さん！最近なんか面白いイベントある？`,
+      `${name}さん、今度また何かあったら誘って！`,
+      `${name}さん！次のイベントいつ？一緒に行きたい！`,
     ],
     '学び': [
-      `最近なにか面白い本とか読みました？おすすめあったら教えてほしいです`,
-      `前の勉強会の話、あれからなにか新しい発見ありましたか？`,
-      `${name}さんとの学びの時間がいつも刺激的で。またやりたいです`,
+      `${name}さん！最近なにか面白い本あった？教えて！`,
+      `${name}さん、前の勉強会の続きってどうなった？`,
+      `${name}さん！おすすめの本とかあったら教えてほしい！`,
     ],
   };
 
-  // 締め
-  const closings = [
-    'また近々お話しましょう！',
-    'タイミング合えばぜひ☺️',
-    'お互い忙しいけど、また会えたら嬉しいです！',
-    '返信はいつでも大丈夫なので、気が向いたら😊',
-    'よかったら近いうちにお茶でもしませんか？',
+  const fallback = [
+    `${name}さん！元気？最近どうしてる？`,
+    `${name}さん、ふと思い出して！近況聞かせて😊`,
+    `${name}さん！久しぶり！最近どう？`,
   ];
 
   const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-  const opener = pick(openers);
-  const middle = middles[tag] ? pick(middles[tag]) : '最近どうしてるかなと思って連絡しました。';
-  const closing = pick(closings);
-
-  return `${opener}\n${middle}\n${closing}`;
+  const pool = templates[tag] || fallback;
+  return pick(pool);
 }
 
 let selectedMedia = 'line'; // デフォルト
