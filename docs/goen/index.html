@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Goen Universe</title>
 <meta property="og:title" content="Goen Universe">
-<meta property="og:description" content="ご縁を創出・持続・拡張する パーソナル人間関係マネジメントアプリ">
-<meta name="description" content="ご縁を創出・持続・拡張する パーソナル人間関係マネジメントアプリ">
+<meta property="og:description" content="Goen Universe — ご縁を創出・持続・拡張するパーソナル人間関係アプリ">
+<meta name="description" content="Goen Universe — ご縁を創出・持続・拡張するパーソナル人間関係アプリ">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -138,7 +138,7 @@ tailwind.config = {
 <!-- ===== ホーム画面 ===== -->
 <div id="screen-home" class="screen px-4 pt-6">
   <header class="text-center mb-6">
-    <h1 class="text-3xl font-bold glow tracking-wider">ご縁</h1>
+    <h1 class="text-3xl font-bold glow tracking-wider">Goen Universe</h1>
     <p class="text-cosmos-dim text-sm mt-1">出会いを星のように記録する</p>
   </header>
 
@@ -155,7 +155,7 @@ tailwind.config = {
 
   <!-- 久しぶりのご縁 -->
   <div id="panel-stale" class="mb-6">
-    <h2 class="text-sm font-medium text-cosmos-glow mb-3">✦ 久しぶりのご縁</h2>
+    <h2 class="text-sm font-medium text-cosmos-glow mb-3">✦ 久しぶりのGoen</h2>
     <div id="stale-list" class="space-y-2"></div>
   </div>
 
@@ -192,7 +192,7 @@ tailwind.config = {
 
 <!-- ===== ご縁一覧画面 ===== -->
 <div id="screen-people" class="screen px-4 pt-6">
-  <h2 class="text-center text-lg font-medium glow mb-4">ご縁一覧</h2>
+  <h2 class="text-center text-lg font-medium glow mb-4">Goen一覧</h2>
   <div id="people-list" class="space-y-3"></div>
   <div id="people-empty" class="text-center text-cosmos-dim text-sm mt-12 hidden">まだ誰も記録されていません</div>
 </div>
@@ -226,7 +226,7 @@ tailwind.config = {
       <span class="text-lg mb-0.5">☄️</span>リコネクト
     </button>
     <button onclick="switchScreen('people')" data-nav="people" class="nav-btn flex flex-col items-center text-xs text-cosmos-dim">
-      <span class="text-lg mb-0.5">👥</span>ご縁
+      <span class="text-lg mb-0.5">👥</span>Goen
     </button>
   </div>
 </nav>
@@ -404,7 +404,7 @@ function renderStale() {
   }
   staleData.sort((a,b) => b.score - a.score);
   if (!staleData.length) {
-    container.innerHTML = '<p class="text-xs text-cosmos-dim">すべてのご縁が活発です ✨</p>';
+    container.innerHTML = '<p class="text-xs text-cosmos-dim">すべてのGoenが活発です ✨</p>';
     return;
   }
   container.innerHTML = staleData.slice(0, 5).map(d => `
