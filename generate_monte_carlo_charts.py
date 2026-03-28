@@ -5,13 +5,13 @@ import sys
 import time
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
 
 from taiga_sim.monte_carlo import MonteCarloResult, run_monte_carlo
-from taiga_sim.models.simulation import SimulationConfig
 
 
 def _oku(values: list[float]) -> list[float]:
@@ -27,17 +27,21 @@ def _cho(values: list[float]) -> list[float]:
 def generate_charts(result: MonteCarloResult, output_path: str) -> None:
     """Create a 3x2 panel of Monte Carlo fan charts."""
 
-    plt.rcParams.update({
-        "font.size": 11,
-        "figure.facecolor": "white",
-        "axes.grid": True,
-        "grid.alpha": 0.3,
-    })
+    plt.rcParams.update(
+        {
+            "font.size": 11,
+            "figure.facecolor": "white",
+            "axes.grid": True,
+            "grid.alpha": 0.3,
+        }
+    )
 
     fig, axes = plt.subplots(3, 2, figsize=(16, 20))
     fig.suptitle(
         f"Taiga Capital Group - Monte Carlo Simulation ({result.n_trials:,} Trials, {result.years} Years)",
-        fontsize=15, fontweight="bold", y=0.98,
+        fontsize=15,
+        fontweight="bold",
+        y=0.98,
     )
 
     # ── Helper: draw fan chart ──────────────────────────────────────
@@ -51,9 +55,9 @@ def generate_charts(result: MonteCarloResult, output_path: str) -> None:
         mean = scale_fn([d.mean for d in dist_list])
 
         # P10-P90 band
-        ax.fill_between(years, p10, p90, alpha=0.12, color="steelblue", label="P10–P90")
+        ax.fill_between(years, p10, p90, alpha=0.12, color="steelblue", label="P10-P90")
         # P25-P75 band
-        ax.fill_between(years, p25, p75, alpha=0.25, color="steelblue", label="P25–P75")
+        ax.fill_between(years, p25, p75, alpha=0.25, color="steelblue", label="P25-P75")
         # Median line
         ax.plot(years, p50, "b-", linewidth=2.5, label="P50 (Median)")
         # Mean line
@@ -74,35 +78,46 @@ def generate_charts(result: MonteCarloResult, output_path: str) -> None:
             ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
 
     # ── 1. Enterprise Value (Cho JPY / Trillion) ──
-    _fan(axes[0, 0], result.ev,
-         "Enterprise Value (Cho JPY)", "Cho JPY",
-         scale_fn=_cho, log=True,
-         fmt_fn=lambda x, _: f"{x:,.1f}")
+    _fan(
+        axes[0, 0],
+        result.ev,
+        "Enterprise Value (Cho JPY)",
+        "Cho JPY",
+        scale_fn=_cho,
+        log=True,
+        fmt_fn=lambda x, _: f"{x:,.1f}",
+    )
 
     # ── 2. Revenue (Oku JPY / 100M) ──
-    _fan(axes[0, 1], result.revenue,
-         "Revenue (Oku JPY)", "Oku JPY",
-         scale_fn=_oku, log=True)
+    _fan(axes[0, 1], result.revenue, "Revenue (Oku JPY)", "Oku JPY", scale_fn=_oku, log=True)
 
     # ── 3. EBITDA (Oku JPY) ──
-    _fan(axes[1, 0], result.ebitda,
-         "EBITDA (Oku JPY)", "Oku JPY",
-         scale_fn=_oku, log=True)
+    _fan(axes[1, 0], result.ebitda, "EBITDA (Oku JPY)", "Oku JPY", scale_fn=_oku, log=True)
 
     # ── 4. Seed Investor MOIC ──
-    _fan(axes[1, 1], result.moic,
-         "Seed Investor MOIC", "MOIC (x)",
-         scale_fn=lambda vals: vals, log=True,
-         fmt_fn=lambda x, _: f"{x:,.0f}x")
+    _fan(
+        axes[1, 1],
+        result.moic,
+        "Seed Investor MOIC",
+        "MOIC (x)",
+        scale_fn=lambda vals: vals,
+        log=True,
+        fmt_fn=lambda x, _: f"{x:,.0f}x",
+    )
 
     # ── 5. IRR fan chart ──
     def _pct(vals):
         return [v * 100 for v in vals]
 
-    _fan(axes[2, 0], result.irr,
-         "Seed Investor IRR (%)", "%",
-         scale_fn=_pct, log=False,
-         fmt_fn=lambda x, _: f"{x:.0f}%")
+    _fan(
+        axes[2, 0],
+        result.irr,
+        "Seed Investor IRR (%)",
+        "%",
+        scale_fn=_pct,
+        log=False,
+        fmt_fn=lambda x, _: f"{x:.0f}%",
+    )
 
     # ── 6. Final-year EV histogram ──
     ax = axes[2, 1]

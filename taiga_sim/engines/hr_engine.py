@@ -9,7 +9,6 @@ if TYPE_CHECKING:
     from taiga_sim.models.simulation import SimulationState
 
 from taiga_sim.models.organization import (
-    EvaluationCoefficient,
     EvaluationScores,
     Member,
     MemberGrade,
@@ -74,7 +73,13 @@ class HREngine:
 
         # Hiring targets by phase
         hire_targets = {
-            0: 0, 1: 3, 2: 8, 3: 20, 4: 50, 5: 80, 6: 150,
+            0: 0,
+            1: 3,
+            2: 8,
+            3: 20,
+            4: 50,
+            5: 80,
+            6: 150,
         }
         target = hire_targets.get(phase.phase, 5)
 
@@ -99,8 +104,8 @@ class HREngine:
             base = 450_0000 * base_multipliers.get(phase.phase, 1.0) * 0.75  # 75% of market
 
             member = Member(
-                id=f"m_{state.year:03d}_{i+1:03d}",
-                name=f"メンバー_{state.year}_{i+1}",
+                id=f"m_{state.year:03d}_{i + 1:03d}",
+                name=f"メンバー_{state.year}_{i + 1}",
                 age=age,
                 join_year=state.year,
                 grade=grade,
@@ -153,13 +158,14 @@ class HREngine:
 
             # Update Ownership Score (gradual drift with noise)
             os = member.ownership_score
-            drift = self.rng.uniform(-1, 2)  # slight positive drift
+            self.rng.uniform(-1, 2)  # slight positive drift
             member.ownership_score = OwnershipScore(
                 financial_literacy=os.financial_literacy + self.rng.uniform(-0.5, 1.0),
                 decision_ownership=os.decision_ownership + self.rng.uniform(-0.5, 1.0),
                 holistic_perspective=os.holistic_perspective + self.rng.uniform(-0.5, 1.0),
                 strategic_vision=os.strategic_vision + self.rng.uniform(-0.5, 1.0),
-                skin_in_the_game=os.skin_in_the_game + (1.0 if member.self_investment > 0 else -0.5),
+                skin_in_the_game=os.skin_in_the_game
+                + (1.0 if member.self_investment > 0 else -0.5),
             ).clamp()
 
             # Determine evaluation coefficient based on weighted score
@@ -192,6 +198,4 @@ class HREngine:
 
         # Update unit rosters
         for unit in state.holding.units:
-            unit.members = [
-                m.id for m in state.holding.members if m.unit == unit.unit_type
-            ]
+            unit.members = [m.id for m in state.holding.members if m.unit == unit.unit_type]

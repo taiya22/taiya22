@@ -10,7 +10,7 @@ class CompensationLayer1:
     """Layer 1: Base compensation (安定層)."""
 
     base_salary: float = 0.0  # 同業他社の70-80%
-    bonus_pool_rate: float = 0.20  # グループ調整後営業利益 × 15-20%
+    bonus_pool_rate: float = 0.20  # グループ調整後営業利益 x 15-20%
     bonus_pool_total: float = 0.0  # calculated
     individual_coefficient: float = 1.0  # 0.5 - 1.5
     bonus: float = 0.0  # calculated
@@ -25,7 +25,7 @@ class CompensationLayer2:
     """Layer 2: Profit sharing (ファンドキャリー相当)."""
 
     ev_increase: float = 0.0  # enterprise value increase from prior high
-    sharing_rate: float = 0.12  # 企業価値増加分 × 10-15%
+    sharing_rate: float = 0.12  # 企業価値増加分 x 10-15%
     pool_total: float = 0.0  # calculated
     individual_share: float = 0.0  # based on tier allocation
 
@@ -92,9 +92,7 @@ class TotalCompensation:
     def total_cash(self) -> float:
         """Total cash compensation (pre-tax)."""
         return (
-            self.layer1.total_layer1
-            + self.layer2.current_year_cash
-            + self.layer3.annual_dividend
+            self.layer1.total_layer1 + self.layer2.current_year_cash + self.layer3.annual_dividend
         )
 
     @property

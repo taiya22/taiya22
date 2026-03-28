@@ -14,59 +14,61 @@ import time
 from dataclasses import dataclass
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
 import numpy as np
 
 from taiga_sim.engines.simulation_runner import AnnualReport, SimulationRunner
 from taiga_sim.models.simulation import SimulationConfig
 
-OKU = 1_0000_0000       # 1 Oku = 100M JPY
+OKU = 1_0000_0000  # 1 Oku = 100M JPY
 CHO = 1_0000_0000_0000  # 1 Cho = 1T JPY
 
 
 # ── Target definitions ──────────────────────────────────────────────
 
+
 @dataclass
 class Target:
     label: str
-    metric: str        # attribute on AnnualReport
-    threshold: float   # raw JPY or dimensionless
+    metric: str  # attribute on AnnualReport
+    threshold: float  # raw JPY or dimensionless
     color: str
 
 
 EV_TARGETS = [
-    Target("EV 100 Oku",  "enterprise_value", 100 * OKU,  "#2196F3"),
+    Target("EV 100 Oku", "enterprise_value", 100 * OKU, "#2196F3"),
     Target("EV 1,000 Oku", "enterprise_value", 1000 * OKU, "#4CAF50"),
-    Target("EV 1 Cho",    "enterprise_value", 1 * CHO,    "#FF9800"),
-    Target("EV 10 Cho",   "enterprise_value", 10 * CHO,   "#F44336"),
-    Target("EV 30 Cho",   "enterprise_value", 30 * CHO,   "#9C27B0"),
+    Target("EV 1 Cho", "enterprise_value", 1 * CHO, "#FF9800"),
+    Target("EV 10 Cho", "enterprise_value", 10 * CHO, "#F44336"),
+    Target("EV 30 Cho", "enterprise_value", 30 * CHO, "#9C27B0"),
 ]
 
 REV_TARGETS = [
-    Target("Rev 100 Oku",   "revenue", 100 * OKU,  "#2196F3"),
+    Target("Rev 100 Oku", "revenue", 100 * OKU, "#2196F3"),
     Target("Rev 1,000 Oku", "revenue", 1000 * OKU, "#4CAF50"),
     Target("Rev 5,000 Oku", "revenue", 5000 * OKU, "#FF9800"),
-    Target("Rev 3 Cho",     "revenue", 3 * CHO,    "#F44336"),
+    Target("Rev 3 Cho", "revenue", 3 * CHO, "#F44336"),
 ]
 
 MOIC_TARGETS = [
-    Target("MOIC 10x",    "seed_investor_moic", 10,    "#2196F3"),
-    Target("MOIC 100x",   "seed_investor_moic", 100,   "#4CAF50"),
-    Target("MOIC 1,000x", "seed_investor_moic", 1000,  "#FF9800"),
-    Target("MOIC 5,000x", "seed_investor_moic", 5000,  "#F44336"),
+    Target("MOIC 10x", "seed_investor_moic", 10, "#2196F3"),
+    Target("MOIC 100x", "seed_investor_moic", 100, "#4CAF50"),
+    Target("MOIC 1,000x", "seed_investor_moic", 1000, "#FF9800"),
+    Target("MOIC 5,000x", "seed_investor_moic", 5000, "#F44336"),
 ]
 
 MILESTONE_TARGETS = [
     Target("EV 1 Cho (IPO-ready)", "enterprise_value", 1 * CHO, "#FF9800"),
-    Target("EV 10 Cho",            "enterprise_value", 10 * CHO, "#F44336"),
-    Target("MOIC 100x",            "seed_investor_moic", 100,    "#4CAF50"),
-    Target("Rev 1,000 Oku",        "revenue", 1000 * OKU,       "#2196F3"),
+    Target("EV 10 Cho", "enterprise_value", 10 * CHO, "#F44336"),
+    Target("MOIC 100x", "seed_investor_moic", 100, "#4CAF50"),
+    Target("Rev 1,000 Oku", "revenue", 1000 * OKU, "#2196F3"),
 ]
 
 
 # ── Simulation ──────────────────────────────────────────────────────
+
 
 def run_all_trials(n_trials: int, years: int) -> list[list[AnnualReport]]:
     """Run n_trials and return all annual reports."""
@@ -111,8 +113,7 @@ def compute_yearly_probability(
     probs = []
     for yr_idx in range(n_years):
         count = sum(
-            1 for trial in all_trials
-            if getattr(trial[yr_idx], target.metric) >= target.threshold
+            1 for trial in all_trials if getattr(trial[yr_idx], target.metric) >= target.threshold
         )
         probs.append(count / n_trials * 100)
     return probs
@@ -128,6 +129,7 @@ def find_year_for_probability(probs: list[float], pct: float) -> int | None:
 
 # ── Chart generation ────────────────────────────────────────────────
 
+
 def generate_charts(
     all_trials: list[list[AnnualReport]],
     output_path: str,
@@ -135,17 +137,21 @@ def generate_charts(
     n_trials = len(all_trials)
     years = list(range(len(all_trials[0])))
 
-    plt.rcParams.update({
-        "font.size": 11,
-        "figure.facecolor": "white",
-        "axes.grid": True,
-        "grid.alpha": 0.3,
-    })
+    plt.rcParams.update(
+        {
+            "font.size": 11,
+            "figure.facecolor": "white",
+            "axes.grid": True,
+            "grid.alpha": 0.3,
+        }
+    )
 
     fig, axes = plt.subplots(3, 2, figsize=(16, 20))
     fig.suptitle(
-        f"Target Achievement Probability ({n_trials:,} Trials, {len(years)-1} Years)",
-        fontsize=15, fontweight="bold", y=0.98,
+        f"Target Achievement Probability ({n_trials:,} Trials, {len(years) - 1} Years)",
+        fontsize=15,
+        fontweight="bold",
+        y=0.98,
     )
 
     # ── 1. EV cumulative probability ──
@@ -203,11 +209,11 @@ def generate_charts(
     colors = [m[4] for m in milestone_data]
 
     y_pos = np.arange(len(labels))
-    bars50 = ax.barh(y_pos + 0.15, yr50s, height=0.3, color=colors, alpha=0.7, label="50% Prob Year")
-    bars90 = ax.barh(y_pos - 0.15, yr90s, height=0.3, color=colors, alpha=0.35, label="90% Prob Year")
+    ax.barh(y_pos + 0.15, yr50s, height=0.3, color=colors, alpha=0.7, label="50% Prob Year")
+    ax.barh(y_pos - 0.15, yr90s, height=0.3, color=colors, alpha=0.35, label="90% Prob Year")
 
     # Annotate
-    for i, (y50, y90, m) in enumerate(zip(yr50s, yr90s, milestone_data)):
+    for i, (y50, y90, m) in enumerate(zip(yr50s, yr90s, milestone_data, strict=False)):
         final_p = m[3]
         if y50 <= 30:
             ax.text(y50 + 0.3, i + 0.15, f"Y{y50}", va="center", fontsize=9, fontweight="bold")
@@ -216,7 +222,9 @@ def generate_charts(
         if y90 <= 30:
             ax.text(y90 + 0.3, i - 0.15, f"Y{y90}", va="center", fontsize=9, alpha=0.7)
         else:
-            ax.text(0.5, i - 0.15, f"<90% (Final: {final_p:.0f}%)", va="center", fontsize=9, alpha=0.7)
+            ax.text(
+                0.5, i - 0.15, f"<90% (Final: {final_p:.0f}%)", va="center", fontsize=9, alpha=0.7
+            )
 
     ax.set_yticks(y_pos)
     ax.set_yticklabels(labels)
@@ -229,28 +237,27 @@ def generate_charts(
     # ── 5. Phase targets: probability of hitting phase targets on time ──
     ax = axes[2, 0]
     phase_targets = [
-        ("P1 Y3: Rev 30 Oku",     3,  "revenue",          30 * OKU),
-        ("P2 Y6: Rev 70 Oku",     6,  "revenue",          70 * OKU),
-        ("P3 Y10: Rev 1000 Oku",  10, "revenue",          1000 * OKU),
-        ("P4 Y15: Rev 2000 Oku",  15, "revenue",          2000 * OKU),
-        ("P5 Y20: EV 1 Cho",      20, "enterprise_value", 1 * CHO),
-        ("P6 Y30: EV 30 Cho",     30, "enterprise_value", 30 * CHO),
+        ("P1 Y3: Rev 30 Oku", 3, "revenue", 30 * OKU),
+        ("P2 Y6: Rev 70 Oku", 6, "revenue", 70 * OKU),
+        ("P3 Y10: Rev 1000 Oku", 10, "revenue", 1000 * OKU),
+        ("P4 Y15: Rev 2000 Oku", 15, "revenue", 2000 * OKU),
+        ("P5 Y20: EV 1 Cho", 20, "enterprise_value", 1 * CHO),
+        ("P6 Y30: EV 30 Cho", 30, "enterprise_value", 30 * CHO),
     ]
     phase_labels = []
     phase_probs = []
     phase_colors_list = ["#2196F3", "#4CAF50", "#FF9800", "#F44336", "#9C27B0", "#795548"]
 
-    for (label, yr, metric, threshold), color in zip(phase_targets, phase_colors_list):
-        count = sum(
-            1 for trial in all_trials
-            if getattr(trial[yr], metric) >= threshold
-        )
+    for (label, yr, metric, threshold), _color in zip(
+        phase_targets, phase_colors_list, strict=False
+    ):
+        count = sum(1 for trial in all_trials if getattr(trial[yr], metric) >= threshold)
         prob = count / n_trials * 100
         phase_labels.append(label)
         phase_probs.append(prob)
 
-    bars = ax.barh(range(len(phase_labels)), phase_probs, color=phase_colors_list, alpha=0.8)
-    for i, (p, label) in enumerate(zip(phase_probs, phase_labels)):
+    ax.barh(range(len(phase_labels)), phase_probs, color=phase_colors_list, alpha=0.8)
+    for i, (p, _label) in enumerate(zip(phase_probs, phase_labels, strict=False)):
         ax.text(p + 1.5, i, f"{p:.0f}%", va="center", fontsize=10, fontweight="bold")
     ax.set_yticks(range(len(phase_labels)))
     ax.set_yticklabels(phase_labels)
@@ -279,15 +286,18 @@ def generate_charts(
     bucket_pcts = [b[1].sum() / n_trials * 100 for b in buckets]
     bucket_colors = ["#F44336", "#FF9800", "#FFC107", "#8BC34A", "#4CAF50", "#2196F3"]
 
-    wedges, texts, autotexts = ax.pie(
-        bucket_pcts, labels=bucket_labels, colors=bucket_colors,
+    _wedges, _texts, autotexts = ax.pie(
+        bucket_pcts,
+        labels=bucket_labels,
+        colors=bucket_colors,
         autopct=lambda p: f"{p:.0f}%" if p > 3 else "",
-        startangle=90, counterclock=False,
+        startangle=90,
+        counterclock=False,
         textprops={"fontsize": 10},
     )
     for t in autotexts:
         t.set_fontweight("bold")
-    ax.set_title(f"Year 30 EV Outcome Distribution", fontweight="bold")
+    ax.set_title("Year 30 EV Outcome Distribution", fontweight="bold")
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
@@ -295,6 +305,7 @@ def generate_charts(
 
 
 # ── Text summary ────────────────────────────────────────────────────
+
 
 def print_summary(all_trials: list[list[AnnualReport]]) -> None:
     n_trials = len(all_trials)
@@ -317,19 +328,20 @@ def print_summary(all_trials: list[list[AnnualReport]]) -> None:
 
     print("\n--- Phase Target On-Time ---")
     phase_targets = [
-        ("P1 Y3: Rev 30 Oku",     3,  "revenue",          30 * OKU),
-        ("P2 Y6: Rev 70 Oku",     6,  "revenue",          70 * OKU),
-        ("P3 Y10: Rev 1000 Oku",  10, "revenue",          1000 * OKU),
-        ("P4 Y15: Rev 2000 Oku",  15, "revenue",          2000 * OKU),
-        ("P5 Y20: EV 1 Cho",      20, "enterprise_value", 1 * CHO),
-        ("P6 Y30: EV 30 Cho",     30, "enterprise_value", 30 * CHO),
+        ("P1 Y3: Rev 30 Oku", 3, "revenue", 30 * OKU),
+        ("P2 Y6: Rev 70 Oku", 6, "revenue", 70 * OKU),
+        ("P3 Y10: Rev 1000 Oku", 10, "revenue", 1000 * OKU),
+        ("P4 Y15: Rev 2000 Oku", 15, "revenue", 2000 * OKU),
+        ("P5 Y20: EV 1 Cho", 20, "enterprise_value", 1 * CHO),
+        ("P6 Y30: EV 30 Cho", 30, "enterprise_value", 30 * CHO),
     ]
     for label, yr, metric, threshold in phase_targets:
         count = sum(1 for t in all_trials if getattr(t[yr], metric) >= threshold)
-        print(f"  {label:<24} {count/n_trials*100:5.1f}%")
+        print(f"  {label:<24} {count / n_trials * 100:5.1f}%")
 
 
 # ── Main ────────────────────────────────────────────────────────────
+
 
 def main():
     n_trials = int(sys.argv[1]) if len(sys.argv) > 1 else 100

@@ -3,7 +3,7 @@
 import pytest
 
 from taiga_sim.engines.simulation_runner import SimulationRunner
-from taiga_sim.models.financial import ProfitLoss, BalanceSheet, CashFlow
+from taiga_sim.models.financial import BalanceSheet, CashFlow, ProfitLoss
 from taiga_sim.models.organization import (
     Company,
     CompanyType,
@@ -95,14 +95,14 @@ class TestSimulationRunner:
         runner = SimulationRunner(config=config, seed=123)
         reports = runner.run(years=15)
         # Check if any crisis occurred
-        any_crisis = any(r.crisis_active for r in reports)
+        any(r.crisis_active for r in reports)
         # With 30% annual probability over 15 years, very likely
         # but not guaranteed with any specific seed
 
     def test_export_results(self, tmp_path):
         runner = SimulationRunner(seed=42)
         runner.run(years=3)
-        output = runner.export_results(str(tmp_path / "test_results.json"))
+        runner.export_results(str(tmp_path / "test_results.json"))
         assert (tmp_path / "test_results.json").exists()
 
 
@@ -125,10 +125,13 @@ class TestConglomeratePremium:
     def test_single_company_no_effect(self):
         """Single company should have no conglomerate effect."""
         from taiga_sim.engines.financial_engine import FinancialEngine
+
         engine = FinancialEngine()
         state = SimulationState()
         state.holding.companies = [
-            Company(id="c1", company_type=CompanyType.PRODUCT, revenue=10_0000_0000, ebitda=1_0000_0000)
+            Company(
+                id="c1", company_type=CompanyType.PRODUCT, revenue=10_0000_0000, ebitda=1_0000_0000
+            )
         ]
         multiplier = engine.compute_conglomerate_premium(state)
         assert multiplier == 1.0
@@ -136,10 +139,16 @@ class TestConglomeratePremium:
     def test_related_diversification_premium(self):
         """Multiple companies of same type should yield related diversification premium."""
         from taiga_sim.engines.financial_engine import FinancialEngine
+
         engine = FinancialEngine()
         state = SimulationState()
         state.holding.companies = [
-            Company(id=f"c{i}", company_type=CompanyType.PRODUCT, revenue=10_0000_0000, ebitda=1_0000_0000)
+            Company(
+                id=f"c{i}",
+                company_type=CompanyType.PRODUCT,
+                revenue=10_0000_0000,
+                ebitda=1_0000_0000,
+            )
             for i in range(4)
         ]
         state.holding.pmi_capability = 0.5
@@ -151,6 +160,7 @@ class TestConglomeratePremium:
     def test_unrelated_diversification_discount(self):
         """Many unrelated types with no operating system should yield discount."""
         from taiga_sim.engines.financial_engine import FinancialEngine
+
         engine = FinancialEngine()
         state = SimulationState()
         types = list(CompanyType)
@@ -167,11 +177,17 @@ class TestConglomeratePremium:
     def test_pmi_capability_improves_premium(self):
         """Mature PMI capability should improve the premium."""
         from taiga_sim.engines.financial_engine import FinancialEngine
+
         engine = FinancialEngine()
         state = SimulationState()
         types = list(CompanyType)
         state.holding.companies = [
-            Company(id=f"c{i}", company_type=types[i % len(types)], revenue=10_0000_0000, ebitda=1_0000_0000)
+            Company(
+                id=f"c{i}",
+                company_type=types[i % len(types)],
+                revenue=10_0000_0000,
+                ebitda=1_0000_0000,
+            )
             for i in range(6)
         ]
         # Without OS
@@ -189,11 +205,17 @@ class TestConglomeratePremium:
     def test_monitoring_decay(self):
         """Many companies should trigger monitoring efficiency decay."""
         from taiga_sim.engines.financial_engine import FinancialEngine
+
         engine = FinancialEngine()
         state = SimulationState()
         # 5 companies (below threshold)
         state.holding.companies = [
-            Company(id=f"c{i}", company_type=CompanyType.PRODUCT, revenue=10_0000_0000, ebitda=1_0000_0000)
+            Company(
+                id=f"c{i}",
+                company_type=CompanyType.PRODUCT,
+                revenue=10_0000_0000,
+                ebitda=1_0000_0000,
+            )
             for i in range(5)
         ]
         state.holding.pmi_capability = 0.5
@@ -202,7 +224,12 @@ class TestConglomeratePremium:
 
         # 12 companies (well above threshold)
         state.holding.companies = [
-            Company(id=f"c{i}", company_type=CompanyType.PRODUCT, revenue=10_0000_0000, ebitda=1_0000_0000)
+            Company(
+                id=f"c{i}",
+                company_type=CompanyType.PRODUCT,
+                revenue=10_0000_0000,
+                ebitda=1_0000_0000,
+            )
             for i in range(12)
         ]
         mult_large = engine.compute_conglomerate_premium(state)
@@ -224,15 +251,17 @@ class TestScenarioAnalysis:
     def test_three_scenarios_run(self):
         """All three scenarios should complete and produce different results."""
         from taiga_sim.scenario_analysis import run_scenarios
+
         results = run_scenarios(years=10, seed=42)
         assert set(results.keys()) == {"bear", "base", "bull"}
-        for name, sr in results.items():
+        for _name, sr in results.items():
             assert len(sr.reports) == 11  # year 0-10
             assert sr.final.enterprise_value > 0
 
     def test_scenarios_differ(self):
         """Different scenarios should produce different EV outcomes."""
         from taiga_sim.scenario_analysis import run_scenarios
+
         results = run_scenarios(years=10, seed=42)
         evs = {name: sr.ev for name, sr in results.items()}
         # All three should be distinct (different macro assumptions)
@@ -240,7 +269,8 @@ class TestScenarioAnalysis:
 
     def test_comparison_table_renders(self):
         """Comparison table should be a non-empty string."""
-        from taiga_sim.scenario_analysis import run_scenarios, format_comparison_table
+        from taiga_sim.scenario_analysis import format_comparison_table, run_scenarios
+
         results = run_scenarios(years=10, seed=42)
         table = format_comparison_table(results)
         assert "Bear" in table
@@ -251,6 +281,7 @@ class TestMonteCarlo:
     def test_monte_carlo_runs(self):
         """Small Monte Carlo run should produce valid distributions."""
         from taiga_sim.monte_carlo import run_monte_carlo
+
         result = run_monte_carlo(n_trials=10, years=5)
         assert result.n_trials == 10
         assert len(result.ev) == 6  # year 0-5
@@ -260,13 +291,15 @@ class TestMonteCarlo:
     def test_monte_carlo_spread(self):
         """P90 should exceed P10 (randomness creates spread)."""
         from taiga_sim.monte_carlo import run_monte_carlo
+
         result = run_monte_carlo(n_trials=20, years=10)
         final = result.ev[-1]
         assert final.p90 > final.p10
 
     def test_monte_carlo_summary_renders(self):
         """Summary table should render without errors."""
-        from taiga_sim.monte_carlo import run_monte_carlo, format_monte_carlo_summary
+        from taiga_sim.monte_carlo import format_monte_carlo_summary, run_monte_carlo
+
         result = run_monte_carlo(n_trials=5, years=5)
         text = format_monte_carlo_summary(result)
         assert "P10" in text

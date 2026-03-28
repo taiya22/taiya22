@@ -39,24 +39,23 @@ from taiga_sim.models.financial import (
 )
 from taiga_sim.models.organization import Company, CompanyType
 
-
 # Product lifecycle growth profiles (annual rates)
 # Calibrated to produce realistic growth trajectories
 LIFECYCLE_PROFILES = {
     #                  growth_rate, gross_margin, opex_ratio, capex_ratio, duration_years
-    "introduction": (0.30, 0.32, 0.35, 0.08, 3),   # high growth, low margin, high burn
-    "growth":       (0.12, 0.40, 0.28, 0.06, 5),   # strong growth, improving margins
-    "maturity":     (0.015, 0.45, 0.22, 0.035, 15),  # stable, high margins, cash cow
-    "decline":      (-0.04, 0.38, 0.25, 0.02, 10),  # shrinking, margin compression
+    "introduction": (0.30, 0.32, 0.35, 0.08, 3),  # high growth, low margin, high burn
+    "growth": (0.12, 0.40, 0.28, 0.06, 5),  # strong growth, improving margins
+    "maturity": (0.015, 0.45, 0.22, 0.035, 15),  # stable, high margins, cash cow
+    "decline": (-0.04, 0.38, 0.25, 0.02, 10),  # shrinking, margin compression
 }
 
 # Company type modifiers on lifecycle
 COMPANY_TYPE_MODIFIERS = {
-    CompanyType.PRODUCT:    {"growth_boost": 0.0,  "margin_boost": 0.02, "maturity_years": 18},
+    CompanyType.PRODUCT: {"growth_boost": 0.0, "margin_boost": 0.02, "maturity_years": 18},
     CompanyType.EXPERIENCE: {"growth_boost": 0.10, "margin_boost": -0.03, "maturity_years": 8},
-    CompanyType.STRATEGY:   {"growth_boost": 0.05, "margin_boost": 0.05, "maturity_years": 12},
-    CompanyType.VENTURE:    {"growth_boost": 0.20, "margin_boost": -0.05, "maturity_years": 6},
-    CompanyType.TERRA:      {"growth_boost": -0.02, "margin_boost": 0.03, "maturity_years": 25},
+    CompanyType.STRATEGY: {"growth_boost": 0.05, "margin_boost": 0.05, "maturity_years": 12},
+    CompanyType.VENTURE: {"growth_boost": 0.20, "margin_boost": -0.05, "maturity_years": 6},
+    CompanyType.TERRA: {"growth_boost": -0.02, "margin_boost": 0.03, "maturity_years": 25},
 }
 
 
@@ -100,7 +99,8 @@ class FinancialEngine:
             # Decay high growth rates toward lifecycle baseline over ~5 years
             decay = 0.80  # 20% annual decay toward baseline
             company.revenue_growth_rate = (
-                base_growth + growth_boost
+                base_growth
+                + growth_boost
                 + (company.revenue_growth_rate - base_growth - growth_boost) * decay
             )
             effective_growth = company.revenue_growth_rate
@@ -162,9 +162,7 @@ class FinancialEngine:
         # Update company state
         company.revenue = new_revenue
         company.ebitda = pl.ebitda
-        company.operating_margin = (
-            pl.operating_income / new_revenue if new_revenue > 0 else 0
-        )
+        company.operating_margin = pl.operating_income / new_revenue if new_revenue > 0 else 0
 
         # B/S
         bs = BalanceSheet(
@@ -223,7 +221,9 @@ class FinancialEngine:
         if holding.foundation_active and group_fcf > 0:
             foundation_contribution = group_fcf * config.compensation.foundation_fcf_rate
 
-        keshiki_contribution = max(0, operating_income_estimate * config.compensation.keshiki_reserve_rate)
+        keshiki_contribution = max(
+            0, operating_income_estimate * config.compensation.keshiki_reserve_rate
+        )
 
         profit_sharing = 0.0
         ev = self.compute_enterprise_value(state, total_sub_ebitda)
@@ -270,9 +270,7 @@ class FinancialEngine:
         n_companies = len(companies)
 
         # Relatedness ratio: fraction of companies sharing a type with others
-        companies_in_clusters = sum(
-            count for count in type_counts.values() if count >= 2
-        )
+        companies_in_clusters = sum(count for count in type_counts.values() if count >= 2)
         relatedness_ratio = companies_in_clusters / n_companies if n_companies > 0 else 0
 
         # Blend between related premium and unrelated discount
@@ -285,7 +283,7 @@ class FinancialEngine:
         # --- 2. Inverted U-shape for segment count (Arte & Larimo 2022) ---
         # Peak at optimal_segment_count, declines on both sides
         segment_deviation = abs(n_types - cfg.optimal_segment_count)
-        segment_penalty = -0.02 * (segment_deviation ** 1.5) / cfg.diversification_curve_width
+        segment_penalty = -0.02 * (segment_deviation**1.5) / cfg.diversification_curve_width
         diversification_effect += segment_penalty
 
         # --- 3. PMI capability premium (Danaher DBS effect) ---
@@ -299,28 +297,24 @@ class FinancialEngine:
             excess = n_companies - cfg.monitoring_decay_threshold
             monitoring_penalty = -excess * cfg.monitoring_decay_rate
             # PMI capability mitigates monitoring decay
-            monitoring_penalty *= (1.0 - pmi_cap * 0.6)
+            monitoring_penalty *= 1.0 - pmi_cap * 0.6
 
         # --- 5. Governance quality ---
         gov = holding.governance_quality
-        governance_effect = (
-            cfg.governance_bonus_max * gov
-            - cfg.governance_penalty_max * (1 - gov)
-        )
+        governance_effect = cfg.governance_bonus_max * gov - cfg.governance_penalty_max * (1 - gov)
 
         # --- 6. Japanese market institutional context ---
         # Weaker institutions in Japan = diversification somewhat more valuable
         japan_context = -cfg.japan_institutional_discount  # positive contribution
 
         # --- 7. Platform/tech premium for venture-heavy portfolios ---
-        venture_ratio = type_counts.get(
-            CompanyType.VENTURE, 0
-        ) / n_companies if n_companies > 0 else 0
+        venture_ratio = (
+            type_counts.get(CompanyType.VENTURE, 0) / n_companies if n_companies > 0 else 0
+        )
         platform_premium = 0.0
         if venture_ratio > 0.2 and pmi_cap > 0.5:
             platform_premium = min(
-                cfg.platform_premium_max,
-                venture_ratio * pmi_cap * cfg.platform_premium_max
+                cfg.platform_premium_max, venture_ratio * pmi_cap * cfg.platform_premium_max
             )
 
         # --- Combine all effects ---
@@ -334,7 +328,7 @@ class FinancialEngine:
         )
 
         # Clamp to reasonable range: -25% discount to +50% premium
-        total_premium = max(-0.25, min(0.50, total_premium))
+        total_premium = float(max(-0.25, min(0.50, total_premium)))
 
         return 1.0 + total_premium
 
@@ -354,17 +348,13 @@ class FinancialEngine:
         if year > 0:
             target_maturity = min(1.0, year / cfg.pmi_capability_years)
             # Smooth convergence: don't jump instantly
-            holding.pmi_capability += (
-                (target_maturity - holding.pmi_capability) * 0.3
-            )
+            holding.pmi_capability += (target_maturity - holding.pmi_capability) * 0.3
 
         # Governance improves with track record and scale
         n_companies = len(holding.companies)
         if n_companies >= 3:
             gov_target = min(0.95, 0.5 + n_companies * 0.02 + year * 0.01)
-            holding.governance_quality += (
-                (gov_target - holding.governance_quality) * 0.2
-            )
+            holding.governance_quality += (gov_target - holding.governance_quality) * 0.2
 
     def compute_enterprise_value(
         self,
@@ -406,14 +396,14 @@ class FinancialEngine:
             rev_now = state.annual_revenue_history[-1]
             rev_3y = state.annual_revenue_history[-3]
             if rev_3y > 0 and rev_now > rev_3y:
-                cagr_3y = (rev_now / rev_3y) ** (1/3) - 1
+                cagr_3y = (rev_now / rev_3y) ** (1 / 3) - 1
                 if cagr_3y > 0.10:
                     growth_premium = min(5.0, cagr_3y * 12)  # up to +5x
 
         # 3. Brand premium: builds with years of consistent positive growth
         consecutive_growth_years = 0
         for i in range(1, len(state.annual_revenue_history)):
-            if state.annual_revenue_history[i] > state.annual_revenue_history[i-1]:
+            if state.annual_revenue_history[i] > state.annual_revenue_history[i - 1]:
                 consecutive_growth_years += 1
             else:
                 consecutive_growth_years = 0
@@ -468,9 +458,11 @@ class FinancialEngine:
             revenue=total_revenue,
             cogs=sum(r.pl.cogs for r in subsidiary_results),
             sga=sum(r.pl.sga for r in subsidiary_results) + holding_pl.hq_admin_cost,
-            personnel_cost=sum(r.pl.personnel_cost for r in subsidiary_results) + holding_pl.hq_personnel_cost,
+            personnel_cost=sum(r.pl.personnel_cost for r in subsidiary_results)
+            + holding_pl.hq_personnel_cost,
             depreciation=sum(r.pl.depreciation for r in subsidiary_results),
-            interest_expense=sum(r.pl.interest_expense for r in subsidiary_results) + holding_pl.interest_expense,
+            interest_expense=sum(r.pl.interest_expense for r in subsidiary_results)
+            + holding_pl.interest_expense,
         )
 
         consolidated_cf = CashFlow(

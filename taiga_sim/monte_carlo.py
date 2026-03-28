@@ -155,18 +155,18 @@ def format_monte_carlo_summary(result: MonteCarloResult) -> str:
             f"{fmt(d.p50):>14} {fmt(d.p75):>14} {fmt(d.p90):>14}"
         )
 
-    _row("企業価値",     ev,     fmt_jpy)
-    _row("売上高",       rev,    fmt_jpy)
-    _row("EBITDA",       ebitda, fmt_jpy)
-    _row("投資家MOIC",   moic,   lambda v: f"{v:,.0f}x")
-    _row("投資家IRR",    irr,    lambda v: f"{v*100:.1f}%")
-    _row("事業会社数",   comp,   lambda v: f"{v:.0f}社")
+    _row("企業価値", ev, fmt_jpy)
+    _row("売上高", rev, fmt_jpy)
+    _row("EBITDA", ebitda, fmt_jpy)
+    _row("投資家MOIC", moic, lambda v: f"{v:,.0f}x")
+    _row("投資家IRR", irr, lambda v: f"{v * 100:.1f}%")
+    _row("事業会社数", comp, lambda v: f"{v:.0f}社")
 
     lines.append("-" * 90)
     lines.append(f"  平均EV: {fmt_jpy(ev.mean)}  |  中央値EV: {fmt_jpy(ev.p50)}")
 
     # Year-by-year EV percentile bands
-    lines.append(f"\n【企業価値 (EV) 年次推移】")
+    lines.append("\n【企業価値 (EV) 年次推移】")
     lines.append(f"{'Year':>4}  {'P10':>14}  {'P50':>14}  {'P90':>14}  {'Mean':>14}")
     lines.append("-" * 68)
     for d in result.ev:

@@ -13,21 +13,21 @@ from taiga_sim.engines.simulation_runner import AnnualReport, SimulationRunner
 from taiga_sim.models.simulation import SimulationConfig
 from taiga_sim.utils.formatters import fmt_jpy
 
-
 # ---------------------------------------------------------------------------
 # Scenario definitions
 # ---------------------------------------------------------------------------
 
+
 def _make_bear_config(base: SimulationConfig) -> SimulationConfig:
     """Bear case: prolonged low growth, tighter credit, more crises."""
     cfg = deepcopy(base)
-    cfg.macro.gdp_growth_rate = 0.005       # 0.5% (stagnation)
-    cfg.macro.interest_rate = 0.04           # 4% (tighter)
-    cfg.macro.shock_probability = 0.10       # 10%/yr
-    cfg.macro.shock_ev_decline = -0.40       # -40%
-    cfg.macro.inflation_rate = 0.035         # 3.5%
-    cfg.ma.target_ev_ebitda = 5.5            # more expensive multiples
-    cfg.ma.max_leverage = 2.5                # tighter lending
+    cfg.macro.gdp_growth_rate = 0.005  # 0.5% (stagnation)
+    cfg.macro.interest_rate = 0.04  # 4% (tighter)
+    cfg.macro.shock_probability = 0.10  # 10%/yr
+    cfg.macro.shock_ev_decline = -0.40  # -40%
+    cfg.macro.inflation_rate = 0.035  # 3.5%
+    cfg.ma.target_ev_ebitda = 5.5  # more expensive multiples
+    cfg.ma.max_leverage = 2.5  # tighter lending
     cfg.ma.group_max_leverage = 2.0
     cfg.conglomerate.pmi_margin_improvement = 0.045  # harder to extract value
     return cfg
@@ -36,13 +36,13 @@ def _make_bear_config(base: SimulationConfig) -> SimulationConfig:
 def _make_bull_config(base: SimulationConfig) -> SimulationConfig:
     """Bull case: strong growth, easy credit, favourable markets."""
     cfg = deepcopy(base)
-    cfg.macro.gdp_growth_rate = 0.030        # 3.0%
-    cfg.macro.interest_rate = 0.01            # 1%
-    cfg.macro.shock_probability = 0.03        # 3%/yr
-    cfg.macro.shock_ev_decline = -0.20        # -20%
-    cfg.macro.inflation_rate = 0.015          # 1.5%
-    cfg.ma.target_ev_ebitda = 3.5             # cheaper multiples
-    cfg.ma.max_leverage = 3.5                 # easier financing
+    cfg.macro.gdp_growth_rate = 0.030  # 3.0%
+    cfg.macro.interest_rate = 0.01  # 1%
+    cfg.macro.shock_probability = 0.03  # 3%/yr
+    cfg.macro.shock_ev_decline = -0.20  # -20%
+    cfg.macro.inflation_rate = 0.015  # 1.5%
+    cfg.ma.target_ev_ebitda = 3.5  # cheaper multiples
+    cfg.ma.max_leverage = 3.5  # easier financing
     cfg.ma.group_max_leverage = 3.0
     cfg.conglomerate.pmi_margin_improvement = 0.080  # stronger synergy capture
     return cfg
@@ -58,6 +58,7 @@ SCENARIO_BUILDERS = {
 # ---------------------------------------------------------------------------
 # Result container
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class ScenarioResult:
@@ -96,6 +97,7 @@ class ScenarioResult:
 # Runner
 # ---------------------------------------------------------------------------
 
+
 def run_scenarios(
     base_config: SimulationConfig | None = None,
     years: int = 30,
@@ -118,6 +120,7 @@ def run_scenarios(
 # Formatters
 # ---------------------------------------------------------------------------
 
+
 def format_comparison_table(results: dict[str, ScenarioResult]) -> str:
     """Pretty-print a side-by-side comparison table."""
     bear, base, bull = results["bear"], results["base"], results["bull"]
@@ -126,20 +129,45 @@ def format_comparison_table(results: dict[str, ScenarioResult]) -> str:
         return f"{v * 100:.1f}%"
 
     rows = [
-        ("売上高",           fmt_jpy(bear.revenue),  fmt_jpy(base.revenue),  fmt_jpy(bull.revenue)),
-        ("EBITDA",           fmt_jpy(bear.ebitda),   fmt_jpy(base.ebitda),   fmt_jpy(bull.ebitda)),
-        ("企業価値 (EV)",    fmt_jpy(bear.ev),       fmt_jpy(base.ev),       fmt_jpy(bull.ev)),
-        ("事業会社数",       f"{bear.final.num_companies}社", f"{base.final.num_companies}社", f"{bull.final.num_companies}社"),
-        ("社員数",           f"{bear.final.headcount:,}名",   f"{base.final.headcount:,}名",   f"{bull.final.headcount:,}名"),
-        ("創業者持分",       _pct(bear.final.founder_ownership_pct), _pct(base.final.founder_ownership_pct), _pct(bull.final.founder_ownership_pct)),
-        ("投資家 MOIC",      f"{bear.moic:,.1f}x",   f"{base.moic:,.1f}x",   f"{bull.moic:,.1f}x"),
-        ("投資家 IRR",       _pct(bear.irr),          _pct(base.irr),          _pct(bull.irr)),
-        ("PMI Capability",   _pct(bear.final.pmi_capability), _pct(base.final.pmi_capability), _pct(bull.final.pmi_capability)),
-        ("CP%",              f"{bear.final.conglomerate_premium_pct:+.1f}%", f"{base.final.conglomerate_premium_pct:+.1f}%", f"{bull.final.conglomerate_premium_pct:+.1f}%"),
+        ("売上高", fmt_jpy(bear.revenue), fmt_jpy(base.revenue), fmt_jpy(bull.revenue)),
+        ("EBITDA", fmt_jpy(bear.ebitda), fmt_jpy(base.ebitda), fmt_jpy(bull.ebitda)),
+        ("企業価値 (EV)", fmt_jpy(bear.ev), fmt_jpy(base.ev), fmt_jpy(bull.ev)),
+        (
+            "事業会社数",
+            f"{bear.final.num_companies}社",
+            f"{base.final.num_companies}社",
+            f"{bull.final.num_companies}社",
+        ),
+        (
+            "社員数",
+            f"{bear.final.headcount:,}名",
+            f"{base.final.headcount:,}名",
+            f"{bull.final.headcount:,}名",
+        ),
+        (
+            "創業者持分",
+            _pct(bear.final.founder_ownership_pct),
+            _pct(base.final.founder_ownership_pct),
+            _pct(bull.final.founder_ownership_pct),
+        ),
+        ("投資家 MOIC", f"{bear.moic:,.1f}x", f"{base.moic:,.1f}x", f"{bull.moic:,.1f}x"),
+        ("投資家 IRR", _pct(bear.irr), _pct(base.irr), _pct(bull.irr)),
+        (
+            "PMI Capability",
+            _pct(bear.final.pmi_capability),
+            _pct(base.final.pmi_capability),
+            _pct(bull.final.pmi_capability),
+        ),
+        (
+            "CP%",
+            f"{bear.final.conglomerate_premium_pct:+.1f}%",
+            f"{base.final.conglomerate_premium_pct:+.1f}%",
+            f"{bull.final.conglomerate_premium_pct:+.1f}%",
+        ),
     ]
 
     # Count crises
-    for label, sc in [("危機発生回数", None)]:
+    for _label, _sc in [("危機発生回数", None)]:
         bear_c = sum(1 for r in bear.reports if r.crisis_active)
         base_c = sum(1 for r in base.reports if r.crisis_active)
         bull_c = sum(1 for r in bull.reports if r.crisis_active)

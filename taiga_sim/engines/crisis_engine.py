@@ -35,7 +35,7 @@ class CrisisEngine:
 
     def __init__(self, rng: random.Random | None = None):
         self.rng = rng or random.Random()
-        self._major_shock_years: set[int] = set()  # track which years had major shocks
+        self._major_shock_years: set[str] = set()  # track which major shock windows have fired
 
     def check_for_shock(self, state: SimulationState) -> CrisisEvent | None:
         """Roll for macro-economic shock.
@@ -122,8 +122,8 @@ class CrisisEngine:
         for company in state.holding.companies:
             rev_hit = decline * self.rng.uniform(0.3, 0.7)  # partial revenue impact
             ebitda_hit = decline * self.rng.uniform(0.5, 1.0)  # EBITDA hit harder
-            company.revenue *= (1 - rev_hit)
-            company.ebitda *= (1 - ebitda_hit)
+            company.revenue *= 1 - rev_hit
+            company.ebitda *= 1 - ebitda_hit
 
         # Mechanism triggers
         decline_from_high = 1 - (shock_ev / state.holding.historical_high_ev)
@@ -136,20 +136,22 @@ class CrisisEngine:
             event.mechanisms_triggered.append("special_investment_window")
             event.mechanisms_triggered.append("hwm_reset")
 
-        state.crisis_events.append({
-            "year": event.year,
-            "quarter": event.quarter,
-            "type": crisis_type,
-            "decline_pct": event.ev_decline_pct,
-            "duration_quarters": event.duration_quarters,
-            "mechanisms": event.mechanisms_triggered,
-        })
+        state.crisis_events.append(
+            {
+                "year": event.year,
+                "quarter": event.quarter,
+                "type": crisis_type,
+                "decline_pct": event.ev_decline_pct,
+                "duration_quarters": event.duration_quarters,
+                "mechanisms": event.mechanisms_triggered,
+            }
+        )
 
         return event
 
     def apply_mechanisms(self, state: SimulationState, event: CrisisEvent) -> dict:
         """Apply the 5 crisis resilience mechanisms as needed."""
-        results = {}
+        results: dict[str, object] = {}
         holding = state.holding
 
         if "hwm_reset" in event.mechanisms_triggered:

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 
 class UnitType(Enum):
@@ -103,8 +102,8 @@ class Member:
     age: int = 25
     join_year: int = 0
     grade: MemberGrade = MemberGrade.B
-    unit: Optional[UnitType] = None
-    assigned_company: Optional[str] = None  # company id
+    unit: UnitType | None = None
+    assigned_company: str | None = None  # company id
     is_founder: bool = False
 
     # Compensation
@@ -166,8 +165,8 @@ class Company:
 
     # Traffic light
     signal: str = "green"  # green / yellow / red
-    yellow_since_year: Optional[int] = None
-    red_since_year: Optional[int] = None
+    yellow_since_year: int | None = None
+    red_since_year: int | None = None
     consecutive_wacc_miss_years: int = 0
 
     # PMI tracking
@@ -184,11 +183,13 @@ class HoldingCompany:
     """Taiga Capital Group holding company state."""
 
     companies: list[Company] = field(default_factory=list)
-    units: list[Unit] = field(default_factory=lambda: [
-        Unit(unit_type=UnitType.CREATION),
-        Unit(unit_type=UnitType.TURNAROUND),
-        Unit(unit_type=UnitType.OPERATING),
-    ])
+    units: list[Unit] = field(
+        default_factory=lambda: [
+            Unit(unit_type=UnitType.CREATION),
+            Unit(unit_type=UnitType.TURNAROUND),
+            Unit(unit_type=UnitType.OPERATING),
+        ]
+    )
     members: list[Member] = field(default_factory=list)
 
     # Capital structure

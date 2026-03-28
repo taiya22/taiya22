@@ -11,9 +11,9 @@ import time
 
 
 def run(script: str, n: int):
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Running: {script} {n}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     t0 = time.time()
     result = subprocess.run(
         [sys.executable, script, str(n)],

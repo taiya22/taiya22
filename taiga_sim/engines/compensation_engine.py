@@ -104,10 +104,7 @@ class CompensationEngine:
             return CompensationLayer3()
 
         # Valuation grows proportionally to EV
-        if initial_ev_at_purchase > 0:
-            growth_factor = current_ev / initial_ev_at_purchase
-        else:
-            growth_factor = 1.0
+        growth_factor = current_ev / initial_ev_at_purchase if initial_ev_at_purchase > 0 else 1.0
 
         current_valuation = member.self_investment * growth_factor
         annual_dividend = member.self_investment * group_cash_yield
@@ -133,7 +130,7 @@ class CompensationEngine:
         cash_yield = group_fcf / holding.enterprise_value if holding.enterprise_value > 0 else 0
 
         results = []
-        total_headcount = len(holding.members)
+        len(holding.members)
 
         # Calculate bonus pool
         bonus_pool = max(0, group_operating_income * config.bonus_pool_rate)
@@ -165,14 +162,18 @@ class CompensationEngine:
                 tier = "middle_junior"
 
             tier_headcount = sum(
-                1 for m in holding.members
+                1
+                for m in holding.members
                 if (m.is_founder or m.grade.value == "S") == (tier == "executive")
                 and (m.grade.value == "A") == (tier == "senior")
             )
 
             layer2 = self.calculate_layer2(
-                member, ev_increase, config.profit_sharing_rate,
-                tier, max(1, tier_headcount),
+                member,
+                ev_increase,
+                config.profit_sharing_rate,
+                tier,
+                max(1, tier_headcount),
             )
 
             # Layer 3
@@ -183,12 +184,14 @@ class CompensationEngine:
                 max(0, cash_yield),
             )
 
-            results.append(TotalCompensation(
-                member_id=member.id,
-                year=state.year,
-                layer1=layer1,
-                layer2=layer2,
-                layer3=layer3,
-            ))
+            results.append(
+                TotalCompensation(
+                    member_id=member.id,
+                    year=state.year,
+                    layer1=layer1,
+                    layer2=layer2,
+                    layer3=layer3,
+                )
+            )
 
         return results

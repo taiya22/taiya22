@@ -46,10 +46,7 @@ class InvestorEngine:
         moic = current_value / initial_investment if initial_investment > 0 else 0
 
         # IRR calculation: (FV/PV)^(1/n) - 1
-        if moic > 0 and years > 0:
-            irr = moic ** (1.0 / years) - 1
-        else:
-            irr = 0.0
+        irr = moic ** (1.0 / years) - 1 if moic > 0 and years > 0 else 0.0
 
         return InvestorReturn(
             initial_investment=initial_investment,
@@ -75,7 +72,9 @@ class InvestorEngine:
         """Simulate Year 7 VC secondary sale."""
         sale_value = state.holding.enterprise_value * seller_ownership_pct
         seed_return = self.calculate_investor_return(
-            5_0000_0000, seller_ownership_pct, state,
+            5_0000_0000,
+            seller_ownership_pct,
+            state,
         )
         return {
             "sale_value": sale_value,
@@ -152,12 +151,12 @@ class InvestorEngine:
         # Gradual dilution from employee stock (small)
         if year > 0:
             annual_dilution = 0.005  # 0.5% per year to employees
-            holding.founder_ownership_pct *= (1 - annual_dilution)
+            holding.founder_ownership_pct *= 1 - annual_dilution
 
         # IPO dilution
         if year == state.config.ipo_target_year and not holding.is_public:
             ipo_float = 0.25
-            holding.founder_ownership_pct *= (1 - ipo_float)
+            holding.founder_ownership_pct *= 1 - ipo_float
             holding.is_public = True
 
         # Build stable shareholder base

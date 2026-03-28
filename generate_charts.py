@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Generate line charts for Taiga Capital Group simulation results."""
 
-import json
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-import numpy as np
 
 # Run simulation and collect data
 from taiga_sim.engines.simulation_runner import SimulationRunner
@@ -32,20 +31,26 @@ target_revenue = [0, 10, 30, 70, 200, 1000, 2000, 5000, 12000, 30000]
 target_ebitda = [0, 1.5, 5, 20, 50, 150, 400, 1000, 2500, 6000]
 target_ev = [50, 6, 25, 120, 350, 1200, 3600, 10000, 25000, 60000]
 
-plt.rcParams.update({
-    "font.size": 11,
-    "figure.facecolor": "white",
-    "axes.grid": True,
-    "grid.alpha": 0.3,
-})
+plt.rcParams.update(
+    {
+        "font.size": 11,
+        "figure.facecolor": "white",
+        "axes.grid": True,
+        "grid.alpha": 0.3,
+    }
+)
 
 fig, axes = plt.subplots(3, 2, figsize=(16, 18))
-fig.suptitle("Taiga Capital Group - 30-Year Simulation vs Targets", fontsize=16, fontweight="bold", y=0.98)
+fig.suptitle(
+    "Taiga Capital Group - 30-Year Simulation vs Targets", fontsize=16, fontweight="bold", y=0.98
+)
 
 # 1. Revenue
 ax = axes[0, 0]
 ax.plot(years, revenue, "b-o", markersize=3, linewidth=2, label="Simulation")
-ax.plot(target_years, target_revenue, "r--^", markersize=5, linewidth=1.5, label="Target", alpha=0.8)
+ax.plot(
+    target_years, target_revenue, "r--^", markersize=5, linewidth=1.5, label="Target", alpha=0.8
+)
 ax.set_title("Revenue (Oku JPY)", fontweight="bold")
 ax.set_xlabel("Year")
 ax.set_ylabel("Oku JPY")
@@ -82,13 +87,15 @@ ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
 ax = axes[1, 1]
 ax2 = ax.twinx()
 p1 = ax.bar(years, num_companies, color="steelblue", alpha=0.6, label="Companies")
-p2, = ax2.plot(years, headcount, "orange", marker="o", markersize=3, linewidth=2, label="Headcount")
+(p2,) = ax2.plot(
+    years, headcount, "orange", marker="o", markersize=3, linewidth=2, label="Headcount"
+)
 ax.set_title("Portfolio & Headcount", fontweight="bold")
 ax.set_xlabel("Year")
 ax.set_ylabel("Number of Companies", color="steelblue")
 ax2.set_ylabel("Headcount", color="orange")
 lines = [p1, p2]
-labels = [l.get_label() for l in lines]
+labels = [line.get_label() for line in lines]
 ax.legend(lines, labels, loc="upper left")
 
 # 5. Seed Investor MOIC
@@ -117,7 +124,7 @@ ax.legend()
 phase_boundaries = [(0, "P0"), (1, "P1"), (4, "P2"), (7, "P3"), (11, "P4"), (16, "P5"), (21, "P6")]
 for ax_row in axes:
     for ax in ax_row:
-        for yr, label in phase_boundaries:
+        for yr, _label in phase_boundaries:
             ax.axvline(x=yr, color="gray", linestyle=":", alpha=0.2)
 
 plt.tight_layout(rect=[0, 0, 1, 0.96])

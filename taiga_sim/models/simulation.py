@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 from taiga_sim.models.organization import HoldingCompany
 
@@ -43,10 +42,10 @@ class CompensationConfig:
     """Compensation system configuration."""
 
     base_salary_ratio: float = 0.75  # 同業他社の75%
-    bonus_pool_rate: float = 0.20  # 営業利益 × 20%
-    profit_sharing_rate: float = 0.12  # 企業価値増加 × 12%
-    foundation_fcf_rate: float = 0.05  # FCF × 5%
-    keshiki_reserve_rate: float = 0.075  # 利益 × 5-10%
+    bonus_pool_rate: float = 0.20  # 営業利益 x 20%
+    profit_sharing_rate: float = 0.12  # 企業価値増加 x 12%
+    foundation_fcf_rate: float = 0.05  # FCF x 5%
+    keshiki_reserve_rate: float = 0.075  # 利益 x 5-10%
 
 
 @dataclass
@@ -118,22 +117,63 @@ class PhaseDefinition:
 
 # Default phase definitions from the requirements
 DEFAULT_PHASES = [
-    PhaseDefinition(0, "調達", 0, 0, "5億円調達, Post-money 50億円",
-                    ev_target=50_0000_0000),
-    PhaseDefinition(1, "サバイバル", 1, 3, "事業承継M&Aで2-3社買収",
-                    revenue_target=30_0000_0000, ebitda_target=5_0000_0000),
-    PhaseDefinition(2, "離陸", 4, 6, "売上30-70億, 利益分配開始",
-                    revenue_target=70_0000_0000, ebitda_target=20_0000_0000),
-    PhaseDefinition(3, "拡大", 7, 10, "VCセカンダリー, 大型LBO",
-                    revenue_target=1000_0000_0000, ebitda_target=150_0000_0000),
-    PhaseDefinition(4, "支配", 11, 15, "売上2000億, 財団本格化",
-                    revenue_target=2000_0000_0000, ebitda_target=400_0000_0000),
-    PhaseDefinition(5, "上場", 16, 20, "IPO, 時価総額1兆円",
-                    revenue_target=5000_0000_0000, ebitda_target=1000_0000_0000,
-                    ev_target=1_0000_0000_0000),
-    PhaseDefinition(6, "グローバル", 21, 30, "時価総額30兆円目標",
-                    revenue_target=30000_0000_0000, ebitda_target=6000_0000_0000,
-                    ev_target=30_0000_0000_0000),
+    PhaseDefinition(0, "調達", 0, 0, "5億円調達, Post-money 50億円", ev_target=50_0000_0000),
+    PhaseDefinition(
+        1,
+        "サバイバル",
+        1,
+        3,
+        "事業承継M&Aで2-3社買収",
+        revenue_target=30_0000_0000,
+        ebitda_target=5_0000_0000,
+    ),
+    PhaseDefinition(
+        2,
+        "離陸",
+        4,
+        6,
+        "売上30-70億, 利益分配開始",
+        revenue_target=70_0000_0000,
+        ebitda_target=20_0000_0000,
+    ),
+    PhaseDefinition(
+        3,
+        "拡大",
+        7,
+        10,
+        "VCセカンダリー, 大型LBO",
+        revenue_target=1000_0000_0000,
+        ebitda_target=150_0000_0000,
+    ),
+    PhaseDefinition(
+        4,
+        "支配",
+        11,
+        15,
+        "売上2000億, 財団本格化",
+        revenue_target=2000_0000_0000,
+        ebitda_target=400_0000_0000,
+    ),
+    PhaseDefinition(
+        5,
+        "上場",
+        16,
+        20,
+        "IPO, 時価総額1兆円",
+        revenue_target=5000_0000_0000,
+        ebitda_target=1000_0000_0000,
+        ev_target=1_0000_0000_0000,
+    ),
+    PhaseDefinition(
+        6,
+        "グローバル",
+        21,
+        30,
+        "時価総額30兆円目標",
+        revenue_target=30000_0000_0000,
+        ebitda_target=6000_0000_0000,
+        ev_target=30_0000_0000_0000,
+    ),
 ]
 
 
@@ -160,13 +200,15 @@ class SimulationConfig:
     listing_market: str = "tse_prime"
 
     # Portfolio target mix (revenue %) by year 30
-    portfolio_target: dict[str, float] = field(default_factory=lambda: {
-        "product": 0.25,
-        "experience": 0.15,
-        "strategy": 0.15,
-        "venture": 0.15,
-        "terra": 0.30,
-    })
+    portfolio_target: dict[str, float] = field(
+        default_factory=lambda: {
+            "product": 0.25,
+            "experience": 0.15,
+            "strategy": 0.15,
+            "venture": 0.15,
+            "terra": 0.30,
+        }
+    )
 
     # Crisis resilience
     portfolio_resilience_layer: float = 0.70  # 耐性層
@@ -193,7 +235,7 @@ class SimulationState:
     ma_events: list[dict] = field(default_factory=list)
 
     @property
-    def current_phase(self) -> Optional[PhaseDefinition]:
+    def current_phase(self) -> PhaseDefinition | None:
         for phase in self.config.phases:
             if phase.start_year <= self.year <= phase.end_year:
                 return phase

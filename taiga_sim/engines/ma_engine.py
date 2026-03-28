@@ -27,7 +27,6 @@ Incorporates M&A strategy typology and academic research:
 
 from __future__ import annotations
 
-import math
 import random
 from dataclasses import dataclass, field
 from enum import Enum
@@ -53,11 +52,11 @@ class MAType(Enum):
 # Sources: Chatterjee 1986, Rumelt 1982, Kengelbach 2012, Berger & Ofek 1995
 MA_TYPE_PARAMS = {
     #                          base_success synergy_pct  pmi_speed  integration_risk
-    MAType.HORIZONTAL:         (0.55,       0.12,        1.0,       0.15),
-    MAType.VERTICAL:           (0.50,       0.08,        0.85,      0.20),
-    MAType.ROLL_UP:            (0.60,       0.06,        1.20,      0.10),
-    MAType.RELATED_DIVERSIFICATION:   (0.45, 0.07,       0.90,      0.18),
-    MAType.UNRELATED_DIVERSIFICATION: (0.35, 0.03,       0.70,      0.30),
+    MAType.HORIZONTAL: (0.55, 0.12, 1.0, 0.15),
+    MAType.VERTICAL: (0.50, 0.08, 0.85, 0.20),
+    MAType.ROLL_UP: (0.60, 0.06, 1.20, 0.10),
+    MAType.RELATED_DIVERSIFICATION: (0.45, 0.07, 0.90, 0.18),
+    MAType.UNRELATED_DIVERSIFICATION: (0.35, 0.03, 0.70, 0.30),
 }
 
 
@@ -102,12 +101,12 @@ class AcquisitionTarget:
 PHASE_MA_PARAMS = {
     # phase: (pipeline_size, max_acquisitions, deal_success_rate_modifier)
     0: (0, 0, 0),
-    1: (5, 2, 1.0),    # survival: small bolt-ons
-    2: (6, 2, 1.0),    # takeoff: building foundation
-    3: (6, 2, 1.0),    # expansion: selective larger deals
-    4: (6, 1, 1.0),    # dominance: quality over quantity
-    5: (6, 1, 1.0),    # IPO: fewer but transformative
-    6: (6, 1, 1.0),    # global: very selective large-scale
+    1: (5, 2, 1.0),  # survival: small bolt-ons
+    2: (6, 2, 1.0),  # takeoff: building foundation
+    3: (6, 2, 1.0),  # expansion: selective larger deals
+    4: (6, 1, 1.0),  # dominance: quality over quantity
+    5: (6, 1, 1.0),  # IPO: fewer but transformative
+    6: (6, 1, 1.0),  # global: very selective large-scale
 }
 
 
@@ -197,7 +196,9 @@ class MAEngine:
     # -----------------------------------------------------------------------
 
     def _classify_ma_type(
-        self, target_type: CompanyType, state: SimulationState,
+        self,
+        target_type: CompanyType,
+        state: SimulationState,
     ) -> MAType:
         """Classify the M&A type based on target vs existing portfolio."""
         existing_types = [c.company_type for c in state.holding.companies]
@@ -218,8 +219,7 @@ class MAEngine:
                 return MAType.RELATED_DIVERSIFICATION
             else:
                 # Check for vertical relationship (simplified)
-                if (target_type == CompanyType.STRATEGY and
-                        CompanyType.VENTURE in existing_types):
+                if target_type == CompanyType.STRATEGY and CompanyType.VENTURE in existing_types:
                     return MAType.VERTICAL
                 return MAType.RELATED_DIVERSIFICATION
 
@@ -254,15 +254,17 @@ class MAEngine:
         for i in range(count):
             revenue = self.rng.uniform(3_0000_0000, 15_0000_0000)
             ebitda_margin = self.rng.uniform(0.08, 0.20)
-            targets.append(AcquisitionTarget(
-                name=f"Target_{state.year}_{i+1}",
-                company_type=CompanyType.PRODUCT,
-                revenue=revenue,
-                ebitda=revenue * ebitda_margin,
-                asking_ev_ebitda=self.rng.uniform(2.5, 5.0),
-                headcount=self.rng.randint(15, 120),
-                revenue_growth_rate=self.rng.uniform(0.0, 0.08),
-            ))
+            targets.append(
+                AcquisitionTarget(
+                    name=f"Target_{state.year}_{i + 1}",
+                    company_type=CompanyType.PRODUCT,
+                    revenue=revenue,
+                    ebitda=revenue * ebitda_margin,
+                    asking_ev_ebitda=self.rng.uniform(2.5, 5.0),
+                    headcount=self.rng.randint(15, 120),
+                    revenue_growth_rate=self.rng.uniform(0.0, 0.08),
+                )
+            )
         return targets
 
     def _gen_mid_stage(self, state, count) -> list[AcquisitionTarget]:
@@ -276,15 +278,17 @@ class MAEngine:
             else:
                 revenue = self.rng.uniform(15_0000_0000, 80_0000_0000)
                 ebitda_margin = self.rng.uniform(0.10, 0.20)
-                targets.append(AcquisitionTarget(
-                    name=f"Target_{state.year}_{i+1}",
-                    company_type=self.rng.choice(types),
-                    revenue=revenue,
-                    ebitda=revenue * ebitda_margin,
-                    asking_ev_ebitda=self.rng.uniform(3.5, 6.5),
-                    headcount=self.rng.randint(50, 500),
-                    revenue_growth_rate=self.rng.uniform(0.02, 0.10),
-                ))
+                targets.append(
+                    AcquisitionTarget(
+                        name=f"Target_{state.year}_{i + 1}",
+                        company_type=self.rng.choice(types),
+                        revenue=revenue,
+                        ebitda=revenue * ebitda_margin,
+                        asking_ev_ebitda=self.rng.uniform(3.5, 6.5),
+                        headcount=self.rng.randint(50, 500),
+                        revenue_growth_rate=self.rng.uniform(0.02, 0.10),
+                    )
+                )
         return targets
 
     def _gen_late_stage(self, state, count) -> list[AcquisitionTarget]:
@@ -298,15 +302,17 @@ class MAEngine:
             else:
                 revenue = self.rng.uniform(50_0000_0000, 500_0000_0000)
                 ebitda_margin = self.rng.uniform(0.10, 0.22)
-                targets.append(AcquisitionTarget(
-                    name=f"Target_{state.year}_{i+1}",
-                    company_type=self.rng.choice(types),
-                    revenue=revenue,
-                    ebitda=revenue * ebitda_margin,
-                    asking_ev_ebitda=self.rng.uniform(4.0, 7.5),
-                    headcount=self.rng.randint(100, 2000),
-                    revenue_growth_rate=self.rng.uniform(0.02, 0.08),
-                ))
+                targets.append(
+                    AcquisitionTarget(
+                        name=f"Target_{state.year}_{i + 1}",
+                        company_type=self.rng.choice(types),
+                        revenue=revenue,
+                        ebitda=revenue * ebitda_margin,
+                        asking_ev_ebitda=self.rng.uniform(4.0, 7.5),
+                        headcount=self.rng.randint(100, 2000),
+                        revenue_growth_rate=self.rng.uniform(0.02, 0.08),
+                    )
+                )
         return targets
 
     def _gen_strategic_target(self, state, idx, scale) -> AcquisitionTarget:
@@ -330,11 +336,13 @@ class MAEngine:
             tags.append("hypergrowth")
 
         types_for_strategic = [
-            CompanyType.VENTURE, CompanyType.EXPERIENCE, CompanyType.PRODUCT,
+            CompanyType.VENTURE,
+            CompanyType.EXPERIENCE,
+            CompanyType.PRODUCT,
         ]
 
         return AcquisitionTarget(
-            name=f"Strategic_{state.year}_{idx+1}",
+            name=f"Strategic_{state.year}_{idx + 1}",
             company_type=self.rng.choice(types_for_strategic),
             revenue=revenue,
             ebitda=max(0, revenue * ebitda_margin),
@@ -380,7 +388,7 @@ class MAEngine:
             return False
 
         # Base success rate from M&A type research
-        base_success, _, _, integration_risk = MA_TYPE_PARAMS[target.ma_type]
+        base_success, _, _, _integration_risk = MA_TYPE_PARAMS[target.ma_type]
 
         # Modifiers
         type_bonus = self._type_experience_bonus(target.ma_type)
@@ -432,7 +440,7 @@ class MAEngine:
         price = target.asking_price
 
         company = Company(
-            id=f"co_{state.year}_{len(state.holding.companies)+1}",
+            id=f"co_{state.year}_{len(state.holding.companies) + 1}",
             name=target.name,
             company_type=target.company_type,
             acquired_year=state.year,
@@ -452,20 +460,22 @@ class MAEngine:
         # Update organizational learning
         self._update_learning(target.ma_type, state.year)
 
-        state.ma_events.append({
-            "year": state.year,
-            "quarter": state.quarter,
-            "company": company.name,
-            "price": price,
-            "ebitda": target.ebitda,
-            "ev_ebitda": target.asking_ev_ebitda,
-            "ma_type": target.ma_type.value,
-            "is_strategic": target.is_strategic,
-            "revenue_growth": target.revenue_growth_rate,
-            "moats": target.competitive_advantage_tags,
-            "cumulative_deals": self.cumulative_deals,
-            "pmi_learning_factor": self.pmi_learning_factor,
-        })
+        state.ma_events.append(
+            {
+                "year": state.year,
+                "quarter": state.quarter,
+                "company": company.name,
+                "price": price,
+                "ebitda": target.ebitda,
+                "ev_ebitda": target.asking_ev_ebitda,
+                "ma_type": target.ma_type.value,
+                "is_strategic": target.is_strategic,
+                "revenue_growth": target.revenue_growth_rate,
+                "moats": target.competitive_advantage_tags,
+                "cumulative_deals": self.cumulative_deals,
+                "pmi_learning_factor": self.pmi_learning_factor,
+            }
+        )
 
         return company
 
@@ -518,12 +528,10 @@ class MAEngine:
         # Scales with PMI capability (0 = no effect, 1.0 = full 650bps)
         if pmi_capability > 0 and company.pmi_phase >= 2:
             # Distribute the improvement across PMI phases 2-4 (~10 quarters)
-            quarterly_os_improvement = (
-                pmi_margin_improvement * pmi_capability / 10
-            )
+            quarterly_os_improvement = pmi_margin_improvement * pmi_capability / 10
             improvement += quarterly_os_improvement
 
-        company.ebitda *= (1 + improvement)
+        company.ebitda *= 1 + improvement
         if company.revenue > 0:
             company.operating_margin = company.ebitda / company.revenue
 
@@ -547,7 +555,7 @@ class MAEngine:
 
         # Synergy rate based on portfolio composition
         # More same-type companies = higher synergy (horizontal/roll-up effect)
-        type_counts = {}
+        type_counts: dict[CompanyType, int] = {}
         for c in state.holding.companies:
             type_counts[c.company_type] = type_counts.get(c.company_type, 0) + 1
 
@@ -561,9 +569,9 @@ class MAEngine:
         shared_services = n_companies * 800_0000  # 800万 per company
 
         # Cross-sell (only within related companies)
-        n_types = len(type_counts)
+        len(type_counts)
         cross_sell = 0.0
-        for t, count in type_counts.items():
+        for _t, count in type_counts.items():
             if count >= 2:
                 cross_sell += count * (count - 1) * 300_0000  # within-type cross-sell
 

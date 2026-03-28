@@ -12,6 +12,7 @@ import sys
 import time
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,22 +27,22 @@ CHO = 1_0000_0000_0000
 
 PARAMETERS = [
     # (label, config_path, baseline_override, swing_pct)
-    ("M&A EV/EBITDA ceiling",        "ma.target_ev_ebitda",                    None, 0.30),
-    ("M&A max leverage (deal)",       "ma.max_leverage",                        None, 0.30),
-    ("M&A max leverage (group)",      "ma.group_max_leverage",                  None, 0.30),
-    ("PMI EBITDA improvement",        "ma.pmi_ebitda_improvement",              None, 0.30),
-    ("Macro shock probability",       "macro.shock_probability",                None, 0.50),
-    ("Macro shock EV decline",        "macro.shock_ev_decline",                 None, 0.30),
-    ("GDP growth rate",               "macro.gdp_growth_rate",                  None, 0.50),
-    ("Seed funding",                  "seed_funding",                           None, 0.30),
-    ("Initial equity dilution",       "initial_equity_dilution",                None, 0.30),
-    ("PMI margin improvement",        "conglomerate.pmi_margin_improvement",    None, 0.30),
-    ("Monitoring decay rate",         "conglomerate.monitoring_decay_rate",      None, 0.50),
-    ("Unrelated discount",            "conglomerate.unrelated_discount",        None, 0.30),
-    ("Platform premium max",          "conglomerate.platform_premium_max",      None, 0.30),
-    ("Annual turnover rate",          "hr.annual_turnover_rate",                None, 0.50),
-    ("Bonus pool rate",               "compensation.bonus_pool_rate",           None, 0.30),
-    ("Keshiki reserve rate",          "compensation.keshiki_reserve_rate",      None, 0.30),
+    ("M&A EV/EBITDA ceiling", "ma.target_ev_ebitda", None, 0.30),
+    ("M&A max leverage (deal)", "ma.max_leverage", None, 0.30),
+    ("M&A max leverage (group)", "ma.group_max_leverage", None, 0.30),
+    ("PMI EBITDA improvement", "ma.pmi_ebitda_improvement", None, 0.30),
+    ("Macro shock probability", "macro.shock_probability", None, 0.50),
+    ("Macro shock EV decline", "macro.shock_ev_decline", None, 0.30),
+    ("GDP growth rate", "macro.gdp_growth_rate", None, 0.50),
+    ("Seed funding", "seed_funding", None, 0.30),
+    ("Initial equity dilution", "initial_equity_dilution", None, 0.30),
+    ("PMI margin improvement", "conglomerate.pmi_margin_improvement", None, 0.30),
+    ("Monitoring decay rate", "conglomerate.monitoring_decay_rate", None, 0.50),
+    ("Unrelated discount", "conglomerate.unrelated_discount", None, 0.30),
+    ("Platform premium max", "conglomerate.platform_premium_max", None, 0.30),
+    ("Annual turnover rate", "hr.annual_turnover_rate", None, 0.50),
+    ("Bonus pool rate", "compensation.bonus_pool_rate", None, 0.30),
+    ("Keshiki reserve rate", "compensation.keshiki_reserve_rate", None, 0.30),
 ]
 
 
@@ -81,7 +82,7 @@ def main():
     print("  Baseline...", end=" ", flush=True)
     base_evs = run_trials(base_config, n_trials)
     base_median = float(np.median(base_evs))
-    print(f"median EV = {base_median/CHO:.2f} Cho")
+    print(f"median EV = {base_median / CHO:.2f} Cho")
 
     results = []
 
@@ -104,7 +105,9 @@ def main():
 
         spread = abs(median_hi - median_lo)
         results.append((label, median_lo, median_hi, baseline_val, swing, spread))
-        print(f"  {label:<35} Lo={median_lo/CHO:>7.2f}  Hi={median_hi/CHO:>7.2f}  Spread={spread/CHO:.2f} Cho")
+        print(
+            f"  {label:<35} Lo={median_lo / CHO:>7.2f}  Hi={median_hi / CHO:>7.2f}  Spread={spread / CHO:.2f} Cho"
+        )
 
     elapsed = time.time() - t0
     print(f"\nTotal time: {elapsed:.0f}s")
@@ -114,7 +117,7 @@ def main():
 
     # ── Tornado Chart ───────────────────────────────────────────────
     plt.rcParams.update({"font.size": 11, "figure.facecolor": "white"})
-    fig, ax = plt.subplots(figsize=(14, 10))
+    _fig, ax = plt.subplots(figsize=(14, 10))
 
     labels = [r[0] for r in results]
     lows = [r[1] / CHO for r in results]
@@ -124,7 +127,7 @@ def main():
     y_pos = np.arange(len(labels))
 
     # Draw bars from base_median
-    for i, (lo, hi) in enumerate(zip(lows, highs)):
+    for i, (lo, hi) in enumerate(zip(lows, highs, strict=False)):
         left = min(lo, hi)
         right = max(lo, hi)
 
@@ -142,14 +145,17 @@ def main():
         ax.text(left - 0.3, i, f"{left:.1f}", va="center", ha="right", fontsize=9)
         ax.text(right + 0.3, i, f"{right:.1f}", va="center", ha="left", fontsize=9)
 
-    ax.axvline(base_cho, color="black", linewidth=1.5, linestyle="-", label=f"Baseline: {base_cho:.1f} Cho")
+    ax.axvline(
+        base_cho, color="black", linewidth=1.5, linestyle="-", label=f"Baseline: {base_cho:.1f} Cho"
+    )
     ax.set_yticks(y_pos)
     ax.set_yticklabels(labels)
     ax.set_xlabel("Year 30 Median EV (Cho / Trillion JPY)")
     ax.set_title(
         f"Sensitivity Analysis — Tornado Chart\n"
         f"({n_trials} trials/config, parameters varied ±swing %)",
-        fontweight="bold", fontsize=13,
+        fontweight="bold",
+        fontsize=13,
     )
     ax.legend(loc="lower right", fontsize=10)
     ax.invert_yaxis()

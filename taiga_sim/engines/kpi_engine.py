@@ -93,10 +93,9 @@ class KPIEngine:
             company.signal = "yellow"
 
             # Check for escalation to red
-            if company.consecutive_wacc_miss_years >= 3:
-                company.signal = "red"
-                company.red_since_year = state.year
-            elif company.yellow_since_year and (state.year - company.yellow_since_year >= 2):
+            if company.consecutive_wacc_miss_years >= 3 or (
+                company.yellow_since_year and (state.year - company.yellow_since_year >= 2)
+            ):
                 company.signal = "red"
                 company.red_since_year = state.year
 
@@ -104,8 +103,8 @@ class KPIEngine:
 
     def evaluate_all(self, state: SimulationState) -> dict:
         """Evaluate all companies and return group summary."""
-        results = {}
-        signal_counts = {"green": 0, "yellow": 0, "red": 0}
+        results: dict[str, object] = {}
+        signal_counts: dict[str, int] = {"green": 0, "yellow": 0, "red": 0}
 
         for company in state.holding.companies:
             kpis = self.evaluate_company(company, state)
@@ -119,8 +118,7 @@ class KPIEngine:
         results["_summary"] = {
             "signal_counts": signal_counts,
             "group_avg_roic": (
-                sum(c.roic for c in state.holding.companies)
-                / max(1, len(state.holding.companies))
+                sum(c.roic for c in state.holding.companies) / max(1, len(state.holding.companies))
             ),
         }
 

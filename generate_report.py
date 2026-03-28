@@ -13,20 +13,17 @@ Produces a professional executive presentation with:
 """
 
 import io
-import json
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-import numpy as np
-
 from pptx import Presentation
-from pptx.util import Inches, Pt, Emu
-from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
-from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
 from pptx.dml.color import RGBColor
+from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
+from pptx.util import Inches, Pt
 
 from taiga_sim.engines.simulation_runner import SimulationRunner
 from taiga_sim.models.simulation import SimulationConfig
@@ -34,12 +31,12 @@ from taiga_sim.utils.formatters import fmt_jpy
 
 # ── Color palette (McKinsey-inspired) ──────────────────────────────────────
 DARK_BLUE = RGBColor(0x00, 0x2B, 0x5C)  # primary text / headers
-MID_BLUE = RGBColor(0x00, 0x5B, 0x96)   # chart primary
-LIGHT_BLUE = RGBColor(0x4D, 0xA8, 0xDA) # chart secondary
-TEAL = RGBColor(0x00, 0x96, 0x88)       # accent
+MID_BLUE = RGBColor(0x00, 0x5B, 0x96)  # chart primary
+LIGHT_BLUE = RGBColor(0x4D, 0xA8, 0xDA)  # chart secondary
+TEAL = RGBColor(0x00, 0x96, 0x88)  # accent
 DARK_GRAY = RGBColor(0x33, 0x33, 0x33)  # body text
-MID_GRAY = RGBColor(0x66, 0x66, 0x66)   # secondary text
-LIGHT_GRAY = RGBColor(0xE0, 0xE0, 0xE0) # borders
+MID_GRAY = RGBColor(0x66, 0x66, 0x66)  # secondary text
+LIGHT_GRAY = RGBColor(0xE0, 0xE0, 0xE0)  # borders
 WHITE = RGBColor(0xFF, 0xFF, 0xFF)
 BLACK = RGBColor(0x00, 0x00, 0x00)
 RED_ACCENT = RGBColor(0xC0, 0x39, 0x2B)
@@ -67,11 +64,22 @@ def set_slide_bg(slide, color=WHITE):
     fill.fore_color.rgb = color
 
 
-def add_textbox(slide, left, top, width, height, text, font_size=12,
-                bold=False, color=DARK_GRAY, align=PP_ALIGN.LEFT, font_name="Calibri"):
+def add_textbox(
+    slide,
+    left,
+    top,
+    width,
+    height,
+    text,
+    font_size=12,
+    bold=False,
+    color=DARK_GRAY,
+    align=PP_ALIGN.LEFT,
+    font_name="Calibri",
+):
     """Add a formatted text box."""
-    txBox = slide.shapes.add_textbox(left, top, width, height)
-    tf = txBox.text_frame
+    tx_box = slide.shapes.add_textbox(left, top, width, height)
+    tf = tx_box.text_frame
     tf.word_wrap = True
     p = tf.paragraphs[0]
     p.text = text
@@ -80,16 +88,20 @@ def add_textbox(slide, left, top, width, height, text, font_size=12,
     p.font.color.rgb = color
     p.font.name = font_name
     p.alignment = align
-    return txBox
+    return tx_box
 
 
-def add_kpi_box(slide, left, top, width, height, label, value, sublabel="",
-                bg_color=None, value_color=DARK_BLUE):
+def add_kpi_box(
+    slide, left, top, width, height, label, value, sublabel="", bg_color=None, value_color=DARK_BLUE
+):
     """Add a KPI metric box (McKinsey-style)."""
-    from pptx.oxml.ns import qn
 
     shape = slide.shapes.add_shape(
-        1, left, top, width, height  # 1 = rectangle
+        1,
+        left,
+        top,
+        width,
+        height,  # 1 = rectangle
     )
     shape.fill.solid()
     shape.fill.fore_color.rgb = bg_color or RGBColor(0xF5, 0xF7, 0xFA)
@@ -131,8 +143,9 @@ def add_kpi_box(slide, left, top, width, height, label, value, sublabel="",
 def chart_to_image(fig, dpi=200):
     """Convert matplotlib figure to bytes for embedding in PPTX."""
     buf = io.BytesIO()
-    fig.savefig(buf, format="png", dpi=dpi, bbox_inches="tight",
-                facecolor="white", edgecolor="none")
+    fig.savefig(
+        buf, format="png", dpi=dpi, bbox_inches="tight", facecolor="white", edgecolor="none"
+    )
     buf.seek(0)
     plt.close(fig)
     return buf
@@ -160,13 +173,30 @@ def add_header_bar(slide, title, subtitle=""):
     bar.line.fill.background()
 
     # Title
-    add_textbox(slide, Inches(0.5), Inches(0.1), Inches(10), Inches(0.5),
-                title, font_size=22, bold=True, color=WHITE)
+    add_textbox(
+        slide,
+        Inches(0.5),
+        Inches(0.1),
+        Inches(10),
+        Inches(0.5),
+        title,
+        font_size=22,
+        bold=True,
+        color=WHITE,
+    )
 
     # Subtitle / source line
     if subtitle:
-        add_textbox(slide, Inches(0.5), Inches(0.5), Inches(10), Inches(0.3),
-                    subtitle, font_size=10, color=RGBColor(0xAA, 0xCC, 0xEE))
+        add_textbox(
+            slide,
+            Inches(0.5),
+            Inches(0.5),
+            Inches(10),
+            Inches(0.3),
+            subtitle,
+            font_size=10,
+            color=RGBColor(0xAA, 0xCC, 0xEE),
+        )
 
 
 def add_takeaway_box(slide, left, top, width, text):
@@ -191,19 +221,36 @@ def add_takeaway_box(slide, left, top, width, text):
 # SLIDE GENERATORS
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 def slide_cover(prs, reports):
     """Slide 1: Cover page."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
     set_slide_bg(slide, DARK_BLUE)
 
     # Title
-    add_textbox(slide, Inches(1), Inches(1.5), Inches(11), Inches(1.2),
-                "TAIGA CAPITAL GROUP", font_size=40, bold=True, color=WHITE)
+    add_textbox(
+        slide,
+        Inches(1),
+        Inches(1.5),
+        Inches(11),
+        Inches(1.2),
+        "TAIGA CAPITAL GROUP",
+        font_size=40,
+        bold=True,
+        color=WHITE,
+    )
 
     # Subtitle
-    add_textbox(slide, Inches(1), Inches(2.7), Inches(11), Inches(0.8),
-                "30-Year Business Simulation: Conglomerate Premium Analysis",
-                font_size=20, color=LIGHT_BLUE)
+    add_textbox(
+        slide,
+        Inches(1),
+        Inches(2.7),
+        Inches(11),
+        Inches(0.8),
+        "30-Year Business Simulation: Conglomerate Premium Analysis",
+        font_size=20,
+        color=LIGHT_BLUE,
+    )
 
     # Separator line
     line = slide.shapes.add_shape(1, Inches(1), Inches(3.7), Inches(3), Inches(0.03))
@@ -218,19 +265,42 @@ def slide_cover(prs, reports):
         f"Revenue: {fmt_jpy(final.revenue)}  |  "
         f"Conglomerate Premium: +{final.conglomerate_premium_pct:.1f}%"
     )
-    add_textbox(slide, Inches(1), Inches(4.2), Inches(11), Inches(0.5),
-                desc, font_size=13, color=RGBColor(0xAA, 0xCC, 0xEE))
+    add_textbox(
+        slide,
+        Inches(1),
+        Inches(4.2),
+        Inches(11),
+        Inches(0.5),
+        desc,
+        font_size=13,
+        color=RGBColor(0xAA, 0xCC, 0xEE),
+    )
 
     # Research basis
-    add_textbox(slide, Inches(1), Inches(5.5), Inches(11), Inches(1.2),
-                "Research basis: Berger & Ofek (1995), Villalonga (2004), Stein (1997),\n"
-                "Research Affiliates (2026), Danaher DBS, Arte & Larimo (2022),\n"
-                "Khanna & Palepu (2000), Matsuoka / YCP Holdings (2025)",
-                font_size=10, color=MID_GRAY)
+    add_textbox(
+        slide,
+        Inches(1),
+        Inches(5.5),
+        Inches(11),
+        Inches(1.2),
+        "Research basis: Berger & Ofek (1995), Villalonga (2004), Stein (1997),\n"
+        "Research Affiliates (2026), Danaher DBS, Arte & Larimo (2022),\n"
+        "Khanna & Palepu (2000), Matsuoka / YCP Holdings (2025)",
+        font_size=10,
+        color=MID_GRAY,
+    )
 
-    add_textbox(slide, Inches(1), Inches(6.5), Inches(11), Inches(0.4),
-                "Confidential  |  For Internal Discussion Only",
-                font_size=9, color=MID_GRAY, align=PP_ALIGN.LEFT)
+    add_textbox(
+        slide,
+        Inches(1),
+        Inches(6.5),
+        Inches(11),
+        Inches(0.4),
+        "Confidential  |  For Internal Discussion Only",
+        font_size=9,
+        color=MID_GRAY,
+        align=PP_ALIGN.LEFT,
+    )
 
 
 def slide_exec_summary(prs, reports):
@@ -240,8 +310,8 @@ def slide_exec_summary(prs, reports):
     add_header_bar(slide, "Executive Summary", "30-year simulation results at a glance")
 
     final = reports[-1]
-    y10 = reports[10] if len(reports) > 10 else reports[-1]
-    y20 = reports[20] if len(reports) > 20 else reports[-1]
+    reports[10] if len(reports) > 10 else reports[-1]
+    reports[20] if len(reports) > 20 else reports[-1]
 
     # KPI row 1: Financial metrics
     kpi_y = Inches(1.3)
@@ -250,55 +320,141 @@ def slide_exec_summary(prs, reports):
     gap = Inches(0.3)
     start_x = Inches(0.5)
 
-    add_kpi_box(slide, start_x, kpi_y, kpi_w, kpi_h,
-                "Enterprise Value (Y30)", fmt_jpy(final.enterprise_value),
-                f"MOIC {final.seed_investor_moic:,.0f}x")
-    add_kpi_box(slide, start_x + kpi_w + gap, kpi_y, kpi_w, kpi_h,
-                "Revenue (Y30)", fmt_jpy(final.revenue),
-                f"{final.num_companies} portfolio companies")
-    add_kpi_box(slide, start_x + (kpi_w + gap) * 2, kpi_y, kpi_w, kpi_h,
-                "EBITDA (Y30)", fmt_jpy(final.ebitda),
-                f"Margin {final.ebitda / final.revenue * 100:.1f}%" if final.revenue > 0 else "")
-    add_kpi_box(slide, start_x + (kpi_w + gap) * 3, kpi_y, kpi_w, kpi_h,
-                "Seed Investor IRR", f"{final.seed_investor_irr * 100:.1f}%",
-                f"MOIC {final.seed_investor_moic:,.0f}x over 30 years",
-                value_color=GREEN_ACCENT)
+    add_kpi_box(
+        slide,
+        start_x,
+        kpi_y,
+        kpi_w,
+        kpi_h,
+        "Enterprise Value (Y30)",
+        fmt_jpy(final.enterprise_value),
+        f"MOIC {final.seed_investor_moic:,.0f}x",
+    )
+    add_kpi_box(
+        slide,
+        start_x + kpi_w + gap,
+        kpi_y,
+        kpi_w,
+        kpi_h,
+        "Revenue (Y30)",
+        fmt_jpy(final.revenue),
+        f"{final.num_companies} portfolio companies",
+    )
+    add_kpi_box(
+        slide,
+        start_x + (kpi_w + gap) * 2,
+        kpi_y,
+        kpi_w,
+        kpi_h,
+        "EBITDA (Y30)",
+        fmt_jpy(final.ebitda),
+        f"Margin {final.ebitda / final.revenue * 100:.1f}%" if final.revenue > 0 else "",
+    )
+    add_kpi_box(
+        slide,
+        start_x + (kpi_w + gap) * 3,
+        kpi_y,
+        kpi_w,
+        kpi_h,
+        "Seed Investor IRR",
+        f"{final.seed_investor_irr * 100:.1f}%",
+        f"MOIC {final.seed_investor_moic:,.0f}x over 30 years",
+        value_color=GREEN_ACCENT,
+    )
     # Also show investor return in more detail
-    add_kpi_box(slide, start_x + (kpi_w + gap) * 4, kpi_y, kpi_w, kpi_h,
-                "Founder Ownership", f"{final.founder_ownership_pct * 100:.1f}%",
-                "Post-IPO control maintained")
+    add_kpi_box(
+        slide,
+        start_x + (kpi_w + gap) * 4,
+        kpi_y,
+        kpi_w,
+        kpi_h,
+        "Founder Ownership",
+        f"{final.founder_ownership_pct * 100:.1f}%",
+        "Post-IPO control maintained",
+    )
 
     # KPI row 2: Conglomerate premium metrics
     kpi_y2 = Inches(2.9)
-    add_kpi_box(slide, start_x, kpi_y2, kpi_w, kpi_h,
-                "Conglomerate Premium", f"+{final.conglomerate_premium_pct:.1f}%",
-                "vs. Sum-of-the-Parts",
-                value_color=GREEN_ACCENT if final.conglomerate_premium_pct > 0 else RED_ACCENT)
-    add_kpi_box(slide, start_x + kpi_w + gap, kpi_y2, kpi_w, kpi_h,
-                "PMI Capability", f"{final.pmi_capability:.0%}",
-                "DBS-equivalent maturity", value_color=TEAL)
-    add_kpi_box(slide, start_x + (kpi_w + gap) * 2, kpi_y2, kpi_w, kpi_h,
-                "Governance Quality", f"{final.governance_quality:.0%}",
-                "Corporate governance score", value_color=MID_BLUE)
-    add_kpi_box(slide, start_x + (kpi_w + gap) * 3, kpi_y2, kpi_w, kpi_h,
-                "Portfolio Diversity", f"{final.n_company_types} types",
-                f"{final.num_companies} companies across segments")
+    add_kpi_box(
+        slide,
+        start_x,
+        kpi_y2,
+        kpi_w,
+        kpi_h,
+        "Conglomerate Premium",
+        f"+{final.conglomerate_premium_pct:.1f}%",
+        "vs. Sum-of-the-Parts",
+        value_color=GREEN_ACCENT if final.conglomerate_premium_pct > 0 else RED_ACCENT,
+    )
+    add_kpi_box(
+        slide,
+        start_x + kpi_w + gap,
+        kpi_y2,
+        kpi_w,
+        kpi_h,
+        "PMI Capability",
+        f"{final.pmi_capability:.0%}",
+        "DBS-equivalent maturity",
+        value_color=TEAL,
+    )
+    add_kpi_box(
+        slide,
+        start_x + (kpi_w + gap) * 2,
+        kpi_y2,
+        kpi_w,
+        kpi_h,
+        "Governance Quality",
+        f"{final.governance_quality:.0%}",
+        "Corporate governance score",
+        value_color=MID_BLUE,
+    )
+    add_kpi_box(
+        slide,
+        start_x + (kpi_w + gap) * 3,
+        kpi_y2,
+        kpi_w,
+        kpi_h,
+        "Portfolio Diversity",
+        f"{final.n_company_types} types",
+        f"{final.num_companies} companies across segments",
+    )
 
     total_ma = sum(r.ma_events_this_year for r in reports)
     total_divest = sum(r.divestitures_this_year for r in reports)
-    add_kpi_box(slide, start_x + (kpi_w + gap) * 4, kpi_y2, kpi_w, kpi_h,
-                "M&A Track Record", f"{total_ma} / {total_divest}",
-                "Acquisitions / Divestitures")
+    add_kpi_box(
+        slide,
+        start_x + (kpi_w + gap) * 4,
+        kpi_y2,
+        kpi_w,
+        kpi_h,
+        "M&A Track Record",
+        f"{total_ma} / {total_divest}",
+        "Acquisitions / Divestitures",
+    )
 
     # Key takeaway
-    add_takeaway_box(slide, Inches(0.5), Inches(4.5), Inches(12),
-                     "KEY INSIGHT: The simulation achieves a sustained conglomerate PREMIUM "
-                     "(not discount) through related diversification, a mature operating system, "
-                     "and strong governance -- consistent with Villalonga (2004) and Danaher precedent.")
+    add_takeaway_box(
+        slide,
+        Inches(0.5),
+        Inches(4.5),
+        Inches(12),
+        "KEY INSIGHT: The simulation achieves a sustained conglomerate PREMIUM "
+        "(not discount) through related diversification, a mature operating system, "
+        "and strong governance -- consistent with Villalonga (2004) and Danaher precedent.",
+    )
 
     # Phase milestone table
-    add_textbox(slide, Inches(0.5), Inches(5.4), Inches(12), Inches(0.3),
-                "Phase Milestones", font_size=13, bold=True, color=DARK_BLUE)
+    add_textbox(
+        slide,
+        Inches(0.5),
+        Inches(5.4),
+        Inches(12),
+        Inches(0.3),
+        "Phase Milestones",
+        font_size=13,
+        bold=True,
+        color=DARK_BLUE,
+    )
 
     milestones = [
         ("Phase", "Year", "Revenue", "EBITDA", "EV", "CP%", "PMI"),
@@ -307,22 +463,34 @@ def slide_exec_summary(prs, reports):
     for py in phase_years:
         if py < len(reports):
             r = reports[py]
-            milestones.append((
-                r.phase,
-                str(r.year),
-                fmt_jpy(r.revenue),
-                fmt_jpy(r.ebitda),
-                fmt_jpy(r.enterprise_value),
-                f"+{r.conglomerate_premium_pct:.1f}%" if r.conglomerate_premium_pct >= 0 else f"{r.conglomerate_premium_pct:.1f}%",
-                f"{r.pmi_capability:.0%}",
-            ))
+            milestones.append(
+                (
+                    r.phase,
+                    str(r.year),
+                    fmt_jpy(r.revenue),
+                    fmt_jpy(r.ebitda),
+                    fmt_jpy(r.enterprise_value),
+                    f"+{r.conglomerate_premium_pct:.1f}%"
+                    if r.conglomerate_premium_pct >= 0
+                    else f"{r.conglomerate_premium_pct:.1f}%",
+                    f"{r.pmi_capability:.0%}",
+                )
+            )
 
     table_shape = slide.shapes.add_table(
         len(milestones), 7, Inches(0.5), Inches(5.8), Inches(12), Inches(1.4)
     )
     table = table_shape.table
 
-    col_widths = [Inches(1.5), Inches(0.8), Inches(1.8), Inches(1.8), Inches(2.2), Inches(1.2), Inches(1.0)]
+    col_widths = [
+        Inches(1.5),
+        Inches(0.8),
+        Inches(1.8),
+        Inches(1.8),
+        Inches(2.2),
+        Inches(1.2),
+        Inches(1.0),
+    ]
     for i, w in enumerate(col_widths):
         table.columns[i].width = w
 
@@ -352,8 +520,11 @@ def slide_conglomerate_premium(prs, reports):
     """Slide 3: Conglomerate Premium Evolution."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
-    add_header_bar(slide, "Conglomerate Premium Evolution",
-                   "Research-based premium/discount trajectory over 30 years")
+    add_header_bar(
+        slide,
+        "Conglomerate Premium Evolution",
+        "Research-based premium/discount trajectory over 30 years",
+    )
 
     years = [r.year for r in reports]
     cp = [r.conglomerate_premium_pct for r in reports]
@@ -368,18 +539,30 @@ def slide_conglomerate_premium(prs, reports):
     ax1.bar(years, cp, color=colors, alpha=0.8, width=0.8)
     ax1.axhline(y=0, color="#333333", linewidth=0.8)
     ax1.axhline(y=-14, color="#C0392B", linewidth=0.8, linestyle="--", alpha=0.5)
-    ax1.text(28, -14, "Berger & Ofek\navg. discount", fontsize=7, color="#C0392B",
-             ha="right", va="bottom")
-    make_chart_style(ax1, "Conglomerate Premium / Discount (%)",
-                     "Year", "Premium / Discount (%)")
+    ax1.text(
+        28,
+        -14,
+        "Berger & Ofek\navg. discount",
+        fontsize=7,
+        color="#C0392B",
+        ha="right",
+        va="bottom",
+    )
+    make_chart_style(ax1, "Conglomerate Premium / Discount (%)", "Year", "Premium / Discount (%)")
     ax1.set_ylim(-20, 35)
 
     # Phase shading
-    phase_ranges = [(0, 0, "P0"), (1, 3, "P1"), (4, 6, "P2"), (7, 10, "P3"),
-                    (11, 15, "P4"), (16, 20, "P5"), (21, 30, "P6")]
-    phase_colors = ["#F0F0F0", "#E8F0FE", "#E0F2E9", "#FFF3E0",
-                    "#F3E5F5", "#E8EAF6", "#ECEFF1"]
-    for (s, e, label), pc in zip(phase_ranges, phase_colors):
+    phase_ranges = [
+        (0, 0, "P0"),
+        (1, 3, "P1"),
+        (4, 6, "P2"),
+        (7, 10, "P3"),
+        (11, 15, "P4"),
+        (16, 20, "P5"),
+        (21, 30, "P6"),
+    ]
+    phase_colors = ["#F0F0F0", "#E8F0FE", "#E0F2E9", "#FFF3E0", "#F3E5F5", "#E8EAF6", "#ECEFF1"]
+    for (s, e, label), pc in zip(phase_ranges, phase_colors, strict=False):
         ax1.axvspan(s - 0.5, e + 0.5, alpha=0.15, color=pc)
         ax1.text((s + e) / 2, 32, label, fontsize=7, ha="center", color="#999999")
 
@@ -387,8 +570,7 @@ def slide_conglomerate_premium(prs, reports):
     ax2.plot(years, os_mat, color="#009688", linewidth=2.5, label="PMI Capability")
     ax2.plot(years, gov, color="#005B96", linewidth=2.5, linestyle="--", label="Governance Quality")
     ax2.fill_between(years, os_mat, alpha=0.1, color="#009688")
-    make_chart_style(ax2, "PMI Capability & Governance Maturity",
-                     "Year", "Maturity (%)")
+    make_chart_style(ax2, "PMI Capability & Governance Maturity", "Year", "Maturity (%)")
     ax2.set_ylim(0, 105)
     ax2.legend(fontsize=8, loc="lower right")
 
@@ -398,34 +580,53 @@ def slide_conglomerate_premium(prs, reports):
 
     # Explanation boxes below chart
     boxes = [
-        ("Years 1-3: Rapid OS Build-Up",
-         "Operating system maturity rises from 0% to ~30%. "
-         "Related diversification (same-type acquisitions) drives +25% premium. "
-         "Consistent with Villalonga (2004): related diversification yields premium."),
-        ("Years 4-15: Premium Stabilization",
-         "OS reaches 95%+, governance improves to 90%+. Premium stabilizes at +27-30%. "
-         "The Danaher DBS effect adds ~650bps margin improvement per acquisition. "
-         "Monitoring decay begins above 6 companies but is offset by OS maturity."),
-        ("Years 20-30: Scale Management",
-         "With 20-28 companies, monitoring efficiency decay (Stein 1997) "
-         "gradually reduces the premium to +20%. This is the natural trade-off: "
-         "broader portfolio diversifies risk but strains HQ monitoring capacity."),
+        (
+            "Years 1-3: Rapid OS Build-Up",
+            "Operating system maturity rises from 0% to ~30%. "
+            "Related diversification (same-type acquisitions) drives +25% premium. "
+            "Consistent with Villalonga (2004): related diversification yields premium.",
+        ),
+        (
+            "Years 4-15: Premium Stabilization",
+            "OS reaches 95%+, governance improves to 90%+. Premium stabilizes at +27-30%. "
+            "The Danaher DBS effect adds ~650bps margin improvement per acquisition. "
+            "Monitoring decay begins above 6 companies but is offset by OS maturity.",
+        ),
+        (
+            "Years 20-30: Scale Management",
+            "With 20-28 companies, monitoring efficiency decay (Stein 1997) "
+            "gradually reduces the premium to +20%. This is the natural trade-off: "
+            "broader portfolio diversifies risk but strains HQ monitoring capacity.",
+        ),
     ]
 
     for i, (title, desc) in enumerate(boxes):
         x = Inches(0.5) + Inches(4.1) * i
-        add_textbox(slide, x, Inches(5.8), Inches(3.8), Inches(0.3),
-                    title, font_size=10, bold=True, color=DARK_BLUE)
-        add_textbox(slide, x, Inches(6.15), Inches(3.8), Inches(1.1),
-                    desc, font_size=8, color=MID_GRAY)
+        add_textbox(
+            slide,
+            x,
+            Inches(5.8),
+            Inches(3.8),
+            Inches(0.3),
+            title,
+            font_size=10,
+            bold=True,
+            color=DARK_BLUE,
+        )
+        add_textbox(
+            slide, x, Inches(6.15), Inches(3.8), Inches(1.1), desc, font_size=8, color=MID_GRAY
+        )
 
 
 def slide_financial_trajectory(prs, reports):
     """Slide 4: Financial Growth Trajectory."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
-    add_header_bar(slide, "Financial Growth Trajectory",
-                   "Revenue, EBITDA, and Enterprise Value over 30 years (log scale)")
+    add_header_bar(
+        slide,
+        "Financial Growth Trajectory",
+        "Revenue, EBITDA, and Enterprise Value over 30 years (log scale)",
+    )
 
     years = [r.year for r in reports]
     revenue = [max(1, r.revenue / 1_0000_0000) for r in reports]  # oku
@@ -444,10 +645,27 @@ def slide_financial_trajectory(prs, reports):
         (axes[1], ebitda, target_ebitda, target_years, "EBITDA", "#009688"),
         (axes[2], ev, target_ev, target_years, "Enterprise Value", "#6A1B9A"),
     ]:
-        ax.plot(years, data, color=color, linewidth=2.5, marker="o", markersize=2.5,
-                label="Simulation", zorder=3)
-        ax.plot(tgt_y, tgt, color="#C0392B", linewidth=1.5, linestyle="--",
-                marker="^", markersize=4, label="Target", alpha=0.7)
+        ax.plot(
+            years,
+            data,
+            color=color,
+            linewidth=2.5,
+            marker="o",
+            markersize=2.5,
+            label="Simulation",
+            zorder=3,
+        )
+        ax.plot(
+            tgt_y,
+            tgt,
+            color="#C0392B",
+            linewidth=1.5,
+            linestyle="--",
+            marker="^",
+            markersize=4,
+            label="Target",
+            alpha=0.7,
+        )
         ax.fill_between(years, data, alpha=0.08, color=color)
         make_chart_style(ax, f"{title} (Oku JPY)", "Year", "")
         ax.set_yscale("log")
@@ -460,30 +678,45 @@ def slide_financial_trajectory(prs, reports):
     slide.shapes.add_picture(img_buf, Inches(0.3), Inches(1.2), Inches(12.7), Inches(4.5))
 
     # Callout
-    add_takeaway_box(slide, Inches(0.5), Inches(5.9), Inches(12),
-                     "The conglomerate premium (avg +25%) amplifies enterprise value "
-                     "beyond the sum-of-the-parts EBITDA multiple, consistent with "
-                     "Berkshire Hathaway's 18.3% CAGR (1965-2024) outperformance pattern.")
+    add_takeaway_box(
+        slide,
+        Inches(0.5),
+        Inches(5.9),
+        Inches(12),
+        "The conglomerate premium (avg +25%) amplifies enterprise value "
+        "beyond the sum-of-the-parts EBITDA multiple, consistent with "
+        "Berkshire Hathaway's 18.3% CAGR (1965-2024) outperformance pattern.",
+    )
 
     # Key metrics at milestones
-    add_textbox(slide, Inches(0.5), Inches(6.7), Inches(12), Inches(0.5),
-                f"Y10: Rev {fmt_jpy(reports[10].revenue)}, EV {fmt_jpy(reports[10].enterprise_value)}  |  "
-                f"Y20: Rev {fmt_jpy(reports[20].revenue)}, EV {fmt_jpy(reports[20].enterprise_value)}  |  "
-                f"Y30: Rev {fmt_jpy(reports[30].revenue)}, EV {fmt_jpy(reports[30].enterprise_value)}",
-                font_size=10, color=MID_GRAY, align=PP_ALIGN.CENTER)
+    add_textbox(
+        slide,
+        Inches(0.5),
+        Inches(6.7),
+        Inches(12),
+        Inches(0.5),
+        f"Y10: Rev {fmt_jpy(reports[10].revenue)}, EV {fmt_jpy(reports[10].enterprise_value)}  |  "
+        f"Y20: Rev {fmt_jpy(reports[20].revenue)}, EV {fmt_jpy(reports[20].enterprise_value)}  |  "
+        f"Y30: Rev {fmt_jpy(reports[30].revenue)}, EV {fmt_jpy(reports[30].enterprise_value)}",
+        font_size=10,
+        color=MID_GRAY,
+        align=PP_ALIGN.CENTER,
+    )
 
 
 def slide_premium_decomposition(prs, reports):
     """Slide 5: Conglomerate Premium Decomposition (waterfall-style)."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
-    add_header_bar(slide, "Conglomerate Premium Decomposition",
-                   "What drives the premium? Factor analysis at Year 30")
+    add_header_bar(
+        slide,
+        "Conglomerate Premium Decomposition",
+        "What drives the premium? Factor analysis at Year 30",
+    )
 
     # Calculate components for Year 30
-    from taiga_sim.engines.financial_engine import FinancialEngine
-    from taiga_sim.models.simulation import SimulationState, SimulationConfig
     from taiga_sim.models.organization import CompanyType
+    from taiga_sim.models.simulation import SimulationConfig
 
     # Re-run to get final state
     config = SimulationConfig()
@@ -504,22 +737,30 @@ def slide_premium_decomposition(prs, reports):
     companies_in_clusters = sum(count for count in type_counts.values() if count >= 2)
     relatedness_ratio = companies_in_clusters / n_companies if n_companies > 0 else 0
 
-    factor_diversification = relatedness_ratio * cfg.related_premium + (1 - relatedness_ratio) * cfg.unrelated_discount
+    factor_diversification = (
+        relatedness_ratio * cfg.related_premium + (1 - relatedness_ratio) * cfg.unrelated_discount
+    )
     segment_deviation = abs(n_types - cfg.optimal_segment_count)
-    factor_segment = -0.02 * (segment_deviation ** 1.5) / cfg.diversification_curve_width
+    factor_segment = -0.02 * (segment_deviation**1.5) / cfg.diversification_curve_width
     factor_os = holding.pmi_capability * cfg.related_premium * 1.5
     monitoring_raw = 0.0
     if n_companies > cfg.monitoring_decay_threshold:
         excess = n_companies - cfg.monitoring_decay_threshold
         monitoring_raw = -excess * cfg.monitoring_decay_rate
-        monitoring_raw *= (1.0 - holding.pmi_capability * 0.6)
+        monitoring_raw *= 1.0 - holding.pmi_capability * 0.6
     factor_monitoring = monitoring_raw
-    factor_governance = cfg.governance_bonus_max * holding.governance_quality - cfg.governance_penalty_max * (1 - holding.governance_quality)
+    factor_governance = (
+        cfg.governance_bonus_max * holding.governance_quality
+        - cfg.governance_penalty_max * (1 - holding.governance_quality)
+    )
     factor_japan = -cfg.japan_institutional_discount
     venture_ratio = type_counts.get(CompanyType.VENTURE, 0) / n_companies if n_companies > 0 else 0
     factor_platform = 0.0
     if venture_ratio > 0.2 and holding.pmi_capability > 0.5:
-        factor_platform = min(cfg.platform_premium_max, venture_ratio * holding.pmi_capability * cfg.platform_premium_max)
+        factor_platform = min(
+            cfg.platform_premium_max,
+            venture_ratio * holding.pmi_capability * cfg.platform_premium_max,
+        )
 
     factors = [
         ("Related\nDiversification", factor_diversification * 100),
@@ -549,23 +790,55 @@ def slide_premium_decomposition(prs, reports):
 
     colors_bar = ["#27AE60" if v >= 0 else "#C0392B" for v in values]
 
-    bars = ax.bar(range(len(labels)), [abs(v) for v in values], bottom=bottoms,
-                  color=colors_bar, alpha=0.85, width=0.6, edgecolor="white", linewidth=0.5)
+    ax.bar(
+        range(len(labels)),
+        [abs(v) for v in values],
+        bottom=bottoms,
+        color=colors_bar,
+        alpha=0.85,
+        width=0.6,
+        edgecolor="white",
+        linewidth=0.5,
+    )
 
     # Add value labels
-    for i, (v, b) in enumerate(zip(values, bottoms)):
+    for i, (v, b) in enumerate(zip(values, bottoms, strict=False)):
         y_pos = b + abs(v) / 2
         sign = "+" if v >= 0 else ""
-        ax.text(i, y_pos, f"{sign}{v:.1f}%", ha="center", va="center",
-                fontsize=9, fontweight="bold", color="white")
+        ax.text(
+            i,
+            y_pos,
+            f"{sign}{v:.1f}%",
+            ha="center",
+            va="center",
+            fontsize=9,
+            fontweight="bold",
+            color="white",
+        )
 
     # Total bar
     total = sum(values)
     total_color = "#005B96"
-    ax.bar(len(labels), total, bottom=0, color=total_color, alpha=0.9, width=0.6,
-           edgecolor="white", linewidth=0.5)
-    ax.text(len(labels), total / 2, f"+{total:.1f}%", ha="center", va="center",
-            fontsize=10, fontweight="bold", color="white")
+    ax.bar(
+        len(labels),
+        total,
+        bottom=0,
+        color=total_color,
+        alpha=0.9,
+        width=0.6,
+        edgecolor="white",
+        linewidth=0.5,
+    )
+    ax.text(
+        len(labels),
+        total / 2,
+        f"+{total:.1f}%",
+        ha="center",
+        va="center",
+        fontsize=10,
+        fontweight="bold",
+        color="white",
+    )
 
     labels.append("TOTAL\nPREMIUM")
     ax.set_xticks(range(len(labels)))
@@ -584,23 +857,30 @@ def slide_premium_decomposition(prs, reports):
         ("PMI Capability", "Danaher: DBS yields +650bps margin improvement; 80,000% stock return"),
         ("Monitoring Decay", "Stein (1997): HQ monitoring efficiency decays with # of divisions"),
         ("Governance", "Strong governance eliminates conglomerate discount (multiple studies)"),
-        ("Japan Context", "Khanna & Palepu (2000): weaker institutions increase diversification value"),
+        (
+            "Japan Context",
+            "Khanna & Palepu (2000): weaker institutions increase diversification value",
+        ),
     ]
 
     y_start = Inches(6.2)
     for i, (factor, cite) in enumerate(citations):
         x = Inches(0.5) if i < 3 else Inches(6.5)
         y = y_start + Inches(0.25) * (i % 3)
-        add_textbox(slide, x, y, Inches(6), Inches(0.25),
-                    f"{factor}: {cite}", font_size=7, color=MID_GRAY)
+        add_textbox(
+            slide, x, y, Inches(6), Inches(0.25), f"{factor}: {cite}", font_size=7, color=MID_GRAY
+        )
 
 
 def slide_portfolio_composition(prs, reports):
     """Slide 6: Portfolio Composition and M&A Activity."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
-    add_header_bar(slide, "Portfolio Composition & M&A Activity",
-                   "Portfolio growth, company count, and acquisition cadence")
+    add_header_bar(
+        slide,
+        "Portfolio Composition & M&A Activity",
+        "Portfolio growth, company count, and acquisition cadence",
+    )
 
     years = [r.year for r in reports]
     n_companies = [r.num_companies for r in reports]
@@ -615,8 +895,15 @@ def slide_portfolio_composition(prs, reports):
     ax = axes[0]
     ax.bar(years, n_companies, color="#005B96", alpha=0.7, label="Companies", width=0.8)
     ax2 = ax.twinx()
-    ax2.plot(years, n_types, color="#D4A017", linewidth=2.5, marker="D", markersize=3,
-             label="Company Types")
+    ax2.plot(
+        years,
+        n_types,
+        color="#D4A017",
+        linewidth=2.5,
+        marker="D",
+        markersize=3,
+        label="Company Types",
+    )
     ax2.set_ylabel("Types", fontsize=9, color="#D4A017")
     ax2.set_ylim(0, 7)
     make_chart_style(ax, "Portfolio Size", "Year", "Companies")
@@ -644,27 +931,42 @@ def slide_portfolio_composition(prs, reports):
     # Observations
     total_ma = sum(ma_events)
     total_divest = sum(divest)
-    add_takeaway_box(slide, Inches(0.5), Inches(5.7), Inches(12),
-                     f"PORTFOLIO DISCIPLINE: {total_ma} acquisitions, {total_divest} divestitures "
-                     f"over 30 years. Acquisition pace of ~1/year reflects quality-over-quantity discipline. "
-                     f"Divestiture rate of {total_divest / total_ma * 100:.0f}% is below the academic "
-                     f"average of 44% (Kaplan & Weisbach 1992), suggesting strong target selection.")
+    add_takeaway_box(
+        slide,
+        Inches(0.5),
+        Inches(5.7),
+        Inches(12),
+        f"PORTFOLIO DISCIPLINE: {total_ma} acquisitions, {total_divest} divestitures "
+        f"over 30 years. Acquisition pace of ~1/year reflects quality-over-quantity discipline. "
+        f"Divestiture rate of {total_divest / total_ma * 100:.0f}% is below the academic "
+        f"average of 44% (Kaplan & Weisbach 1992), suggesting strong target selection.",
+    )
 
     # Academic context
-    add_textbox(slide, Inches(0.5), Inches(6.5), Inches(12), Inches(0.8),
-                "Academic benchmarks:\n"
-                "- Laamanen & Keil (2008): optimal M&A frequency is 1-3 deals/year (inverted U-shape)\n"
-                "- Haleblian & Finkelstein (1999): U-shaped learning curve in M&A (first deals riskiest)\n"
-                "- KPMG: ~50% of M&As fail to create value; our divestiture rate suggests above-average selection",
-                font_size=8, color=MID_GRAY)
+    add_textbox(
+        slide,
+        Inches(0.5),
+        Inches(6.5),
+        Inches(12),
+        Inches(0.8),
+        "Academic benchmarks:\n"
+        "- Laamanen & Keil (2008): optimal M&A frequency is 1-3 deals/year (inverted U-shape)\n"
+        "- Haleblian & Finkelstein (1999): U-shaped learning curve in M&A (first deals riskiest)\n"
+        "- KPMG: ~50% of M&As fail to create value; our divestiture rate suggests above-average selection",
+        font_size=8,
+        color=MID_GRAY,
+    )
 
 
 def slide_investor_returns(prs, reports):
     """Slide 7: Investor Returns and Value Creation."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
-    add_header_bar(slide, "Investor Returns & Value Creation",
-                   "Seed investor returns and founder control trajectory")
+    add_header_bar(
+        slide,
+        "Investor Returns & Value Creation",
+        "Seed investor returns and founder control trajectory",
+    )
 
     years = [r.year for r in reports]
     moic = [r.seed_investor_moic for r in reports]
@@ -707,31 +1009,74 @@ def slide_investor_returns(prs, reports):
     slide.shapes.add_picture(img_buf, Inches(0.3), Inches(1.2), Inches(12.7), Inches(4.5))
 
     final = reports[-1]
-    add_takeaway_box(slide, Inches(0.5), Inches(5.9), Inches(12),
-                     f"VALUE CREATION: {final.seed_investor_moic:,.0f}x MOIC / "
-                     f"{final.seed_investor_irr * 100:.1f}% IRR over 30 years, "
-                     f"significantly exceeding Berkshire Hathaway's 18.3% CAGR benchmark. "
-                     f"Founder retains {final.founder_ownership_pct * 100:.1f}% ownership "
-                     f"(above veto threshold) while building {fmt_jpy(final.enterprise_value)} in EV.")
+    add_takeaway_box(
+        slide,
+        Inches(0.5),
+        Inches(5.9),
+        Inches(12),
+        f"VALUE CREATION: {final.seed_investor_moic:,.0f}x MOIC / "
+        f"{final.seed_investor_irr * 100:.1f}% IRR over 30 years, "
+        f"significantly exceeding Berkshire Hathaway's 18.3% CAGR benchmark. "
+        f"Founder retains {final.founder_ownership_pct * 100:.1f}% ownership "
+        f"(above veto threshold) while building {fmt_jpy(final.enterprise_value)} in EV.",
+    )
 
 
 def slide_research_framework(prs, reports):
     """Slide 8: Research Framework - When does the premium emerge?"""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
-    add_header_bar(slide, "Research Framework: Conglomerate Premium Conditions",
-                   "When does diversification create value? Key academic findings")
+    add_header_bar(
+        slide,
+        "Research Framework: Conglomerate Premium Conditions",
+        "When does diversification create value? Key academic findings",
+    )
 
     # Table of conditions
     conditions = [
         ("Condition", "Mechanism", "Citation", "Taiga Model"),
-        ("Related diversification", "Operational synergies, shared capabilities", "Villalonga (2004)", "Related ratio weighting"),
-        ("Operating system (DBS)", "Transferable mgmt practices improve acquisitions", "Danaher case study", "+650bps margin per deal"),
-        ("Strong governance", "Reduces agency costs of diversification", "Multiple studies", "0-100% quality score"),
-        ("External capital constraints", "Internal capital market becomes more valuable", "Stein (1997), Williamson (1975)", "Japan context factor"),
-        ("Optimal # of segments", "Inverted U-shape: too few or too many hurts", "Arte & Larimo (2022)", "Peak at 3 types"),
-        ("Monitoring efficiency", "HQ audit capability decays with scale", "Stein (1997)", "Decay above 6 companies"),
-        ("Emerging/developing market", "Institutional voids favor conglomerates", "Khanna & Palepu (2000)", "Japan institutional adj."),
+        (
+            "Related diversification",
+            "Operational synergies, shared capabilities",
+            "Villalonga (2004)",
+            "Related ratio weighting",
+        ),
+        (
+            "Operating system (DBS)",
+            "Transferable mgmt practices improve acquisitions",
+            "Danaher case study",
+            "+650bps margin per deal",
+        ),
+        (
+            "Strong governance",
+            "Reduces agency costs of diversification",
+            "Multiple studies",
+            "0-100% quality score",
+        ),
+        (
+            "External capital constraints",
+            "Internal capital market becomes more valuable",
+            "Stein (1997), Williamson (1975)",
+            "Japan context factor",
+        ),
+        (
+            "Optimal # of segments",
+            "Inverted U-shape: too few or too many hurts",
+            "Arte & Larimo (2022)",
+            "Peak at 3 types",
+        ),
+        (
+            "Monitoring efficiency",
+            "HQ audit capability decays with scale",
+            "Stein (1997)",
+            "Decay above 6 companies",
+        ),
+        (
+            "Emerging/developing market",
+            "Institutional voids favor conglomerates",
+            "Khanna & Palepu (2000)",
+            "Japan institutional adj.",
+        ),
     ]
 
     table_shape = slide.shapes.add_table(
@@ -765,14 +1110,28 @@ def slide_research_framework(prs, reports):
                 cell.fill.fore_color.rgb = RGBColor(0xF5, 0xF7, 0xFA)
 
     # Key insight
-    add_takeaway_box(slide, Inches(0.3), Inches(4.9), Inches(12.7),
-                     "MATSUOKA THESIS VALIDATED: \"Selection and concentration\" was over-applied "
-                     "in Japan. Structured, strategic diversification with a mature operating system "
-                     "creates premium -- not discount. Buffett's sogo shosha investments confirm this.")
+    add_takeaway_box(
+        slide,
+        Inches(0.3),
+        Inches(4.9),
+        Inches(12.7),
+        'MATSUOKA THESIS VALIDATED: "Selection and concentration" was over-applied '
+        "in Japan. Structured, strategic diversification with a mature operating system "
+        "creates premium -- not discount. Buffett's sogo shosha investments confirm this.",
+    )
 
     # Comparison table: discount vs premium
-    add_textbox(slide, Inches(0.3), Inches(5.8), Inches(6), Inches(0.3),
-                "Global Conglomerate Valuation Benchmarks", font_size=11, bold=True, color=DARK_BLUE)
+    add_textbox(
+        slide,
+        Inches(0.3),
+        Inches(5.8),
+        Inches(6),
+        Inches(0.3),
+        "Global Conglomerate Valuation Benchmarks",
+        font_size=11,
+        bold=True,
+        color=DARK_BLUE,
+    )
 
     benchmarks = [
         ("Region / Type", "Effect", "Source"),
@@ -821,8 +1180,9 @@ def slide_appendix_data(prs, reports):
     """Slide 9: Appendix - Full 30-year annual data."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
-    add_header_bar(slide, "Appendix: Full Annual Data",
-                   "Complete 30-year simulation output (seed=42)")
+    add_header_bar(
+        slide, "Appendix: Full Annual Data", "Complete 30-year simulation output (seed=42)"
+    )
 
     # Split into two columns for readability
     headers = ["Yr", "Phase", "Revenue", "EBITDA", "EV", "Co.", "CP%", "PMI%"]
@@ -835,13 +1195,20 @@ def slide_appendix_data(prs, reports):
 
         x_offset = Inches(0.2) + Inches(6.5) * col_offset
         table_shape = slide.shapes.add_table(
-            n_data_rows + 1, len(headers), x_offset, Inches(1.1),
-            Inches(6.2), Inches(6.0)
+            n_data_rows + 1, len(headers), x_offset, Inches(1.1), Inches(6.2), Inches(6.0)
         )
         table = table_shape.table
 
-        col_widths_app = [Inches(0.35), Inches(0.75), Inches(1.1), Inches(1.0),
-                          Inches(1.1), Inches(0.4), Inches(0.7), Inches(0.5)]
+        col_widths_app = [
+            Inches(0.35),
+            Inches(0.75),
+            Inches(1.1),
+            Inches(1.0),
+            Inches(1.1),
+            Inches(0.4),
+            Inches(0.7),
+            Inches(0.5),
+        ]
         for i, w in enumerate(col_widths_app):
             table.columns[i].width = w
 
@@ -861,11 +1228,20 @@ def slide_appendix_data(prs, reports):
         # Data rows
         for ri in range(n_data_rows):
             r = reports[start_row + ri]
-            cp_str = f"+{r.conglomerate_premium_pct:.1f}" if r.conglomerate_premium_pct >= 0 else f"{r.conglomerate_premium_pct:.1f}"
+            cp_str = (
+                f"+{r.conglomerate_premium_pct:.1f}"
+                if r.conglomerate_premium_pct >= 0
+                else f"{r.conglomerate_premium_pct:.1f}"
+            )
             row_data = [
-                str(r.year), r.phase[:4],
-                fmt_jpy(r.revenue), fmt_jpy(r.ebitda), fmt_jpy(r.enterprise_value),
-                str(r.num_companies), cp_str, f"{r.pmi_capability:.0%}",
+                str(r.year),
+                r.phase[:4],
+                fmt_jpy(r.revenue),
+                fmt_jpy(r.ebitda),
+                fmt_jpy(r.enterprise_value),
+                str(r.num_companies),
+                cp_str,
+                f"{r.pmi_capability:.0%}",
             ]
             for ci, val in enumerate(row_data):
                 cell = table.cell(ri + 1, ci)
@@ -884,9 +1260,10 @@ def slide_appendix_data(prs, reports):
 # MAIN
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 def main():
     print("Running 30-year simulation...")
-    reports, runner = run_simulation()
+    reports, _runner = run_simulation()
     print(f"  -> {len(reports)} annual reports generated")
 
     # Set up 16:9 presentation
@@ -926,7 +1303,7 @@ def main():
     output_path.parent.mkdir(parents=True, exist_ok=True)
     prs.save(str(output_path))
     print(f"\nReport saved to: {output_path}")
-    print(f"  9 slides, McKinsey-style executive presentation")
+    print("  9 slides, McKinsey-style executive presentation")
 
 
 if __name__ == "__main__":

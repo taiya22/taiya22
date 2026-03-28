@@ -118,8 +118,8 @@ class SimulationRunner:
             if volatility_roll < 0.08:
                 # 8% chance of significant downturn (-15 to -30%)
                 shock = self.rng.uniform(-0.30, -0.15)
-                company.ebitda *= (1 + shock)
-                company.revenue *= (1 + shock * 0.5)  # revenue less volatile
+                company.ebitda *= 1 + shock
+                company.revenue *= 1 + shock * 0.5  # revenue less volatile
                 # Escalate signal: green -> yellow -> red
                 if company.signal == "yellow":
                     company.signal = "red"
@@ -130,7 +130,7 @@ class SimulationRunner:
             elif volatility_roll < 0.15:
                 # 7% chance of mild downturn (-5 to -15%)
                 shock = self.rng.uniform(-0.15, -0.05)
-                company.ebitda *= (1 + shock)
+                company.ebitda *= 1 + shock
                 # Mild downturns can push to yellow
                 if company.signal == "green" and self.rng.random() < 0.30:
                     company.signal = "yellow"
@@ -177,15 +177,17 @@ class SimulationRunner:
                 recovery_value = company.acquisition_price * recovery_rate
 
                 state.holding.companies.remove(company)
-                state.ma_events.append({
-                    "year": state.year,
-                    "quarter": 1,
-                    "company": company.name,
-                    "type": "divestiture",
-                    "recovery_value": recovery_value,
-                    "acquisition_price": company.acquisition_price,
-                    "recovery_rate": recovery_rate,
-                })
+                state.ma_events.append(
+                    {
+                        "year": state.year,
+                        "quarter": 1,
+                        "company": company.name,
+                        "type": "divestiture",
+                        "recovery_value": recovery_value,
+                        "acquisition_price": company.acquisition_price,
+                        "recovery_rate": recovery_rate,
+                    }
+                )
                 divested += 1
 
         return divested
@@ -209,7 +211,7 @@ class SimulationRunner:
             # 25% of in-PMI acquisitions experience value destruction
             if self.rng.random() < 0.25:
                 destruction = self.rng.uniform(0.05, 0.20)
-                company.ebitda *= (1 - destruction)
+                company.ebitda *= 1 - destruction
 
     def run_year(self, year: int) -> AnnualReport:
         """Run one full year of simulation (4 quarters)."""
@@ -276,7 +278,8 @@ class SimulationRunner:
             for company in state.holding.companies:
                 quarters_since = (year - company.acquired_year) * 4 + q
                 self.ma.advance_pmi(
-                    company, quarters_since,
+                    company,
+                    quarters_since,
                     pmi_capability=pmi_cap,
                     pmi_margin_improvement=pmi_margin,
                 )
@@ -332,7 +335,11 @@ class SimulationRunner:
         # Compute conglomerate premium for reporting
         cong_multiplier = self.financial.compute_conglomerate_premium(state)
         cong_premium_pct = (cong_multiplier - 1.0) * 100  # as percentage
-        n_types = len(set(c.company_type for c in state.holding.companies)) if state.holding.companies else 0
+        n_types = (
+            len(set(c.company_type for c in state.holding.companies))
+            if state.holding.companies
+            else 0
+        )
 
         report = AnnualReport(
             year=year,
@@ -372,32 +379,34 @@ class SimulationRunner:
         """Export simulation results to JSON."""
         results = []
         for r in self.annual_reports:
-            results.append({
-                "year": r.year,
-                "phase": r.phase,
-                "revenue_jpy": r.revenue,
-                "revenue_display": fmt_jpy(r.revenue),
-                "ebitda_jpy": r.ebitda,
-                "ebitda_display": fmt_jpy(r.ebitda),
-                "ev_jpy": r.enterprise_value,
-                "ev_display": fmt_jpy(r.enterprise_value),
-                "fcf_jpy": r.fcf,
-                "headcount": r.headcount,
-                "num_companies": r.num_companies,
-                "founder_ownership_pct": round(r.founder_ownership_pct * 100, 2),
-                "seed_moic": round(r.seed_investor_moic, 1),
-                "seed_irr_pct": round(r.seed_investor_irr * 100, 1),
-                "keshiki_reserve": fmt_jpy(r.keshiki_reserve),
-                "foundation_cumulative": fmt_jpy(r.foundation_cumulative),
-                "signals": r.signal_counts,
-                "crisis_active": r.crisis_active,
-                "ma_events": r.ma_events_this_year,
-                "divestitures": r.divestitures_this_year,
-                "conglomerate_premium_pct": r.conglomerate_premium_pct,
-                "pmi_capability": r.pmi_capability,
-                "governance_quality": r.governance_quality,
-                "n_company_types": r.n_company_types,
-            })
+            results.append(
+                {
+                    "year": r.year,
+                    "phase": r.phase,
+                    "revenue_jpy": r.revenue,
+                    "revenue_display": fmt_jpy(r.revenue),
+                    "ebitda_jpy": r.ebitda,
+                    "ebitda_display": fmt_jpy(r.ebitda),
+                    "ev_jpy": r.enterprise_value,
+                    "ev_display": fmt_jpy(r.enterprise_value),
+                    "fcf_jpy": r.fcf,
+                    "headcount": r.headcount,
+                    "num_companies": r.num_companies,
+                    "founder_ownership_pct": round(r.founder_ownership_pct * 100, 2),
+                    "seed_moic": round(r.seed_investor_moic, 1),
+                    "seed_irr_pct": round(r.seed_investor_irr * 100, 1),
+                    "keshiki_reserve": fmt_jpy(r.keshiki_reserve),
+                    "foundation_cumulative": fmt_jpy(r.foundation_cumulative),
+                    "signals": r.signal_counts,
+                    "crisis_active": r.crisis_active,
+                    "ma_events": r.ma_events_this_year,
+                    "divestitures": r.divestitures_this_year,
+                    "conglomerate_premium_pct": r.conglomerate_premium_pct,
+                    "pmi_capability": r.pmi_capability,
+                    "governance_quality": r.governance_quality,
+                    "n_company_types": r.n_company_types,
+                }
+            )
 
         path = Path(output_path)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -457,7 +466,9 @@ class SimulationRunner:
             total_ma = sum(r.ma_events_this_year for r in self.annual_reports)
             lines.append(f"  累計M&A:      {total_ma}件")
             lines.append(f"  累計売却:     {total_divest}件")
-            lines.append(f"  コングロマリットP/D: {'+' if final.conglomerate_premium_pct >= 0 else ''}{final.conglomerate_premium_pct:.1f}%")
+            lines.append(
+                f"  コングロマリットP/D: {'+' if final.conglomerate_premium_pct >= 0 else ''}{final.conglomerate_premium_pct:.1f}%"
+            )
             lines.append(f"  PMI Capability:      {final.pmi_capability:.1%}")
             lines.append(f"  ガバナンス品質:      {final.governance_quality:.1%}")
 

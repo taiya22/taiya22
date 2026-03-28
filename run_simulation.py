@@ -11,7 +11,7 @@ def main():
 
     # Run simulation
     runner = SimulationRunner(config=config, seed=42)
-    reports = runner.run(years=30)
+    runner.run(years=30)
 
     # Print summary
     print(runner.print_summary())

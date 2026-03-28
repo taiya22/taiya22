@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
@@ -131,11 +130,7 @@ class BalanceSheet:
 
     @property
     def total_liabilities(self) -> float:
-        return (
-            self.interest_bearing_debt
-            + self.accounts_payable
-            + self.other_current_liabilities
-        )
+        return self.interest_bearing_debt + self.accounts_payable + self.other_current_liabilities
 
     # Equity
     class_a_shares_capital: float = 0.0  # Founder (pre-IPO)
@@ -190,12 +185,7 @@ class CashFlow:
 
     @property
     def financing_cf(self) -> float:
-        return (
-            self.debt_proceeds
-            + self.debt_repayment
-            + self.equity_issuance
-            + self.dividends_paid
-        )
+        return self.debt_proceeds + self.debt_repayment + self.equity_issuance + self.dividends_paid
 
     @property
     def net_cf(self) -> float:
