@@ -1017,14 +1017,12 @@ function getStalePersons() {
   const stale = [];
   for (const p of people) {
     const encs = encounters.filter(e => e.personIds.includes(p.id));
-    const last = encs.length ? [...encs].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0] : null;
-    const days = last ? daysBetween(last.createdAt) : 999;
-    // エンカウンターなし or 7日以上会っていない人を対象
-    if (!last || days >= 7) {
-      const freq = encs.length || 1;
-      const score = days * 0.7 + (1/freq) * 100;
-      stale.push({ person: p, lastEnc: last || { text: p.context || `${p.name}さんとの記録はまだありません`, mood: 'neutral', createdAt: p.createdAt }, days, score });
-    }
+    if (!encs.length) continue;
+    const last = [...encs].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    const days = daysBetween(last.createdAt);
+    const freq = encs.length;
+    const score = days * 0.7 + (1/freq) * 100;
+    stale.push({ person: p, lastEnc: last, days, score });
   }
   return stale.sort((a,b) => b.score - a.score);
 }
