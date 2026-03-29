@@ -525,12 +525,18 @@ function assignCommunity(tags, personId) {
   const t = (tags || []).join(' ').toLowerCase();
   if (/金融|投資|vc|ファンド|fp|ヘッジ/.test(t)) return '金融マーケット';
   if (/起業|スタートアップ|ai|テク|エンジニア|govtech|データ/.test(t)) return '起業・テック';
-  if (/政策|政治|法律|外交|防災|社会|ジェンダー|詐欺/.test(t)) return '社会・政策';
+  if (/政策|政治|法律|外交|防災|社会|ジェンダー|詐欺|人類学|社会学/.test(t)) return '社会・政策';
   if (/クリエイティブ|アート|音楽|エンタメ|映画|写真|文学/.test(t)) return 'クリエイティブ';
-  if (/海外|グローバル|国際|フランス|日米|サステナ/.test(t)) return 'グローバル';
-  if (/医療|ヘルスケア|メンタル|ウェルビーイング|教育|学び|研究|哲学/.test(t)) return '医療・教育';
-  if (/食|農業|ワイン|地方創生|まちづくり|不動産|コミュニティ|シェア|ローカル/.test(t)) return '食・地方創生';
+  if (/海外|グローバル|国際|フランス|日米|サステナ|グリーン/.test(t)) return 'グローバル';
+  if (/医療|ヘルスケア|メンタル|ウェルビーイング|教育|学び|研究|哲学|フィランソロピー/.test(t)) return '医療・教育';
+  if (/食|農業|ワイン|地方創生|まちづくり|不動産|コミュニティ|シェア|ローカル|dao/.test(t)) return '食・地方創生';
   if (/商社|事業/.test(t)) return '商社・事業会社';
+  if (/マーケティング/.test(t)) return '商社・事業会社';
+  if (/宇宙|科学/.test(t)) return '起業・テック';
+  if (/スポーツ/.test(t)) return 'クリエイティブ';
+  // 所属グループから最低限の分類（「その他」は使わない）
+  if (/保田研究会/.test(t)) return '金融マーケット';
+  if (/hive japan/.test(t)) return '起業・テック';
   return '起業・テック';
 }
 
@@ -931,7 +937,7 @@ function switchScreen(name) {
 }
 
 // ===== 実データ（119名: 保田研究会37名 + Hive Japan 82名） =====
-const DEMO_VERSION = 'v_all_119b';
+const DEMO_VERSION = 'v_all_119c';
 function seedDemoData() {
   if (localStorage.getItem('goen_demo_version') === DEMO_VERSION && (people.length || encounters.length)) return;
   localStorage.setItem('goen_demo_version', DEMO_VERSION);
