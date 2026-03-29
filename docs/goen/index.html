@@ -287,16 +287,7 @@ let people = [];
 let encounters = [];
 let reconnects = [];
 
-// 起動時: バージョンが合わなければ旧データを破棄して再シード
-const _vault = loadVault();
-if (_vault && _vault._version === DATA_VERSION && _vault.people && _vault.people.length) {
-  people = _vault.people;
-  encounters = _vault.encounters || [];
-  reconnects = _vault.reconnects || [];
-} else {
-  // seedDemoDataは後で定義されるので、DOMContentLoadedで呼ぶ
-  document.addEventListener('DOMContentLoaded', () => {});
-}
+// データ復元は初期化セクション(末尾)で行う
 
 // ===== UUID =====
 function uuid() { return 'xxxx-xxxx-4xxx'.replace(/[x]/g, () => (Math.random()*16|0).toString(16)) + '-' + Date.now().toString(36); }
@@ -1825,8 +1816,13 @@ function confirmWipe() {
 }
 
 // ===== 初期化 =====
-// localStorageにデータがなければseedDataから読み込む
-if (!people.length) {
+// localStorageから復元、バージョン不一致 or 空なら再シード
+const _vault = loadVault();
+if (_vault && _vault._version === DATA_VERSION && _vault.people && _vault.people.length) {
+  people = _vault.people;
+  encounters = _vault.encounters || [];
+  reconnects = _vault.reconnects || [];
+} else {
   seedDemoData();
   saveAllData();
 }
