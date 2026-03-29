@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>保田研究会 データ入力</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', sans-serif; background: #0a0a1a; color: #f0f0ff; padding: 20px; max-width: 600px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 20px; margin-bottom: 8px; }
+  .sub { text-align: center; font-size: 12px; color: #6366f1; margin-bottom: 24px; }
+  .progress { text-align: center; font-size: 11px; color: #4a4a6a; margin-bottom: 16px; }
+  .card { background: #12122a; border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid #1e1e3a; }
+  .card-name { font-size: 16px; font-weight: 700; margin-bottom: 10px; color: #818cf8; }
+  .field { margin-bottom: 8px; }
+  .field label { display: block; font-size: 10px; color: #4a4a6a; margin-bottom: 3px; font-weight: 500; }
+  .field select, .field input { width: 100%; background: #0a0a1a; border: 1px solid #2a2a4a; border-radius: 8px; padding: 8px 10px; color: #f0f0ff; font-size: 13px; outline: none; }
+  .field select:focus, .field input:focus { border-color: #6366f1; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .tag-btn { background: #1a1a3a; border: 1px solid #2a2a4a; color: #8a8aaa; padding: 4px 10px; border-radius: 20px; font-size: 11px; cursor: pointer; transition: all 0.2s; }
+  .tag-btn.on { background: #6366f1; border-color: #6366f1; color: #fff; }
+  .skip-note { font-size: 10px; color: #4a4a6a; text-align: center; margin-bottom: 16px; }
+  .btn-export { display: block; width: 100%; padding: 14px; background: linear-gradient(135deg, #6366f1, #818cf8); color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 20px; margin-bottom: 40px; }
+  .btn-export:hover { opacity: 0.9; }
+  .done { color: #10b981; font-size: 11px; }
+</style>
+</head>
+<body>
+<h1>保田研究会 データ入力</h1>
+<p class="sub">分かる人だけでOK。空欄はスキップ。</p>
+<p class="progress" id="progress">0 / 37 入力済み</p>
+<p class="skip-note">タグは複数タップで選択。関係性は一言でどんな人かを書いてください。</p>
+
+<div id="cards"></div>
+
+<button class="btn-export" onclick="exportCSV()">CSVダウンロード</button>
+
+<script>
+const members = [
+  "浅尾洋佑","吉持眞洸","Ryosuke Sumi","枡田七海","大宮舞凜","中島月菜",
+  "Marina Yanagishita","山田麟太郎","somin gu","Dahyun Hong","福田有恒",
+  "鈴木楓佳","Kyle Bruce","西村心羽","倉田遥","吉積万由里","具志有季乃",
+  "齊藤心愛","奥山竜成","板東隼也","峰岸諒","江野詩織","ネヒョンジェ",
+  "宮武陸","野原百加","Ma My An","松村奈奈","二宮海颯","若月愛莉",
+  "影山遥奈","松原尚生","末吉哩","近藤慶次","工藤靖輝","鄭智瑩",
+  "熊井りょう","潘志城"
+];
+
+const tagOptions = [
+  "起業","金融","テクノロジー","マーケティング","コンサル",
+  "クリエイティブ","メディア","教育","国際","政策",
+  "医療","食","不動産","スポーツ","研究","法律","エンタメ"
+];
+
+const relationOptions = ["同期","先輩","後輩","仲良い","たまに会う","あまり接点なし"];
+
+const container = document.getElementById('cards');
+
+members.forEach((name, i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="card-name">${i+1}. ${name}</div>
+    <div class="field">
+      <label>関係性（どんな人？一言で）</label>
+      <input type="text" data-name="${name}" data-field="context" placeholder="例: ゼミの同期。いつも元気で頼れる人">
+    </div>
+    <div class="field">
+      <label>距離感</label>
+      <select data-name="${name}" data-field="relation">
+        <option value="">— 選択 —</option>
+        ${relationOptions.map(r => `<option value="${r}">${r}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field">
+      <label>興味・分野（タップで選択）</label>
+      <div class="tags" data-name="${name}" data-field="tags">
+        ${tagOptions.map(t => `<span class="tag-btn" onclick="this.classList.toggle('on')">${t}</span>`).join('')}
+      </div>
+    </div>
+    <div class="field">
+      <label>所属（大学・会社など）</label>
+      <input type="text" data-name="${name}" data-field="org" placeholder="">
+    </div>
+    <div class="field">
+      <label>メモ（エピソード・思い出など）</label>
+      <input type="text" data-name="${name}" data-field="memo" placeholder="">
+    </div>
+  `;
+  container.appendChild(card);
+});
+
+// 入力済みカウント
+document.addEventListener('input', updateProgress);
+document.addEventListener('click', updateProgress);
+
+function updateProgress() {
+  let filled = 0;
+  members.forEach(name => {
+    const ctx = document.querySelector(`input[data-name="${name}"][data-field="context"]`).value;
+    const rel = document.querySelector(`select[data-name="${name}"][data-field="relation"]`).value;
+    const tags = document.querySelectorAll(`.tags[data-name="${name}"] .tag-btn.on`);
+    if (ctx || rel || tags.length > 0) filled++;
+  });
+  document.getElementById('progress').textContent = `${filled} / ${members.length} 入力済み`;
+}
+
+function exportCSV() {
+  const bom = '\uFEFF';
+  let csv = bom + '名前,タグ,関係性,最後に会った日,記録メモ\n';
+
+  members.forEach(name => {
+    const ctx = document.querySelector(`input[data-name="${name}"][data-field="context"]`).value.trim();
+    const rel = document.querySelector(`select[data-name="${name}"][data-field="relation"]`).value;
+    const tagEls = document.querySelectorAll(`.tags[data-name="${name}"] .tag-btn.on`);
+    const tags = ['保田研究会', ...Array.from(tagEls).map(t => t.textContent)].join('/');
+    const org = document.querySelector(`input[data-name="${name}"][data-field="org"]`).value.trim();
+    const memo = document.querySelector(`input[data-name="${name}"][data-field="memo"]`).value.trim();
+
+    const context = [rel, ctx, org ? `所属:${org}` : ''].filter(Boolean).join('。');
+    const escapedCtx = '"' + context.replace(/"/g, '""') + '"';
+    const escapedMemo = '"' + memo.replace(/"/g, '""') + '"';
+
+    csv += `${name},${tags},${escapedCtx},,${escapedMemo}\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'hoda_seminar.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
