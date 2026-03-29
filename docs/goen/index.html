@@ -575,7 +575,7 @@ function renderUniverse() {
   // ===== 固定レイアウト: コミュニティを多角形に配置 =====
   const commKeys = Object.keys(communities);
   const commCenters = {};
-  const commRadius = 250;
+  const commRadius = 350;
   commKeys.forEach((key, i) => {
     const angle = (2 * Math.PI * i) / commKeys.length - Math.PI / 2;
     commCenters[key] = { x: Math.cos(angle) * commRadius, y: Math.sin(angle) * commRadius };
@@ -585,7 +585,7 @@ function renderUniverse() {
   for (const [comm, members] of Object.entries(communities)) {
     const center = commCenters[comm];
     if (!center) continue;
-    const memberRadius = 20 + members.length * 5;
+    const memberRadius = 25 + members.length * 8;
     members.forEach((n, i) => {
       const a = (2 * Math.PI * i) / members.length;
       n.x = center.x + Math.cos(a) * memberRadius;
@@ -593,11 +593,11 @@ function renderUniverse() {
     });
   }
 
-  // ===== フォースシミュレーション（常時微動、決して止まらない） =====
+  // ===== フォースシミュレーション（デモ版と同じパラメータ） =====
   if (simulation) simulation.stop();
   simulation = d3.forceSimulation(nodes)
     .force('link', d3.forceLink(links).id(d => d.id)
-      .distance(d => d.isSelfLink ? 80 + (1 - (d.closeness || 0.3)) * 200 : 30)
+      .distance(d => d.isSelfLink ? 250 : 40)
       .strength(d => d.isSelfLink ? 0.01 : 0.3))
     .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -400 : -25))
     .force('collision', d3.forceCollide().radius(d => d.r + 6))
@@ -608,7 +608,6 @@ function renderUniverse() {
         if (!center) continue;
         n.vx += (center.x - n.x) * 0.003;
         n.vy += (center.y - n.y) * 0.003;
-        // 常時微動: ランダムな微小力で平衡状態を破り続ける
         n.vx += (Math.random() - 0.5) * 0.15;
         n.vy += (Math.random() - 0.5) * 0.15;
       }
@@ -675,8 +674,8 @@ function renderUniverse() {
     .data(links)
     .join('line')
     .attr('stroke', d => d.isSelfLink ? '#818cf8' : '#6366f1')
-    .attr('stroke-opacity', d => d.isSelfLink ? 0.05 + (d.closeness || 0.3) * 0.15 : 0.22)
-    .attr('stroke-width', d => d.isSelfLink ? 0.3 + (d.closeness || 0.3) * 0.8 : 0.8);
+    .attr('stroke-opacity', d => d.isSelfLink ? 0.1 : 0.22)
+    .attr('stroke-width', d => d.isSelfLink ? 0.6 : 0.8);
 
   // ===== コミュニティラベル =====
   const labelG = worldG.append('g');
