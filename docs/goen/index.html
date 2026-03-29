@@ -132,47 +132,9 @@ tailwind.config = {
   }
   .bottom-sheet-overlay.open .bottom-sheet { transform: translateX(-50%) translateY(0); }
   .bottom-sheet-handle { width: 36px; height: 4px; background: #4a4a6a; border-radius: 2px; margin: 0 auto 16px; }
-
-  /* ロック画面 */
-  #auth-gate {
-    position: fixed; inset: 0; background: #0a0a1a; z-index: 100;
-    display: flex; align-items: center; justify-content: center;
-  }
-  #auth-gate.hidden { display: none; }
-  .auth-box { width: 90%; max-width: 340px; text-align: center; }
-  .auth-input {
-    width: 100%; background: #12122a; border: 1.5px solid #4a4a6a; border-radius: 12px;
-    padding: 14px 16px; color: #f0f0ff; font-size: 16px; outline: none;
-    transition: border-color 0.2s; letter-spacing: 2px;
-  }
-  .auth-input:focus { border-color: #6366f1; }
-  .auth-input::placeholder { letter-spacing: 0; }
-  .auth-btn {
-    width: 100%; padding: 14px; border-radius: 12px; border: none;
-    font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-  }
-  .auth-error { color: #ef4444; font-size: 12px; min-height: 18px; }
 </style>
 </head>
 <body class="max-w-[42rem] mx-auto relative pb-20">
-
-<!-- ===== ロック画面 ===== -->
-<div id="auth-gate">
-  <div class="auth-box">
-    <div class="text-2xl font-bold glow mb-1">Goen Universe</div>
-    <p class="text-cosmos-dim text-xs mb-6" id="auth-subtitle">パスフレーズを設定してください</p>
-    <input type="password" id="auth-pass" class="auth-input mb-3" placeholder="パスフレーズ" autocomplete="off">
-    <input type="password" id="auth-pass-confirm" class="auth-input mb-3" placeholder="確認（もう一度入力）" autocomplete="off">
-    <div class="auth-error mb-3" id="auth-error"></div>
-    <button onclick="handleAuth()" class="auth-btn bg-cosmos-accent text-white hover:bg-indigo-500" id="auth-btn">登録してはじめる</button>
-    <div class="mt-4">
-      <label class="flex items-center justify-center gap-2 text-xs text-cosmos-dim cursor-pointer">
-        <input type="checkbox" id="auth-demo" checked class="accent-cosmos-accent">
-        デモデータを含める
-      </label>
-    </div>
-  </div>
-</div>
 
 <!-- ===== ホーム画面 ===== -->
 <div id="screen-home" class="screen px-4 pt-6">
@@ -271,11 +233,7 @@ tailwind.config = {
   <!-- セキュリティ -->
   <div class="mt-10 pt-6 border-t border-cosmos-dim/15">
     <div class="text-xs text-cosmos-dim mb-3 font-medium">セキュリティ</div>
-    <div class="flex gap-2">
-      <button onclick="lockApp()" class="flex-1 bg-cosmos-surface text-cosmos-dim text-xs py-2.5 rounded-lg border border-cosmos-dim/20 hover:border-cosmos-glow/40 transition">🔒 ロック</button>
-      <button onclick="confirmWipe()" class="flex-1 bg-cosmos-surface text-red-400/70 text-xs py-2.5 rounded-lg border border-red-900/20 hover:border-red-500/40 transition">🗑️ 全データ消去</button>
-    </div>
-    <p class="text-[9px] text-cosmos-dim/40 mt-2">AES-256-GCM暗号化 · 5分無操作で自動ロック</p>
+    <button onclick="confirmWipe()" class="w-full bg-cosmos-surface text-red-400/70 text-xs py-2.5 rounded-lg border border-red-900/20 hover:border-red-500/40 transition">🗑️ 全データ消去</button>
   </div>
 </div>
 
@@ -314,180 +272,30 @@ tailwind.config = {
 </nav>
 
 <script>
-// ===== CryptoService (AES-GCM + PBKDF2) =====
-const CryptoService = {
-  SALT_KEY: 'goen_salt',
-  VERIFY_KEY: 'goen_verify',
-  DATA_KEY: 'goen_vault',
+// ===== ストレージ =====
+const STORAGE_KEY = 'goen_vault';
 
-  async deriveKey(passphrase, salt) {
-    const enc = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(passphrase), 'PBKDF2', false, ['deriveKey']);
-    return crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt, iterations: 310000, hash: 'SHA-256' },
-      keyMaterial,
-      { name: 'AES-GCM', length: 256 },
-      false,
-      ['encrypt', 'decrypt']
-    );
-  },
-
-  async setup(passphrase) {
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    localStorage.setItem(this.SALT_KEY, btoa(String.fromCharCode(...salt)));
-    const key = await this.deriveKey(passphrase, salt);
-    // 検証用トークンを暗号化して保存
-    const verify = await this.encrypt(key, '__goen_ok__');
-    localStorage.setItem(this.VERIFY_KEY, verify);
-    return key;
-  },
-
-  async unlock(passphrase) {
-    const saltB64 = localStorage.getItem(this.SALT_KEY);
-    if (!saltB64) return null;
-    const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
-    const key = await this.deriveKey(passphrase, salt);
-    try {
-      const result = await this.decrypt(key, localStorage.getItem(this.VERIFY_KEY));
-      return result === '__goen_ok__' ? key : null;
-    } catch { return null; }
-  },
-
-  isSetup() { return !!localStorage.getItem(this.SALT_KEY); },
-
-  async encrypt(key, plaintext) {
-    const enc = new TextEncoder();
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(plaintext));
-    const buf = new Uint8Array(iv.length + ct.byteLength);
-    buf.set(iv);
-    buf.set(new Uint8Array(ct), iv.length);
-    return btoa(String.fromCharCode(...buf));
-  },
-
-  async decrypt(key, cipherB64) {
-    const buf = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
-    const iv = buf.slice(0, 12);
-    const ct = buf.slice(12);
-    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
-    return new TextDecoder().decode(pt);
-  },
-
-  async saveVault(key, data) {
-    const json = JSON.stringify(data);
-    const encrypted = await this.encrypt(key, json);
-    localStorage.setItem(this.DATA_KEY, encrypted);
-  },
-
-  async loadVault(key) {
-    const encrypted = localStorage.getItem(this.DATA_KEY);
-    if (!encrypted) return null;
-    try {
-      const json = await this.decrypt(key, encrypted);
-      return JSON.parse(json);
-    } catch { return null; }
-  },
-
-  wipeAll() {
-    localStorage.removeItem(this.SALT_KEY);
-    localStorage.removeItem(this.VERIFY_KEY);
-    localStorage.removeItem(this.DATA_KEY);
-    localStorage.removeItem('goen_demo_version');
-  }
-};
-
-// ===== AuthGate =====
-let cryptoKey = null;
-let autoLockTimer = null;
-const AUTO_LOCK_MS = 5 * 60 * 1000; // 5分
-
-function resetAutoLock() {
-  if (autoLockTimer) clearTimeout(autoLockTimer);
-  autoLockTimer = setTimeout(lockApp, AUTO_LOCK_MS);
+function loadVault() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null; } catch { return null; }
+}
+function saveAllData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ people, encounters, reconnects }));
 }
 
-function lockApp() {
-  cryptoKey = null;
-  document.getElementById('auth-gate').classList.remove('hidden');
-  document.getElementById('auth-pass').value = '';
-  document.getElementById('auth-error').textContent = '';
-  // ロック時はログインモードに
-  showLoginMode();
-}
-
-function showLoginMode() {
-  document.getElementById('auth-subtitle').textContent = 'パスフレーズを入力';
-  document.getElementById('auth-pass-confirm').style.display = 'none';
-  document.getElementById('auth-btn').textContent = 'ロック解除';
-  document.querySelector('[for-setup]')?.remove();
-  const demoLabel = document.getElementById('auth-demo')?.parentElement;
-  if (demoLabel) demoLabel.style.display = 'none';
-}
-
-async function handleAuth() {
-  const pass = document.getElementById('auth-pass').value;
-  const errEl = document.getElementById('auth-error');
-  errEl.textContent = '';
-
-  if (!pass || pass.length < 4) {
-    errEl.textContent = '4文字以上のパスフレーズを入力してください';
-    return;
-  }
-
-  if (CryptoService.isSetup()) {
-    // ログイン
-    const key = await CryptoService.unlock(pass);
-    if (!key) { errEl.textContent = 'パスフレーズが違います'; return; }
-    cryptoKey = key;
-    await bootApp();
-  } else {
-    // 初回登録
-    const confirm = document.getElementById('auth-pass-confirm').value;
-    if (pass !== confirm) { errEl.textContent = 'パスフレーズが一致しません'; return; }
-    cryptoKey = await CryptoService.setup(pass);
-    const includeDemo = document.getElementById('auth-demo').checked;
-    if (includeDemo) seedDemoData();
-    await saveAllData();
-    await bootApp();
-  }
-}
-
-async function bootApp() {
-  // 暗号化Vaultからデータ読み込み
-  const vault = await CryptoService.loadVault(cryptoKey);
-  if (vault) {
-    people = vault.people || [];
-    encounters = vault.encounters || [];
-    reconnects = vault.reconnects || [];
-  }
-  document.getElementById('auth-gate').classList.add('hidden');
-  renderUniverse();
-  startShootingStarCycle();
-  resetAutoLock();
-}
-
-// パスフレーズ入力でEnterキー対応
-document.getElementById('auth-pass').addEventListener('keydown', e => { if (e.key === 'Enter') handleAuth(); });
-document.getElementById('auth-pass-confirm').addEventListener('keydown', e => { if (e.key === 'Enter') handleAuth(); });
-
-// 操作検知で自動ロックリセット
-['click','touchstart','keydown','scroll'].forEach(ev => {
-  document.addEventListener(ev, () => { if (cryptoKey) resetAutoLock(); }, { passive: true });
-});
-
-// 初期状態: 登録済みならログインモード
-if (CryptoService.isSetup()) showLoginMode();
-
-// ===== ストレージ（暗号化ラッパー） =====
 let people = [];
 let encounters = [];
+let reconnects = [];
 
-async function saveAllData() {
-  if (!cryptoKey) return;
-  await CryptoService.saveVault(cryptoKey, { people, encounters, reconnects });
+// 起動時にlocalStorageから復元、なければseedData
+const _vault = loadVault();
+if (_vault && _vault.people && _vault.people.length) {
+  people = _vault.people;
+  encounters = _vault.encounters || [];
+  reconnects = _vault.reconnects || [];
+} else {
+  // seedDemoDataは後で定義されるので、DOMContentLoadedで呼ぶ
+  document.addEventListener('DOMContentLoaded', () => {});
 }
-
-// 旧loadData/saveDataの互換ラッパー（同期的に見せる）
 
 // ===== UUID =====
 function uuid() { return 'xxxx-xxxx-4xxx'.replace(/[x]/g, () => (Math.random()*16|0).toString(16)) + '-' + Date.now().toString(36); }
@@ -2009,15 +1817,20 @@ function stopShootingStarCycle() {
 function confirmWipe() {
   if (!confirm('全てのデータを完全に消去します。この操作は取り消せません。本当に消去しますか？')) return;
   if (!confirm('最終確認: パスフレーズ・人物データ・記録・リコネクト履歴が全て失われます。続行しますか？')) return;
-  CryptoService.wipeAll();
+  localStorage.removeItem(STORAGE_KEY);
   people = []; encounters = []; reconnects = [];
   cryptoKey = null;
   location.reload();
 }
 
 // ===== 初期化 =====
-// AuthGateが認証後にbootApp()を呼び出す
-// seedDemoData()は初回登録時のみ（auth-demoチェック時）
+// localStorageにデータがなければseedDataから読み込む
+if (!people.length) {
+  seedDemoData();
+  saveAllData();
+}
+renderUniverse();
+startShootingStarCycle();
 </script>
 </body>
 </html>
