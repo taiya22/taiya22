@@ -455,34 +455,72 @@ let selfNode = null;
 
 // コミュニティ色
 const COMMUNITY_COLORS = {
-  '金融・投資': '#10b981',
-  '起業・スタートアップ': '#f59e0b',
-  'テクノロジー・AI': '#6366f1',
-  '社会・政策': '#8b5cf6',
-  'クリエイティブ・アート': '#ec4899',
-  '海外・グローバル': '#06b6d4',
-  '医療・ヘルスケア': '#ef4444',
-  '食・ライフスタイル': '#f97316',
-  '教育・学び': '#14b8a6',
-  'コミュニティ・地方創生': '#a78bfa',
+  '投資銀行・証券': '#10b981',
+  '商社・事業会社': '#f59e0b',
+  'コンサル・専門職': '#8b5cf6',
+  'グローバル': '#06b6d4',
+  'ゼミプロジェクト仲間': '#ec4899',
+  '金融マーケット': '#6366f1',
 };
 
-function assignCommunity(tags) {
-  const t = (tags || []).join(' ').toLowerCase();
-  if (/金融|投資|vc|ファンド|m&a|fp|ウェルス/.test(t)) return '金融・投資';
-  if (/起業|スタートアップ|startup|ベンチャー|経営|ブランディング/.test(t)) return '起業・スタートアップ';
-  if (/テクノロジー|ai|エンジニア|データ|govtech|プライバシー|neuroscience/.test(t)) return 'テクノロジー・AI';
-  if (/政策|政治|法律|外交|社会学|人類学|ジェンダー|フェムテック|防災|詐欺/.test(t)) return '社会・政策';
-  if (/クリエイティブ|アート|音楽|エンタメ|映画|ドキュメンタリー|文学|写真/.test(t)) return 'クリエイティブ・アート';
-  if (/海外|グローバル|国際|フランス|日米|サステナビリティ|グリーン/.test(t)) return '海外・グローバル';
-  if (/医療|ヘルスケア|メンタルヘルス|ウェルビーイング|ヘルシー/.test(t)) return '医療・ヘルスケア';
-  if (/食|農業|ワイン|シェアエコ|ライフスタイル|ローカル/.test(t)) return '食・ライフスタイル';
-  if (/教育|学び|研究|哲学|フィランソロピー|人文/.test(t)) return '教育・学び';
-  if (/コミュニティ|地方創生|まちづくり|不動産|dao|シェアリング|インパクト/.test(t)) return 'コミュニティ・地方創生';
-  // タグからも所属グループで分類
-  if (/保田研究会/.test(t)) return '金融・投資';
-  if (/hive japan/.test(t)) return '起業・スタートアップ';
-  return '起業・スタートアップ';
+// 人物IDベースの手動分類（所属・エピソード・センチメントから判定）
+const PERSON_COMMUNITY = {
+  // 投資銀行・証券: IB/セールス/UBS/GS
+  p1: '投資銀行・証券',   // 浅尾 — MS IBD
+  p5: '投資銀行・証券',   // 大宮 — JPM エクイティセールス
+  p6: '投資銀行・証券',   // 中島月菜 — 金融
+  p13: '投資銀行・証券',  // Kyle — GSインターン
+  p16: '投資銀行・証券',  // 吉積 — UBS内定
+  p28: '投資銀行・証券',  // 二宮 — 企業防衛/DTEA
+
+  // 金融マーケット: アセマネ/アドバイザリー/会計
+  p2: '金融マーケット',   // 吉持 — アセマネアナリスト
+  p9: '金融マーケット',   // somin — デロイト リスクアドバイザリー
+  p24: '金融マーケット',  // 宮武 — ゼミ長/金融
+  p27: '金融マーケット',  // 松村 — 会計士試験
+  p36: '金融マーケット',  // 熊井 — 会計ギャル
+
+  // 商社・事業会社
+  p4: '商社・事業会社',   // 枡田 — 伊藤忠
+  p8: '商社・事業会社',   // 山田麟太郎 — 丸紅
+  p20: '商社・事業会社',  // 板東 — 三菱商事？
+  p21: '商社・事業会社',  // 峰岸 — 三菱商事？
+  p35: '商社・事業会社',  // 鄭 — 携帯電話会社
+  p37: '商社・事業会社',  // 潘
+
+  // コンサル・専門職
+  p33: 'コンサル・専門職', // 近藤 — マーサー
+  p34: 'コンサル・専門職', // 工藤 — 一橋博士（統計）
+  p18: 'コンサル・専門職', // 齊藤 — ゼミ長
+  p17: 'コンサル・専門職', // 具志 — 金融営業志向
+
+  // グローバル: 留学生/海外
+  p3: 'グローバル',        // Ryosuke — 航空/グローバル
+  p7: 'グローバル',        // Marina
+  p10: 'グローバル',       // Dahyun — 韓国
+  p11: 'グローバル',       // 福田 — 中国
+  p14: 'グローバル',       // 西村 — オーストリア留学
+  p23: 'グローバル',       // ネヒョンジェ
+  p26: 'グローバル',       // Ma My An
+
+  // ゼミプロジェクト仲間
+  p12: 'ゼミプロジェクト仲間', // 鈴木楓佳
+  p15: 'ゼミプロジェクト仲間', // 倉田
+  p19: 'ゼミプロジェクト仲間', // 奥山
+  p22: 'ゼミプロジェクト仲間', // 江野 — PCG
+  p25: 'ゼミプロジェクト仲間', // 野原
+  p29: 'ゼミプロジェクト仲間', // 若月 — イベンター
+  p30: 'ゼミプロジェクト仲間', // 影山
+  p31: 'ゼミプロジェクト仲間', // 松原 — アントPJ
+  p32: 'ゼミプロジェクト仲間', // 末吉 — シンガポール
+};
+
+function assignCommunity(tags, personId) {
+  if (personId && PERSON_COMMUNITY[personId]) return PERSON_COMMUNITY[personId];
+  const t = (tags || []).join(' ');
+  if (/金融/.test(t)) return '金融マーケット';
+  if (/起業/.test(t)) return '商社・事業会社';
+  return 'ゼミプロジェクト仲間';
 }
 
 function recenterSelf() {
@@ -535,7 +573,7 @@ function renderUniverse() {
     const brightness = lastEnc ? Math.max(0.15, 1 - days / 120) : (0.2 + closeness * 0.3);
     const r = Math.min(10, 3 + Math.max(count, 1) * 1.2 + closeness * 2);
     const allTags = p.tags && p.tags.length ? p.tags : (count ? [...new Set(encs.flatMap(e => e.tags))] : []);
-    const community = assignCommunity(allTags);
+    const community = assignCommunity(allTags, p.id);
     const node = { id: p.id, name: p.name, count, days, brightness, r, tags: allTags, isSelf: false, community, closeness };
     nodes.push(node);
     nodeMap[p.id] = node;
