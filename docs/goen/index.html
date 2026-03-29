@@ -502,17 +502,29 @@ function renderUniverse() {
   nodes.push(selfNode);
   nodeMap[SELF_ID] = selfNode;
 
+  // 距離感 → 星のサイズ・明るさに反映
+  function closenessFromContext(ctx) {
+    if (!ctx) return 0.3;
+    if (/仲良い/.test(ctx)) return 1.0;
+    if (/同期/.test(ctx)) return 0.85;
+    if (/先輩/.test(ctx)) return 0.6;
+    if (/後輩/.test(ctx)) return 0.5;
+    if (/たまに/.test(ctx)) return 0.35;
+    if (/あまり/.test(ctx)) return 0.2;
+    return 0.4;
+  }
+
   for (const p of people) {
     const encs = encounters.filter(e => e.personIds.includes(p.id));
     const count = encs.length;
-    if (!count) continue;
-    const lastEnc = [...encs].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
-    const days = daysBetween(lastEnc.createdAt);
-    const brightness = Math.max(0, 1 - days / 120);
-    const r = Math.min(10, 3 + count * 1.5);
-    const allTags = [...new Set(encs.flatMap(e => e.tags))];
+    const lastEnc = count ? [...encs].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0] : null;
+    const days = lastEnc ? daysBetween(lastEnc.createdAt) : 999;
+    const closeness = closenessFromContext(p.context);
+    const brightness = lastEnc ? Math.max(0.15, 1 - days / 120) : (0.2 + closeness * 0.3);
+    const r = Math.min(10, 3 + Math.max(count, 1) * 1.2 + closeness * 2);
+    const allTags = p.tags && p.tags.length ? p.tags : (count ? [...new Set(encs.flatMap(e => e.tags))] : []);
     const community = assignCommunity(allTags);
-    const node = { id: p.id, name: p.name, count, days, brightness, r, tags: allTags, isSelf: false, community };
+    const node = { id: p.id, name: p.name, count, days, brightness, r, tags: allTags, isSelf: false, community, closeness };
     nodes.push(node);
     nodeMap[p.id] = node;
   }
@@ -523,7 +535,7 @@ function renderUniverse() {
 
   for (const n of nodes) {
     if (n.isSelf) continue;
-    links.push({ source: SELF_ID, target: n.id, isSelfLink: true });
+    links.push({ source: SELF_ID, target: n.id, isSelfLink: true, closeness: n.closeness || 0.3 });
     linkSet.add([SELF_ID, n.id].sort().join('-'));
   }
 
@@ -573,7 +585,7 @@ function renderUniverse() {
   if (simulation) simulation.stop();
   simulation = d3.forceSimulation(nodes)
     .force('link', d3.forceLink(links).id(d => d.id)
-      .distance(d => d.isSelfLink ? 350 : 40)
+      .distance(d => d.isSelfLink ? 150 + (1 - (d.closeness || 0.3)) * 350 : 40)
       .strength(d => d.isSelfLink ? 0.01 : 0.3))
     .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -400 : -25))
     .force('collision', d3.forceCollide().radius(d => d.r + 6))
@@ -651,8 +663,8 @@ function renderUniverse() {
     .data(links)
     .join('line')
     .attr('stroke', d => d.isSelfLink ? '#818cf8' : '#6366f1')
-    .attr('stroke-opacity', d => d.isSelfLink ? 0.1 : 0.22)
-    .attr('stroke-width', d => d.isSelfLink ? 0.6 : 0.8);
+    .attr('stroke-opacity', d => d.isSelfLink ? 0.05 + (d.closeness || 0.3) * 0.15 : 0.22)
+    .attr('stroke-width', d => d.isSelfLink ? 0.3 + (d.closeness || 0.3) * 0.8 : 0.8);
 
   // ===== コミュニティラベル =====
   const labelG = worldG.append('g');
