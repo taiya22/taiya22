@@ -455,22 +455,34 @@ let selfNode = null;
 
 // コミュニティ色
 const COMMUNITY_COLORS = {
-  '起業': '#f59e0b',
-  'テクノロジー': '#6366f1',
-  '投資': '#10b981',
-  'クリエイティブ': '#ec4899',
-  'キャリア': '#8b5cf6',
-  '海外': '#06b6d4',
-  '食事': '#f97316',
-  'イベント': '#ef4444',
-  '学び': '#14b8a6',
+  '金融・投資': '#10b981',
+  '起業・スタートアップ': '#f59e0b',
+  'テクノロジー・AI': '#6366f1',
+  '社会・政策': '#8b5cf6',
+  'クリエイティブ・アート': '#ec4899',
+  '海外・グローバル': '#06b6d4',
+  '医療・ヘルスケア': '#ef4444',
+  '食・ライフスタイル': '#f97316',
+  '教育・学び': '#14b8a6',
+  'コミュニティ・地方創生': '#a78bfa',
 };
 
 function assignCommunity(tags) {
-  // 最も代表的なタグをコミュニティとする
-  const priority = ['起業','テクノロジー','投資','クリエイティブ','キャリア','海外','食事','イベント','学び'];
-  for (const p of priority) { if (tags.includes(p)) return p; }
-  return 'その他';
+  const t = (tags || []).join(' ').toLowerCase();
+  if (/金融|投資|vc|ファンド|m&a|fp|ウェルス/.test(t)) return '金融・投資';
+  if (/起業|スタートアップ|startup|ベンチャー|経営|ブランディング/.test(t)) return '起業・スタートアップ';
+  if (/テクノロジー|ai|エンジニア|データ|govtech|プライバシー|neuroscience/.test(t)) return 'テクノロジー・AI';
+  if (/政策|政治|法律|外交|社会学|人類学|ジェンダー|フェムテック|防災|詐欺/.test(t)) return '社会・政策';
+  if (/クリエイティブ|アート|音楽|エンタメ|映画|ドキュメンタリー|文学|写真/.test(t)) return 'クリエイティブ・アート';
+  if (/海外|グローバル|国際|フランス|日米|サステナビリティ|グリーン/.test(t)) return '海外・グローバル';
+  if (/医療|ヘルスケア|メンタルヘルス|ウェルビーイング|ヘルシー/.test(t)) return '医療・ヘルスケア';
+  if (/食|農業|ワイン|シェアエコ|ライフスタイル|ローカル/.test(t)) return '食・ライフスタイル';
+  if (/教育|学び|研究|哲学|フィランソロピー|人文/.test(t)) return '教育・学び';
+  if (/コミュニティ|地方創生|まちづくり|不動産|dao|シェアリング|インパクト/.test(t)) return 'コミュニティ・地方創生';
+  // タグからも所属グループで分類
+  if (/保田研究会/.test(t)) return '金融・投資';
+  if (/hive japan/.test(t)) return '起業・スタートアップ';
+  return '起業・スタートアップ';
 }
 
 function recenterSelf() {
@@ -563,7 +575,7 @@ function renderUniverse() {
   // ===== 固定レイアウト: コミュニティを多角形に配置 =====
   const commKeys = Object.keys(communities);
   const commCenters = {};
-  const commRadius = 450;
+  const commRadius = 250;
   commKeys.forEach((key, i) => {
     const angle = (2 * Math.PI * i) / commKeys.length - Math.PI / 2;
     commCenters[key] = { x: Math.cos(angle) * commRadius, y: Math.sin(angle) * commRadius };
@@ -573,7 +585,7 @@ function renderUniverse() {
   for (const [comm, members] of Object.entries(communities)) {
     const center = commCenters[comm];
     if (!center) continue;
-    const memberRadius = 30 + members.length * 12;
+    const memberRadius = 20 + members.length * 5;
     members.forEach((n, i) => {
       const a = (2 * Math.PI * i) / members.length;
       n.x = center.x + Math.cos(a) * memberRadius;
@@ -585,7 +597,7 @@ function renderUniverse() {
   if (simulation) simulation.stop();
   simulation = d3.forceSimulation(nodes)
     .force('link', d3.forceLink(links).id(d => d.id)
-      .distance(d => d.isSelfLink ? 150 + (1 - (d.closeness || 0.3)) * 350 : 40)
+      .distance(d => d.isSelfLink ? 80 + (1 - (d.closeness || 0.3)) * 200 : 30)
       .strength(d => d.isSelfLink ? 0.01 : 0.3))
     .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -400 : -25))
     .force('collision', d3.forceCollide().radius(d => d.r + 6))
