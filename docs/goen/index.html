@@ -627,35 +627,63 @@ function renderUniverse() {
     communities[n.community].push(n);
   }
 
-  // ===== 固定レイアウト: コミュニティを多角形に配置 =====
+  // ===== 固定レイアウト: コミュニティを多角形に配置（近め） =====
   const commKeys = Object.keys(communities);
   const commCenters = {};
-  const commRadius = 350;
+  const commRadius = 200;
   commKeys.forEach((key, i) => {
     const angle = (2 * Math.PI * i) / commKeys.length - Math.PI / 2;
     commCenters[key] = { x: Math.cos(angle) * commRadius, y: Math.sin(angle) * commRadius };
   });
 
-  // 各コミュニティ内のノードもその中心の周囲に配置
+  // 各コミュニティ内のノードを配置（ベン図: 複数カテゴリに跨がる人は中間に）
   for (const [comm, members] of Object.entries(communities)) {
     const center = commCenters[comm];
     if (!center) continue;
-    const memberRadius = 25 + members.length * 8;
+    const memberRadius = 20 + members.length * 5;
     members.forEach((n, i) => {
       const a = (2 * Math.PI * i) / members.length;
-      n.x = center.x + Math.cos(a) * memberRadius;
-      n.y = center.y + Math.sin(a) * memberRadius;
+      let cx = center.x + Math.cos(a) * memberRadius;
+      let cy = center.y + Math.sin(a) * memberRadius;
+
+      // 複数カテゴリにマッチする場合、他のコミュニティ中心に引き寄せる（ベン図効果）
+      const otherComms = [];
+      const t = (n.tags || []).join(' ').toLowerCase();
+      for (const [ck, cc] of Object.entries(commCenters)) {
+        if (ck === comm) continue;
+        const keywords = {
+          '金融マーケット': /金融|投資|vc|ファンド/,
+          '起業・テック': /起業|スタートアップ|ai|テク/,
+          '社会・政策': /政策|政治|法律|防災/,
+          'クリエイティブ': /音楽|アート|エンタメ|映画/,
+          'グローバル': /海外|グローバル|国際/,
+          '医療・教育': /医療|教育|学び|研究/,
+          '食・地方創生': /食|農業|地方創生|コミュニティ/,
+          '投資銀行・証券': /金融/,
+          '商社・事業会社': /商社/,
+          'コンサル・専門職': /コンサル|統計/,
+        };
+        if (keywords[ck] && keywords[ck].test(t)) otherComms.push(cc);
+      }
+      // 他のコミュニティ中心に20%引き寄せる
+      for (const oc of otherComms) {
+        cx += (oc.x - cx) * 0.2;
+        cy += (oc.y - cy) * 0.2;
+      }
+
+      n.x = cx;
+      n.y = cy;
     });
   }
 
-  // ===== フォースシミュレーション（デモ版と同じパラメータ） =====
+  // ===== フォースシミュレーション（近め + 広い当たり判定） =====
   if (simulation) simulation.stop();
   simulation = d3.forceSimulation(nodes)
     .force('link', d3.forceLink(links).id(d => d.id)
-      .distance(d => d.isSelfLink ? 250 : 40)
+      .distance(d => d.isSelfLink ? 150 : 30)
       .strength(d => d.isSelfLink ? 0.01 : 0.3))
-    .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -400 : -25))
-    .force('collision', d3.forceCollide().radius(d => d.r + 6))
+    .force('charge', d3.forceManyBody().strength(d => d.isSelf ? -300 : -20))
+    .force('collision', d3.forceCollide().radius(d => d.r + 10))
     .force('community', () => {
       for (const n of nodes) {
         if (n.isSelf) continue;
@@ -782,6 +810,12 @@ function renderUniverse() {
     .attr('fill', 'none')
     .attr('stroke', '#818cf8')
     .attr('stroke-width', 1.5);
+
+  // タップ当たり判定を広くする透明サークル
+  nodeGroup.append('circle')
+    .attr('r', d => d.r + 12)
+    .attr('fill', 'transparent')
+    .style('cursor', 'pointer');
 
   // メイン円
   nodeGroup.append('circle')
@@ -1143,8 +1177,12 @@ function launchComet(personData) {
   if (!container) return;
   const w = container.clientWidth;
   const h = container.clientHeight;
-  const centerX = w / 2;
-  const centerY = h / 2;
+
+  // selfNodeの画面上の位置を取得（zoom transform考慮）
+  const svgEl = document.getElementById('universe-svg');
+  const transform = d3.zoomTransform(svgEl);
+  const centerX = transform.x + (selfNode ? selfNode.x : 0) * transform.k;
+  const centerY = transform.y + (selfNode ? selfNode.y : 0) * transform.k;
 
   // 画面端のランダム出発点
   const side = Math.floor(Math.random() * 4);
