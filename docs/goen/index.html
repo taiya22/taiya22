@@ -881,8 +881,8 @@ function switchScreen(name) {
   if (name === 'reconnect') renderReconnectHistory();
 }
 
-// ===== 実データ（119名） =====
-const DEMO_VERSION = 'v_real_119';
+// ===== 実データ（保田研究会37名） =====
+const DEMO_VERSION = 'v_hoda_37';
 function seedDemoData() {
   if (localStorage.getItem('goen_demo_version') === DEMO_VERSION && (people.length || encounters.length)) return;
   localStorage.setItem('goen_demo_version', DEMO_VERSION);
@@ -924,89 +924,7 @@ function seedDemoData() {
     { id:'p34', name:"工藤靖輝", createdAt:new Date().toISOString(), tags:["保田研究会"], context:"後輩。保田研の最初の後輩、統計ゴリゴリのゆるキャラ。所属:一橋大学大学院博士課程" },
     { id:'p35', name:"鄭智瑩", createdAt:new Date().toISOString(), tags:["保田研究会"], context:"同期。大学院同期。所属:携帯電話会社リテール？" },
     { id:'p36', name:"熊井りょう", createdAt:new Date().toISOString(), tags:["保田研究会"], context:"後輩。会計ギャル。所属:慶應義塾大学" },
-    { id:'p37', name:"潘志城", createdAt:new Date().toISOString(), tags:["保田研究会"], context:"後輩" },
-    { id:'p38', name:"二瓶 雄太", createdAt:new Date().toISOString(), tags:["Hive Japan", "解体"], context:"Hive 2023。コンクリート・シェアハウス・タイルに興味。2月末まで生き延びるのが志" },
-    { id:'p39', name:"二見 友紀乃", createdAt:new Date().toISOString(), tags:["Hive Japan", "政治思想"], context:"Hive 2023。ENTP。宮崎出身。広い世界を知って深みのある人間になりたい" },
-    { id:'p40', name:"佐々木 瑛資", createdAt:new Date().toISOString(), tags:["Hive Japan", "防災", "エンタメ"], context:"Hive 2023&2025&2026。ミュージカルオタク。日本の社会を音楽から変えたい。シグマクシス勤務" },
-    { id:'p41', name:"城谷 光亮", createdAt:new Date().toISOString(), tags:["Hive Japan", "宇宙", "科学技術"], context:"Hive 2023。好奇心の塊。日本を科学技術大国にしたい" },
-    { id:'p42', name:"大久保 孝慶", createdAt:new Date().toISOString(), tags:["Hive Japan", "neuroscience", "医療"], context:"Hive 2023。哲学・瞑想好き。精神-環境構造の解明を志す" },
-    { id:'p43', name:"山田 魁", createdAt:new Date().toISOString(), tags:["Hive Japan", "スタートアップ"], context:"Hive 2023。仮面ライダーになるのが志。格闘技好き" },
-    { id:'p44', name:"山路 湧", createdAt:new Date().toISOString(), tags:["Hive Japan", "コミュニティ", "DAO"], context:"Hive 2023。極端な朝型・行動派。自立分散型の共的基盤を作りたい" },
-    { id:'p45', name:"岡島 一貴", createdAt:new Date().toISOString(), tags:["Hive Japan", "金融", "幸福論"], context:"Hive 2023&2024。秋田出身。社会にデルタを生み出したい。饒舌" },
-    { id:'p46', name:"望月 里彩", createdAt:new Date().toISOString(), tags:["Hive Japan", "国際金融", "地政学"], context:"Hive 2023。超早寝早起き。経済界における女性のロールモデルを目指す" },
-    { id:'p47', name:"楊 根泓", createdAt:new Date().toISOString(), tags:["Hive Japan", "金融", "ヘッジファンド"], context:"Hive 2023&2024。カフェ巡り・カメラ好き。独立起業を見据えて金融で経験を積む" },
-    { id:'p48', name:"矢地理 彩奈", createdAt:new Date().toISOString(), tags:["Hive Japan", "起業", "ウェルビーイング"], context:"Hive 2023。誰もが一生懸命になれる社会をつくりたい" },
-    { id:'p49', name:"紺野 雄太", createdAt:new Date().toISOString(), tags:["Hive Japan", "VC", "コミュニティ"], context:"Hive 2023。Bar・Camera好き。スタートアップ支援を志す" },
-    { id:'p50', name:"藤本 ほむら", createdAt:new Date().toISOString(), tags:["Hive Japan", "VC", "スタートアップ"], context:"Hive 2023。サウナ・ラグビー好き。スタートアップを当たり前にしたい" },
-    { id:'p51', name:"谷口 朋", createdAt:new Date().toISOString(), tags:["Hive Japan", "政策", "ジェンダー"], context:"Hive 2023&2024。好奇心旺盛・どこでも寝られる。薬学出身。外注のあり方を模索" },
-    { id:'p52', name:"阪口 友貴", createdAt:new Date().toISOString(), tags:["Hive Japan", "まちづくり", "不動産"], context:"Hive 2023&2026。鳥人間。三菱地所勤務。誰もが求める経験を拒まれない社会を創る" },
-    { id:'p53', name:"露口 啓太", createdAt:new Date().toISOString(), tags:["Hive Japan", "AI", "VR", "IoT"], context:"Hive 2023。次の文明を作りたい思想家。テクノロジーで新しいライフスタイルを構築" },
-    { id:'p54', name:"Dhruv Iyer", createdAt:new Date().toISOString(), tags:["Hive Japan", "製造業", "グリーンテック"], context:"Hive 2024。サッカー・ジャズ好き。ハードテクノロジー起業を志す" },
-    { id:'p55', name:"中谷 勇輝", createdAt:new Date().toISOString(), tags:["Hive Japan", "哲学"], context:"Hive 2024。自然と精神・理論と実践の統一的把握を目指す" },
-    { id:'p56', name:"乘濵 駿平", createdAt:new Date().toISOString(), tags:["Hive Japan", "メンタルヘルス", "教育"], context:"Hive 2024&2026。東京大学。人に依存することで自分らしく生きられる社会をつくる" },
-    { id:'p57', name:"五百旗頭 アレン", createdAt:new Date().toISOString(), tags:["Hive Japan", "ディープテック", "経済安保"], context:"Hive 2024。進撃の巨人好き。ディープテックの社会実装・シンクタンク設立を志す" },
-    { id:'p58', name:"吉武 宗浩", createdAt:new Date().toISOString(), tags:["Hive Japan", "エネルギー", "地方創生"], context:"Hive 2024&2025。地球環境に貢献する持続可能な仕組みを構築したい" },
-    { id:'p59', name:"堀 哲人", createdAt:new Date().toISOString(), tags:["Hive Japan", "音楽", "エンタメ"], context:"Hive 2024&2026。東京藝大。シンセサイザー好き。新しい楽器ブランドを立ち上げたい" },
-    { id:'p60', name:"堀 拓人", createdAt:new Date().toISOString(), tags:["Hive Japan", "コミュニティ", "金融"], context:"Hive 2024。アウトドア好き。志が繋がる世界を作りたい" },
-    { id:'p61', name:"小池 祐樹", createdAt:new Date().toISOString(), tags:["Hive Japan", "物理", "起業"], context:"Hive 2024。ワイン・料理好き。物理一筋から一生を捧げたい何かを探し中" },
-    { id:'p62', name:"小笠原 萌", createdAt:new Date().toISOString(), tags:["Hive Japan", "地方創生", "農業"], context:"Hive 2024。ものまね・着付け・スペイン語音楽。限界集落の課題解決を志す" },
-    { id:'p63', name:"小菅 勇太郎", createdAt:new Date().toISOString(), tags:["Hive Japan", "シェアエコ", "子育て"], context:"Hive 2024。二拠点生活サービスCo-Sato運営。拡張家族の概念を推進" },
-    { id:'p64', name:"山﨑 隼", createdAt:new Date().toISOString(), tags:["Hive Japan", "社会学", "人類学"], context:"Hive 2024&2025。一橋大学。テクノロジーの人類学。価値規範をゆさぶりたい" },
-    { id:'p65', name:"川上 仁之", createdAt:new Date().toISOString(), tags:["Hive Japan", "生態学", "農業"], context:"Hive 2024。昆虫好き。人間社会と自然社会のコミュニケーターを目指す" },
-    { id:'p66', name:"成 玲娜", createdAt:new Date().toISOString(), tags:["Hive Japan", "多拠点", "境界線"], context:"Hive 2024。バレーボール観戦好き。境界線をあいまいにし個性を強みに変えたい" },
-    { id:'p67', name:"松井 ひかり", createdAt:new Date().toISOString(), tags:["Hive Japan", "フェムテック"], context:"Hive 2024。活字中毒のフェミニスト。低容量ピルの普及率向上を志す" },
-    { id:'p68', name:"松島 かれん", createdAt:new Date().toISOString(), tags:["Hive Japan", "文学", "水産業"], context:"Hive 2024。サッカー右SB・演劇勉強中。言葉を通じて共感を届けたい" },
-    { id:'p69', name:"清水 亮汰", createdAt:new Date().toISOString(), tags:["Hive Japan", "金融"], context:"Hive 2024。サウナ・剣道・海好き。家業や環境に関わらず人生を切り開ける社会へ" },
-    { id:'p70', name:"湧谷 光織", createdAt:new Date().toISOString(), tags:["Hive Japan", "音楽", "金融"], context:"Hive 2024。芸術の価値が正当に評価される仕組みを作りたい表現者" },
-    { id:'p71', name:"田口 愛", createdAt:new Date().toISOString(), tags:["Hive Japan", "社会起業", "アフリカ"], context:"Hive 2024。ガーナのチョコレート工場長。MADE IN GHANA 100%チョコを世界へ" },
-    { id:'p72', name:"飯田 夏生", createdAt:new Date().toISOString(), tags:["Hive Japan", "AI", "起業"], context:"Hive 2024。野球好き。人口減少をIT・AIで解決しグローバル企業を創りたい" },
-    { id:'p73', name:"Simon Arango Baquero", createdAt:new Date().toISOString(), tags:["Hive Japan", "日米交流"], context:"Hive 2025。transnational。日本とアメリカの文化交換コミュニティを作りたい" },
-    { id:'p74', name:"Vedant Agrawal", createdAt:new Date().toISOString(), tags:["Hive Japan", "サステナビリティ"], context:"Hive 2025。Japan-Indiaビジネス回廊の構築に取り組む" },
-    { id:'p75', name:"上田 佳祐", createdAt:new Date().toISOString(), tags:["Hive Japan", "エンジニア", "プライバシー"], context:"Hive 2025。スイス・旅行好き。個人データを自分でコントロールできる社会を目指す" },
-    { id:'p76', name:"中澤 拓也", createdAt:new Date().toISOString(), tags:["Hive Japan", "ヘルスケア", "音楽"], context:"Hive 2025。倉敷を音楽あふれる街に。未来のプラットフォームを生み出したい" },
-    { id:'p77', name:"久保 駿貴", createdAt:new Date().toISOString(), tags:["Hive Japan", "防災テック", "AI"], context:"Hive 2025。ディズニーLOVE・ヴィッセル神戸。ABABA勤務。地域からユニコーン企業を創る" },
-    { id:'p78', name:"井上 国太郎", createdAt:new Date().toISOString(), tags:["Hive Japan", "映画", "ドキュメンタリー"], context:"Hive 2025。東京大学。散歩・水好き。ドキュメンタリー映画を届けるべき人へ届ける" },
-    { id:'p79', name:"今井 健", createdAt:new Date().toISOString(), tags:["Hive Japan", "アート"], context:"Hive 2025。ラップ・リリーフランキー好き。宇宙人を感心させるのが志" },
-    { id:'p80', name:"伊佐 周治郎", createdAt:new Date().toISOString(), tags:["Hive Japan", "外交", "フランス"], context:"Hive 2025。47都道府県制覇・食欲旺盛。日本のポジティブなイメージを発信し続ける" },
-    { id:'p81', name:"伊原木 理紗", createdAt:new Date().toISOString(), tags:["Hive Japan", "金融", "コンサル"], context:"Hive 2025。あだ名は台風の目。船井総合研究所勤務。面白い人と面白いことをする" },
-    { id:'p82', name:"内田 莉華", createdAt:new Date().toISOString(), tags:["Hive Japan", "ヘルシーフード", "マーケ"], context:"Hive 2025&2026。Jukebox Dreams勤務。食事を当たり前に楽しめる社会を実現する" },
-    { id:'p83', name:"園部 智彬", createdAt:new Date().toISOString(), tags:["Hive Japan", "教育", "格差"], context:"Hive 2025。マイペースで人好き。日本における貧富の差を軽減したい" },
-    { id:'p84', name:"坪谷 亮", createdAt:new Date().toISOString(), tags:["Hive Japan", "アフリカ支援", "FP"], context:"Hive 2025。楽観的。若い人間が活気あふれ自由な価値観を受け入れられる社会を創出" },
-    { id:'p85', name:"大宮 舞凜", createdAt:new Date().toISOString(), tags:["Hive Japan", "女性キャリア", "起業"], context:"Hive 2025。フラダンサー・空手家・美容サロン経営。女性のロールモデルになりたい" },
-    { id:'p86', name:"山下 彩夏", createdAt:new Date().toISOString(), tags:["Hive Japan", "AI", "教育", "スタートアップ"], context:"Hive 2025&2026。東大大学院。テクノロジーで教育や組織を良くする" },
-    { id:'p87', name:"松元 まりあ", createdAt:new Date().toISOString(), tags:["Hive Japan", "フィランソロピー", "金融"], context:"Hive 2025。勉強大好き。日本で利他的な資本移動を加速させるフィランソロピストを目指す" },
-    { id:'p88', name:"江口 大志", createdAt:new Date().toISOString(), tags:["Hive Japan", "AI", "起業"], context:"Hive 2025。音声認識技術で日本発の世界的テクノロジー企業を作りたい" },
-    { id:'p89', name:"池田 颯", createdAt:new Date().toISOString(), tags:["Hive Japan", "スタートアップ", "大企業"], context:"Hive 2025。お笑い好き。JT勤務。繋げるを通して社会を前へ" },
-    { id:'p90', name:"猪俣 大輝", createdAt:new Date().toISOString(), tags:["Hive Japan", "法律", "スタートアップ"], context:"Hive 2025。海外一人旅・焼肉開拓好き。弁護士として日本のスタートアップを強くする" },
-    { id:'p91', name:"田中 律羽", createdAt:new Date().toISOString(), tags:["Hive Japan", "オープンイノベーション"], context:"Hive 2025。越境と共創で世界をさらに豊かに面白くしたい" },
-    { id:'p92', name:"田村 ゆり", createdAt:new Date().toISOString(), tags:["Hive Japan", "コンサル"], context:"Hive 2025。BCG勤務。植物学好き。頼りたいと思われるコンサルタントを目指す" },
-    { id:'p93', name:"荘林 幸太郎", createdAt:new Date().toISOString(), tags:["Hive Japan", "医療", "ワイン"], context:"Hive 2025。東京大学。マイクロニードル研究。世界で活躍する次世代リーダーの場を作る" },
-    { id:'p94', name:"賀川 ありさ", createdAt:new Date().toISOString(), tags:["Hive Japan", "音楽", "教育"], context:"Hive 2025。月1旅行・AI共存。頑張りたい人が可能性を諦めない世の中にしたい" },
-    { id:'p95', name:"青山 洋祐", createdAt:new Date().toISOString(), tags:["Hive Japan", "日米外交", "教育"], context:"Hive 2025。誰1人取り残さない世界の先へ。幸福度を次なる指標に" },
-    { id:'p96', name:"マコウ デイナ", createdAt:new Date().toISOString(), tags:["Hive Japan", "教育", "起業"], context:"Hive 2026。トリリンガル・ノマド。Enlite LLC経営。Z世代のグローバル活躍を支援" },
-    { id:'p97', name:"下山 明彦", createdAt:new Date().toISOString(), tags:["Hive Japan", "起業", "アート"], context:"Hive 2026。慶應。Senjin Holdings経営。数千年後の生き物が畏敬の念を抱く作品を作る" },
-    { id:'p98', name:"井上 寛人", createdAt:new Date().toISOString(), tags:["Hive Japan", "ウェルビーイング", "研究"], context:"Hive 2026。Y COMPANY経営。挑戦から不幸せに離脱する若者を減らしたい" },
-    { id:'p99', name:"千野 彩佳", createdAt:new Date().toISOString(), tags:["Hive Japan", "食文化", "新規事業"], context:"Hive 2026。味の素勤務。食の情緒的な価値の可能性を探求する" },
-    { id:'p100', name:"吉良 慶信", createdAt:new Date().toISOString(), tags:["Hive Japan", "地方自治", "詐欺対策"], context:"Hive 2026。LINEヤフー勤務。詐欺撲滅と一極集中から多極集中の日本を目指す" },
-    { id:'p101', name:"大原 碩人", createdAt:new Date().toISOString(), tags:["Hive Japan", "ミュージアム", "人文学"], context:"Hive 2026。一橋大学院。三楽勤務。博物館で知を深め自分を相対化できる場を創出" },
-    { id:'p102', name:"宮﨑 将", createdAt:new Date().toISOString(), tags:["Hive Japan", "GovTech", "データ"], context:"Hive 2026。早稲田大学。民主主義システムを進化させたい熱血漢" },
-    { id:'p103', name:"寺田 彩人", createdAt:new Date().toISOString(), tags:["Hive Japan", "スポーツ投資", "金融"], context:"Hive 2026。KKRジャパン勤務。スポーツへの投資で人の生きがいを作る仕組みを構築" },
-    { id:'p104', name:"小池 美月", createdAt:new Date().toISOString(), tags:["Hive Japan"], context:"Hive 2026。慶應。ピックルボール好き" },
-    { id:'p105', name:"山田 麟太郎", createdAt:new Date().toISOString(), tags:["Hive Japan", "ポスト資本主義"], context:"Hive 2026。慶應。ジャズ・ワイン・世界一周。50年後の未来をつくる事業を支える" },
-    { id:'p106', name:"川村 北斗", createdAt:new Date().toISOString(), tags:["Hive Japan", "経営", "政治"], context:"Hive 2026。Asset Business HD経営。救済で最大多数の最大幸福を実現する" },
-    { id:'p107', name:"市原 蓮", createdAt:new Date().toISOString(), tags:["Hive Japan", "デジタル", "政治"], context:"Hive 2026。Sansan勤務。日本を課題解決先進国へ生まれ変わらせたい" },
-    { id:'p108', name:"木村 王", createdAt:new Date().toISOString(), tags:["Hive Japan", "スタートアップ", "地方創生"], context:"Hive 2026。東大。MAGO MOTORS JAPAN。地元にアントレプレナーコミュニティを作る" },
-    { id:'p109', name:"清水 良広", createdAt:new Date().toISOString(), tags:["Hive Japan", "M&A", "ブランディング"], context:"Hive 2026。GoodWide/HERENGA経営。クリエイター界隈に収益やチャンスを還元" },
-    { id:'p110', name:"牧野 越叢", createdAt:new Date().toISOString(), tags:["Hive Japan", "ローカルビジネス"], context:"Hive 2026。ポーカー・旅行好き。モーニンもlにん勤務。ローカルビジネスのPF作り" },
-    { id:'p111', name:"福井 健吾", createdAt:new Date().toISOString(), tags:["Hive Japan", "研究"], context:"Hive 2026。名古屋大学。大人になっても部活のように本気で打ち込める環境をつくる" },
-    { id:'p112', name:"菊地 里帆子", createdAt:new Date().toISOString(), tags:["Hive Japan", "国際", "文化翻訳"], context:"Hive 2026。日本財団勤務。現場の知を再現可能な方法論に翻訳し社会実装モデルを増やす" },
-    { id:'p113', name:"藤家 里莉花", createdAt:new Date().toISOString(), tags:["Hive Japan", "医療", "ラグジュアリー"], context:"Hive 2026。東大病院。日本文化をときめきとして再定義し世界に発信" },
-    { id:'p114', name:"谷口 由布子", createdAt:new Date().toISOString(), tags:["Hive Japan", "シェアリングエコノミー"], context:"Hive 2026。シェアリングエコノミー協会勤務。顔の見える関係で人生を自分ごとに" },
-    { id:'p115', name:"遠山 さくら", createdAt:new Date().toISOString(), tags:["Hive Japan", "公教育", "インパクト"], context:"Hive 2026。東大。フィリピン。経済的困窮者を生まない社会を作りたい" },
-    { id:'p116', name:"野木 紬", createdAt:new Date().toISOString(), tags:["Hive Japan", "法律", "農業"], context:"Hive 2026。最高裁司法研修所。日本の農業を法律で支えたい" },
-    { id:'p117', name:"鈴木 梨里", createdAt:new Date().toISOString(), tags:["Hive Japan", "新規事業", "ターンアラウンド"], context:"Hive 2026。三井物産勤務。異なる立場や論理をつなぎ変化の起点になる" },
-    { id:'p118', name:"長内 あや愛", createdAt:new Date().toISOString(), tags:["Hive Japan", "食文化", "起業"], context:"Hive 2026。食の会経営。食文化を定着させストーリーを味わう体験を創出" },
-    { id:'p119', name:"高比良 悠", createdAt:new Date().toISOString(), tags:["Hive Japan", "AI", "スタートアップ"], context:"Hive 2026。Gather勤務。技術の社会実装が当たり前に生まれる世界を目指す" }
+    { id:'p37', name:"潘志城", createdAt:new Date().toISOString(), tags:["保田研究会"], context:"後輩" }
   ];
 
   const demoEncounters = [
@@ -1048,6 +966,7 @@ function seedDemoData() {
   saveData(STORAGE_KEY_ENCOUNTERS, encounters);
   saveData(STORAGE_KEY_RECONNECTS, reconnects);
 }
+
 
 
 // ===== ハレー彗星リコネクティング =====
