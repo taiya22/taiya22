@@ -274,21 +274,22 @@ tailwind.config = {
 <script>
 // ===== ストレージ =====
 const STORAGE_KEY = 'goen_vault';
+const DATA_VERSION = 'v_real_119';
 
 function loadVault() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null; } catch { return null; }
 }
 function saveAllData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ people, encounters, reconnects }));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ people, encounters, reconnects, _version: DATA_VERSION }));
 }
 
 let people = [];
 let encounters = [];
 let reconnects = [];
 
-// 起動時にlocalStorageから復元、なければseedData
+// 起動時: バージョンが合わなければ旧データを破棄して再シード
 const _vault = loadVault();
-if (_vault && _vault.people && _vault.people.length) {
+if (_vault && _vault._version === DATA_VERSION && _vault.people && _vault.people.length) {
   people = _vault.people;
   encounters = _vault.encounters || [];
   reconnects = _vault.reconnects || [];
