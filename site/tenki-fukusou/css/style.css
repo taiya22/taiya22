@@ -823,6 +823,29 @@ img { max-width: 100%; display: block; }
   flex-shrink: 0;
 }
 
+/* --- Time Mode Badge --- */
+.time-mode-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.2);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  margin-bottom: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.time-mode-badge__next {
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+
+/* --- Past Period (dimmed) --- */
+.weather-period--past {
+  opacity: 0.35;
+}
+
 /* --- Responsive (Tablet+) --- */
 @media (min-width: 768px) {
   .page { max-width: 480px; margin: 0 auto; }

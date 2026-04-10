@@ -150,5 +150,58 @@ const Weather = {
     if (weather === 'cloudy') return 'weather-card--cloudy';
     if (weather === 'snowy') return 'weather-card--snowy';
     return '';
+  },
+
+  // ===== Time Mode System =====
+  // 3 refresh points: 6:00, 12:00, 17:00
+  TIME_MODES: [
+    { key: 'morning',   hour: 6,  label: '朝のおでかけ',  icon: '\uD83C\uDF05', periodIndices: [0, 1, 2, 3], desc: '朝〜夜まで一日対応' },
+    { key: 'afternoon', hour: 12, label: '昼のおでかけ',  icon: '\u2600\uFE0F',  periodIndices: [1, 2, 3],    desc: '昼〜夜の残り時間対応' },
+    { key: 'evening',   hour: 17, label: '夕方のおでかけ', icon: '\uD83C\uDF07', periodIndices: [2, 3],       desc: '夕方〜夜の残り時間対応' }
+  ],
+
+  getTimeMode(hour) {
+    if (hour === undefined) hour = new Date().getHours();
+    if (hour >= 17) return this.TIME_MODES[2]; // evening
+    if (hour >= 12) return this.TIME_MODES[1]; // afternoon
+    return this.TIME_MODES[0]; // morning (including late night before 6)
+  },
+
+  getNextRefreshTime() {
+    const now = new Date();
+    const h = now.getHours();
+    const targets = [6, 12, 17];
+    for (const t of targets) {
+      if (h < t) {
+        const next = new Date(now);
+        next.setHours(t, 0, 0, 0);
+        return next;
+      }
+    }
+    // Next is 6:00 tomorrow
+    const next = new Date(now);
+    next.setDate(next.getDate() + 1);
+    next.setHours(6, 0, 0, 0);
+    return next;
+  },
+
+  getPeriodsForMode(weatherData, mode) {
+    return mode.periodIndices.map(i => weatherData.periods[i]).filter(Boolean);
+  },
+
+  getSummaryForMode(weatherData, mode) {
+    const periods = this.getPeriodsForMode(weatherData, mode);
+    if (!periods.length) return this.getSummary(weatherData);
+
+    const temps = periods.map(p => p.temp);
+    const minTemp = Math.min(...temps);
+    const maxTemp = Math.max(...temps);
+    const tempDiff = maxTemp - minTemp;
+    const hasRain = periods.some(p => p.rainProbability >= 50);
+    const hasLightRain = periods.some(p => p.rainProbability >= 30);
+    const maxWind = Math.max(...periods.map(p => p.windSpeed));
+    const dominantWeather = this._getDominantWeather(periods);
+
+    return { minTemp, maxTemp, tempDiff, hasRain, hasLightRain, maxWind, dominantWeather };
   }
 };

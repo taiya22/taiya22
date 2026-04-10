@@ -1,15 +1,15 @@
 /* ===== 天気服装 - App Initialization ===== */
 
 const App = {
+  _lastModeKey: null,
+  _refreshTimer: null,
+
   init() {
-    // Initialize storage with sample data if empty
     Storage.initIfEmpty();
 
     // Set up navigation
     document.querySelectorAll('.bottom-nav__item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        UI.navigate(btn.dataset.page);
-      });
+      btn.addEventListener('click', () => UI.navigate(btn.dataset.page));
     });
 
     // Set up FAB
@@ -26,17 +26,38 @@ const App = {
       if (e.target === e.currentTarget) UI.closeModal();
     });
 
-    // Set up refresh button
+    // Refresh button
     document.getElementById('refresh-btn').addEventListener('click', async () => {
       localStorage.removeItem(Storage.KEYS.WEATHER_CACHE);
       await UI.renderHome();
       UI.toast('天気情報を更新しました');
     });
 
-    // Render home immediately (sync - no loading flash)
+    // Render immediately (sync)
+    const mode = Weather.getTimeMode();
+    this._lastModeKey = mode.key;
     UI.renderHomeSync();
+
+    // Start auto-refresh timer
+    this._startAutoRefresh();
+  },
+
+  _startAutoRefresh() {
+    // Check every 60 seconds if we've crossed a mode boundary
+    this._refreshTimer = setInterval(() => {
+      const mode = Weather.getTimeMode();
+      if (mode.key !== this._lastModeKey) {
+        this._lastModeKey = mode.key;
+        // Clear weather cache so we get fresh data
+        localStorage.removeItem(Storage.KEYS.WEATHER_CACHE);
+        UI.renderHomeSync();
+        if (UI.currentPage === 'home') {
+          UI.toast(`${mode.icon} ${mode.label}モードに更新しました`);
+        }
+      }
+    }, 60 * 1000);
   }
 };
 
-// Boot immediately - scripts are at bottom of body, DOM is already ready
+// Boot immediately
 App.init();

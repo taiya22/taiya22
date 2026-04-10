@@ -56,22 +56,25 @@ const UI = {
   },
 
   renderWeatherCard(data) {
-    const summary = Weather.getSummary(data);
+    const mode = Weather.getTimeMode();
+    const summary = Weather.getSummaryForMode(data, mode);
     const container = document.getElementById('weather-card');
     const dominant = summary.dominantWeather;
     const cardClass = Weather.getWeatherCardClass(dominant);
+    const activePeriods = Weather.getPeriodsForMode(data, mode);
 
     // Format date
-    const dateObj = new Date(data.date);
+    const now = new Date();
     const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
-    const dateStr = `${dateObj.getMonth() + 1}月${dateObj.getDate()}日(${dayNames[dateObj.getDay()]})`;
+    const dateStr = `${now.getMonth() + 1}月${now.getDate()}日(${dayNames[now.getDay()]})`;
 
-    // Weather transition text
-    const weatherLabels = data.periods.map(p => Weather.getLabel(p.weather));
-    const uniqueWeathers = [...new Set(weatherLabels)];
-    const weatherFlow = uniqueWeathers.length > 1
-      ? data.periods.map(p => Weather.getIcon(p.weather)).join(' → ')
-      : Weather.getIcon(data.periods[0].weather) + ' ' + Weather.getLabel(data.periods[0].weather);
+    // Next refresh time
+    const nextRefresh = Weather.getNextRefreshTime();
+    const nextH = String(nextRefresh.getHours()).padStart(2, '0');
+    const nextM = String(nextRefresh.getMinutes()).padStart(2, '0');
+
+    // Current temp = first active period
+    const currentTemp = activePeriods[0]?.temp ?? data.periods[1].temp;
 
     container.className = 'weather-card ' + cardClass;
     container.innerHTML = `
@@ -80,21 +83,28 @@ const UI = {
         <span>${data.city}</span>
         <span style="margin-left:auto">${dateStr}</span>
       </div>
+      <div class="time-mode-badge">
+        <span>${mode.icon} ${mode.label}</span>
+        <span class="time-mode-badge__next">\u23F0 次回更新 ${nextH}:${nextM}</span>
+      </div>
       <div class="weather-card__main">
         <div>
-          <div class="weather-card__temp">${data.periods[1].temp}<small>\u00B0C</small></div>
-          <div class="weather-card__desc">${weatherFlow}</div>
+          <div class="weather-card__temp">${currentTemp}<small>\u00B0C</small></div>
+          <div class="weather-card__desc">${mode.desc}</div>
         </div>
         <div class="weather-card__icon">${Weather.getIcon(dominant)}</div>
       </div>
       <div class="weather-card__periods">
-        ${data.periods.map(p => `
-          <div class="weather-period">
-            <div class="weather-period__label">${p.label}</div>
-            <div class="weather-period__icon">${Weather.getIcon(p.weather)}</div>
-            <div class="weather-period__temp">${p.temp}\u00B0</div>
-          </div>
-        `).join('')}
+        ${data.periods.map((p, i) => {
+          const isActive = mode.periodIndices.includes(i);
+          return `
+            <div class="weather-period ${isActive ? '' : 'weather-period--past'}">
+              <div class="weather-period__label">${p.label}</div>
+              <div class="weather-period__icon">${Weather.getIcon(p.weather)}</div>
+              <div class="weather-period__temp">${p.temp}\u00B0</div>
+            </div>
+          `;
+        }).join('')}
       </div>
     `;
   },
@@ -162,9 +172,16 @@ const UI = {
       });
     }
 
+    const mode = outfit.mode || Weather.getTimeMode();
+    const titles = {
+      morning: '\uD83D\uDC57 今日の一日コーデ',
+      afternoon: '\uD83D\uDC57 午後〜夜のコーデ',
+      evening: '\uD83D\uDC57 夕方〜夜のコーデ'
+    };
+
     return `
       <div class="outfit-section">
-        <div class="section-title">\uD83D\uDC57 今日の一日コーデ</div>
+        <div class="section-title">${titles[mode.key] || titles.morning}</div>
         <div class="outfit-card">
           <div class="outfit-layers">
             ${layers.map(l => `
@@ -185,9 +202,12 @@ const UI = {
 
   _renderTimeline(outfit) {
     if (!outfit.timeline || outfit.timeline.length === 0) return '';
+    const timelineTitle = (outfit.mode?.key === 'evening') ? '\uD83D\uDD50 これからの着こなし'
+                        : (outfit.mode?.key === 'afternoon') ? '\uD83D\uDD50 午後の着こなし'
+                        : '\uD83D\uDD50 一日の着こなし';
     return `
       <div class="outfit-section">
-        <div class="section-title">\uD83D\uDD50 一日の着こなし</div>
+        <div class="section-title">${timelineTitle}</div>
         <div class="timeline">
           <ul class="timeline__list">
             ${outfit.timeline.map(t => `
