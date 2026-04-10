@@ -9,29 +9,38 @@ const Weather = {
     stormy: { icon: '\u26C8\uFE0F', label: '\u96F7\u96E8' }
   },
 
+  // Synchronous fetch - uses cache or mock data instantly
+  fetchWeatherSync() {
+    const settings = Storage.getSettings();
+    const cached = Storage.getCachedWeather();
+    if (cached) return cached;
+
+    const mock = MockData.getTodayWeather();
+    mock.city = settings.city;
+    Storage.cacheWeather(mock);
+    return mock;
+  },
+
+  // Async fetch - tries real API if key exists, falls back to sync
   async fetchWeather() {
     const settings = Storage.getSettings();
+
+    // No API key -> use sync path
+    if (!settings.apiKey) return this.fetchWeatherSync();
 
     // Try cache first
     const cached = Storage.getCachedWeather();
     if (cached) return cached;
 
-    // Try real API if key exists
-    if (settings.apiKey) {
-      try {
-        const data = await this._fetchFromAPI(settings.apiKey, settings.city);
-        Storage.cacheWeather(data);
-        return data;
-      } catch (e) {
-        console.warn('API fetch failed, using mock:', e);
-      }
+    // Try real API
+    try {
+      const data = await this._fetchFromAPI(settings.apiKey, settings.city);
+      Storage.cacheWeather(data);
+      return data;
+    } catch (e) {
+      console.warn('API fetch failed, using mock:', e);
+      return this.fetchWeatherSync();
     }
-
-    // Fallback to mock
-    const mock = MockData.getTodayWeather();
-    mock.city = settings.city;
-    Storage.cacheWeather(mock);
-    return mock;
   },
 
   async _fetchFromAPI(apiKey, city) {

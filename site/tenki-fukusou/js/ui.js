@@ -34,10 +34,23 @@ const UI = {
   },
 
   // ===== Home Page =====
+  // Sync render - instant, no loading state
+  renderHomeSync() {
+    const weatherData = Weather.fetchWeatherSync();
+    this.currentWeather = weatherData;
+    this.renderWeatherCard(weatherData);
+    this.renderOutfit(weatherData);
+  },
+
+  // Async render - for API key users
   async renderHome() {
+    const settings = Storage.getSettings();
+    if (!settings.apiKey) {
+      this.renderHomeSync();
+      return;
+    }
     const weatherData = await Weather.fetchWeather();
     this.currentWeather = weatherData;
-
     this.renderWeatherCard(weatherData);
     this.renderOutfit(weatherData);
   },

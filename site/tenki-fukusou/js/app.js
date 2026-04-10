@@ -1,7 +1,7 @@
 /* ===== 天気服装 - App Initialization ===== */
 
 const App = {
-  async init() {
+  init() {
     // Initialize storage with sample data if empty
     Storage.initIfEmpty();
 
@@ -33,11 +33,10 @@ const App = {
       UI.toast('天気情報を更新しました');
     });
 
-    // Load home
-    UI.navigate('home');
-    await UI.renderHome();
+    // Render home immediately (sync - no loading flash)
+    UI.renderHomeSync();
   }
 };
 
-// Boot
-document.addEventListener('DOMContentLoaded', () => App.init());
+// Boot immediately - scripts are at bottom of body, DOM is already ready
+App.init();
