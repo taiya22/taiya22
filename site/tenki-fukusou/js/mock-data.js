@@ -1,7 +1,7 @@
 /* ===== 天気服装 - Mock Data & Sample Wardrobe ===== */
+/* 25歳男性・コンサルティング会社勤務のワードローブ */
 
 const MockData = {
-  // Seasonal mock weather patterns
   getWeather(month, day) {
     const patterns = this._seasonalPatterns(month);
     const variation = this._dailyVariation(day);
@@ -102,39 +102,49 @@ const MockData = {
 };
 
 const SampleWardrobe = [
-  // Tops
-  { name: '白Tシャツ', category: 'tops', subCategory: 'tshirt', color: '#FFFFFF', colorName: '白', warmthLevel: 1, weatherSuitability: ['sunny', 'cloudy'] },
-  { name: 'ボーダーTシャツ', category: 'tops', subCategory: 'tshirt', color: '#1E3A5F', colorName: '紺', warmthLevel: 1, weatherSuitability: ['sunny', 'cloudy'] },
-  { name: '白シャツ', category: 'tops', subCategory: 'shirt', color: '#FFFFFF', colorName: '白', warmthLevel: 2, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
-  { name: 'ブルーシャツ', category: 'tops', subCategory: 'shirt', color: '#4A90D9', colorName: '青', warmthLevel: 2, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
-  { name: 'ベージュニット', category: 'tops', subCategory: 'knit', color: '#D4B896', colorName: 'ベージュ', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy', 'rainy', 'snowy'] },
-  { name: 'グレーニット', category: 'tops', subCategory: 'knit', color: '#808080', colorName: 'グレー', warmthLevel: 4, weatherSuitability: ['sunny', 'cloudy', 'rainy', 'snowy'] },
-  { name: 'ネイビーパーカー', category: 'tops', subCategory: 'hoodie', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy'] },
-  { name: '黒カーディガン', category: 'tops', subCategory: 'cardigan', color: '#2D3436', colorName: '黒', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
+  // ===== トップス =====
+  // ビジネス
+  { name: '白ドレスシャツ', category: 'tops', subCategory: 'shirt', color: '#FFFFFF', colorName: '白', warmthLevel: 2, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
+  { name: 'サックスブルーシャツ', category: 'tops', subCategory: 'shirt', color: '#87CEEB', colorName: 'サックスブルー', warmthLevel: 2, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
+  { name: 'ストライプシャツ', category: 'tops', subCategory: 'shirt', color: '#4A6FA5', colorName: 'ブルー', warmthLevel: 2, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
+  { name: 'ネイビーポロシャツ', category: 'tops', subCategory: 'shirt', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 2, weatherSuitability: ['sunny', 'cloudy'] },
+  // カジュアル
+  { name: '白クルーネックT', category: 'tops', subCategory: 'tshirt', color: '#FFFFFF', colorName: '白', warmthLevel: 1, weatherSuitability: ['sunny', 'cloudy'] },
+  { name: 'グレーTシャツ', category: 'tops', subCategory: 'tshirt', color: '#808080', colorName: 'グレー', warmthLevel: 1, weatherSuitability: ['sunny', 'cloudy'] },
+  { name: 'ネイビーTシャツ', category: 'tops', subCategory: 'tshirt', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 1, weatherSuitability: ['sunny', 'cloudy'] },
+  // ニット・防寒
+  { name: 'ネイビーVネックニット', category: 'tops', subCategory: 'knit', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy', 'rainy', 'snowy'] },
+  { name: 'グレークルーニット', category: 'tops', subCategory: 'knit', color: '#808080', colorName: 'グレー', warmthLevel: 4, weatherSuitability: ['sunny', 'cloudy', 'rainy', 'snowy'] },
+  { name: 'キャメルタートルネック', category: 'tops', subCategory: 'knit', color: '#C4956A', colorName: 'キャメル', warmthLevel: 4, weatherSuitability: ['sunny', 'cloudy', 'snowy'] },
 
-  // Bottoms
-  { name: 'デニムジーンズ', category: 'bottoms', subCategory: 'jeans', color: '#4A6FA5', colorName: 'インディゴ', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
+  // ===== ボトムス =====
+  { name: 'ネイビースラックス', category: 'bottoms', subCategory: 'slacks', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
+  { name: 'グレースラックス', category: 'bottoms', subCategory: 'slacks', color: '#696969', colorName: 'チャコール', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
   { name: 'ベージュチノパン', category: 'bottoms', subCategory: 'chinos', color: '#D4B896', colorName: 'ベージュ', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy'] },
-  { name: '黒スラックス', category: 'bottoms', subCategory: 'slacks', color: '#2D3436', colorName: '黒', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy', 'rainy', 'snowy'] },
-  { name: 'カーキショートパンツ', category: 'bottoms', subCategory: 'shorts', color: '#6B8E23', colorName: 'カーキ', warmthLevel: 1, weatherSuitability: ['sunny'] },
+  { name: 'ネイビーチノパン', category: 'bottoms', subCategory: 'chinos', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
+  { name: 'インディゴデニム', category: 'bottoms', subCategory: 'jeans', color: '#3B5998', colorName: 'インディゴ', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy'] },
+  { name: 'グレーショートパンツ', category: 'bottoms', subCategory: 'shorts', color: '#808080', colorName: 'グレー', warmthLevel: 1, weatherSuitability: ['sunny'] },
 
-  // Outerwear
-  { name: 'ネイビージャケット', category: 'outerwear', subCategory: 'jacket', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy'] },
-  { name: 'ベージュトレンチコート', category: 'outerwear', subCategory: 'coat', color: '#D4B896', colorName: 'ベージュ', warmthLevel: 4, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
-  { name: '黒ダウンジャケット', category: 'outerwear', subCategory: 'down', color: '#2D3436', colorName: '黒', warmthLevel: 5, weatherSuitability: ['sunny', 'cloudy', 'snowy'] },
-  { name: 'グレーウィンドブレーカー', category: 'outerwear', subCategory: 'windbreaker', color: '#808080', colorName: 'グレー', warmthLevel: 2, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
+  // ===== アウター =====
+  { name: 'ネイビーテーラードジャケット', category: 'outerwear', subCategory: 'jacket', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy'] },
+  { name: 'チャコールセットアップJK', category: 'outerwear', subCategory: 'jacket', color: '#36454F', colorName: 'チャコール', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy'] },
+  { name: 'ベージュステンカラーコート', category: 'outerwear', subCategory: 'coat', color: '#D4B896', colorName: 'ベージュ', warmthLevel: 4, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
+  { name: 'ネイビーダウンジャケット', category: 'outerwear', subCategory: 'down', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 5, weatherSuitability: ['sunny', 'cloudy', 'snowy'] },
+  { name: 'グレーウールコート', category: 'outerwear', subCategory: 'coat', color: '#696969', colorName: 'チャコール', warmthLevel: 5, weatherSuitability: ['sunny', 'cloudy', 'snowy'] },
+  { name: 'ネイビーマウンテンパーカー', category: 'outerwear', subCategory: 'windbreaker', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 2, weatherSuitability: ['sunny', 'cloudy', 'rainy'] },
 
-  // Shoes
-  { name: '白スニーカー', category: 'shoes', subCategory: 'sneakers', color: '#FFFFFF', colorName: '白', warmthLevel: 2, weatherSuitability: ['sunny', 'cloudy'] },
-  { name: '黒レザーシューズ', category: 'shoes', subCategory: 'leather', color: '#2D3436', colorName: '黒', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy'] },
-  { name: 'ブラウンブーツ', category: 'shoes', subCategory: 'boots', color: '#8B4513', colorName: 'ブラウン', warmthLevel: 4, weatherSuitability: ['sunny', 'cloudy', 'rainy', 'snowy'] },
-  { name: 'レインブーツ', category: 'shoes', subCategory: 'rain_boots', color: '#2D3436', colorName: '黒', warmthLevel: 3, weatherSuitability: ['rainy', 'snowy'] },
+  // ===== 靴 =====
+  { name: '黒ストレートチップ', category: 'shoes', subCategory: 'leather', color: '#1A1A1A', colorName: '黒', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy'] },
+  { name: 'ブラウンローファー', category: 'shoes', subCategory: 'leather', color: '#8B4513', colorName: 'ブラウン', warmthLevel: 3, weatherSuitability: ['sunny', 'cloudy'] },
+  { name: '白レザースニーカー', category: 'shoes', subCategory: 'sneakers', color: '#FFFFFF', colorName: '白', warmthLevel: 2, weatherSuitability: ['sunny', 'cloudy'] },
+  { name: 'ネイビースニーカー', category: 'shoes', subCategory: 'sneakers', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 2, weatherSuitability: ['sunny', 'cloudy'] },
+  { name: 'ブラウンサイドゴアブーツ', category: 'shoes', subCategory: 'boots', color: '#5C3317', colorName: 'ダークブラウン', warmthLevel: 4, weatherSuitability: ['sunny', 'cloudy', 'rainy', 'snowy'] },
+  { name: '黒レインシューズ', category: 'shoes', subCategory: 'rain_boots', color: '#1A1A1A', colorName: '黒', warmthLevel: 3, weatherSuitability: ['rainy', 'snowy'] },
 
-  // Accessories
+  // ===== 小物 =====
   { name: '折り畳み傘', category: 'accessories', subCategory: 'umbrella', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 0, weatherSuitability: ['rainy'] },
-  { name: 'ベージュマフラー', category: 'accessories', subCategory: 'scarf', color: '#D4B896', colorName: 'ベージュ', warmthLevel: 4, weatherSuitability: ['sunny', 'cloudy', 'snowy'] },
-  { name: 'ニット帽', category: 'accessories', subCategory: 'hat', color: '#808080', colorName: 'グレー', warmthLevel: 4, weatherSuitability: ['sunny', 'cloudy', 'snowy'] },
-  { name: 'サングラス', category: 'accessories', subCategory: 'sunglasses', color: '#2D3436', colorName: '黒', warmthLevel: 0, weatherSuitability: ['sunny'] },
-  { name: 'キャップ', category: 'accessories', subCategory: 'cap', color: '#2D3436', colorName: '黒', warmthLevel: 1, weatherSuitability: ['sunny', 'cloudy'] },
-  { name: '手袋', category: 'accessories', subCategory: 'gloves', color: '#2D3436', colorName: '黒', warmthLevel: 5, weatherSuitability: ['snowy', 'cloudy'] }
+  { name: 'ネイビーマフラー', category: 'accessories', subCategory: 'scarf', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 4, weatherSuitability: ['sunny', 'cloudy', 'snowy'] },
+  { name: '黒レザー手袋', category: 'accessories', subCategory: 'gloves', color: '#1A1A1A', colorName: '黒', warmthLevel: 5, weatherSuitability: ['sunny', 'cloudy', 'snowy'] },
+  { name: 'サングラス', category: 'accessories', subCategory: 'sunglasses', color: '#1A1A1A', colorName: '黒', warmthLevel: 0, weatherSuitability: ['sunny'] },
+  { name: 'ネイビーキャップ', category: 'accessories', subCategory: 'cap', color: '#1E3A5F', colorName: 'ネイビー', warmthLevel: 1, weatherSuitability: ['sunny', 'cloudy'] }
 ];

@@ -97,6 +97,16 @@ const Storage = {
     });
   },
 
+  _uuid() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+  },
+
   // Init with sample data if first time
   initIfEmpty() {
     if (this.getWardrobe().length === 0) {
@@ -107,7 +117,7 @@ const Storage = {
   loadSampleWardrobe() {
     const items = SampleWardrobe.map(item => ({
       ...item,
-      id: crypto.randomUUID(),
+      id: this._uuid(),
       createdAt: new Date().toISOString(),
       lastWornAt: null,
       isFavorite: false

@@ -630,7 +630,7 @@ const UI = {
     if (confirm('サンプルデータを読み込みますか？\n既存のワードローブに追加されます。')) {
       const samples = SampleWardrobe.map(item => ({
         ...item,
-        id: crypto.randomUUID(),
+        id: Storage._uuid(),
         createdAt: new Date().toISOString(),
         lastWornAt: null,
         isFavorite: false

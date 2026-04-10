@@ -52,7 +52,7 @@ const Wardrobe = {
     const items = this.getAll();
     const newItem = {
       ...item,
-      id: crypto.randomUUID(),
+      id: Storage._uuid(),
       createdAt: new Date().toISOString(),
       lastWornAt: null,
       isFavorite: false
