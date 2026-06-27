@@ -3,200 +3,189 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>終電ダッシュ判定 — 理論限界経路案内 (MVP)</title>
+<title>終電ダッシュ経路 — 理論限界経路案内 (MVP)</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
   :root{
     --bg:#0d1117; --card:#161b22; --line:#272e3a; --txt:#e6edf3; --sub:#9aa7b4;
     --go:#2ea043; --warn:#d29922; --ng:#da3633; --accent:#388bfd;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--txt);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;
-    line-height:1.6;-webkit-text-size-adjust:100%}
-  .wrap{max-width:480px;margin:0 auto;padding:20px 16px 56px}
-  header h1{font-size:20px;margin:0 0 2px}
-  header p{margin:0 0 18px;color:var(--sub);font-size:13px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
-  label{display:block;font-size:13px;color:var(--sub);margin:12px 0 5px}
-  label:first-child{margin-top:0}
-  input,select{width:100%;background:#0d1117;border:1px solid var(--line);color:var(--txt);
-    border-radius:9px;padding:11px 12px;font-size:16px}
-  .row{display:flex;gap:10px}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN",Meiryo,sans-serif}
+  #map{position:absolute;inset:0;z-index:1}
+  .panel{position:absolute;left:0;right:0;bottom:0;z-index:1000;
+    background:var(--card);border-top:1px solid var(--line);
+    border-radius:16px 16px 0 0;padding:14px 16px 18px;max-height:62%;overflow:auto;
+    box-shadow:0 -8px 30px rgba(0,0,0,.5)}
+  .grab{width:38px;height:4px;background:#39414d;border-radius:3px;margin:0 auto 12px}
+  .hint{font-size:12px;color:var(--sub);margin:0 0 12px;text-align:center}
+  .row{display:flex;gap:8px;align-items:end}
   .row>div{flex:1}
-  button{width:100%;background:var(--accent);color:#fff;border:0;border-radius:11px;
-    padding:14px;font-size:16px;font-weight:700;margin-top:18px;cursor:pointer}
-  button:active{opacity:.85}
-  .verdict{border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;display:none}
+  label{display:block;font-size:12px;color:var(--sub);margin:0 0 4px}
+  input,select{width:100%;background:#0d1117;border:1px solid var(--line);color:var(--txt);
+    border-radius:9px;padding:9px 10px;font-size:15px}
+  .modes{display:flex;gap:6px;margin:12px 0 0}
+  .modes button{flex:1;background:#0d1117;border:1px solid var(--line);color:var(--sub);
+    border-radius:9px;padding:9px 0;font-size:13px;cursor:pointer}
+  .modes button.on{background:rgba(56,139,253,.18);border-color:var(--accent);color:#fff;font-weight:700}
+  .verdict{border-radius:12px;padding:12px 14px;margin:12px 0 0;display:none}
   .verdict.show{display:block}
-  .verdict .big{font-size:26px;font-weight:800;margin:2px 0}
-  .verdict .sub{font-size:13px;opacity:.92}
-  .v-go{background:rgba(46,160,67,.16);border:1px solid var(--go)}
-  .v-go .big{color:#3fb950}
-  .v-warn{background:rgba(210,153,34,.16);border:1px solid var(--warn)}
-  .v-warn .big{color:#e3b341}
-  .v-ng{background:rgba(218,54,51,.16);border:1px solid var(--ng)}
-  .v-ng .big{color:#f85149}
-  .meter{height:9px;border-radius:6px;background:#0d1117;margin:12px 0 4px;overflow:hidden}
-  .meter>i{display:block;height:100%;border-radius:6px}
-  .lines{font-size:14px}
-  .lines .l{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}
-  .lines .l:last-child{border-bottom:0}
-  .lines .l b{font-variant-numeric:tabular-nums}
-  h3{font-size:13px;color:var(--sub);margin:2px 0 10px;font-weight:600;letter-spacing:.04em}
-  .alt{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-  .alt:last-child{border-bottom:0}
-  .alt .n{font-size:14px}
-  .alt .n small{display:block;color:var(--sub);font-size:12px}
-  .alt .v{text-align:right;font-size:14px;font-variant-numeric:tabular-nums}
-  .alt .v small{display:block;color:var(--sub);font-size:12px}
-  .disc{color:var(--sub);font-size:11px;text-align:center;margin-top:8px}
-  .tag{display:inline-block;font-size:11px;color:var(--sub);border:1px solid var(--line);
-    border-radius:6px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+  .verdict .big{font-size:20px;font-weight:800}
+  .verdict .sub{font-size:12px;opacity:.92}
+  .v-go{background:rgba(46,160,67,.16);border:1px solid var(--go)} .v-go .big{color:#3fb950}
+  .v-warn{background:rgba(210,153,34,.16);border:1px solid var(--warn)} .v-warn .big{color:#e3b341}
+  .v-ng{background:rgba(218,54,51,.16);border:1px solid var(--ng)} .v-ng .big{color:#f85149}
+  .stat{display:flex;gap:10px;margin-top:10px;font-variant-numeric:tabular-nums}
+  .stat>div{flex:1;background:#0d1117;border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+  .stat .k{font-size:11px;color:var(--sub)} .stat .val{font-size:16px;font-weight:700}
+  .marklbl{background:#161b22;border:1px solid var(--line);border-radius:6px;padding:1px 6px;
+    font-size:12px;color:#e6edf3;white-space:nowrap}
+  .tag{font-size:10px;color:var(--sub);border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-left:6px}
+  .err{color:#f85149;font-size:12px;margin-top:8px}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>終電ダッシュ判定 <span class="tag">MVP</span></h1>
-    <p>走れば間に合うか、を確率で即断する。理論限界経路案内のプロトタイプ。</p>
-  </header>
+<div id="map"></div>
 
-  <div class="card">
-    <label>現在時刻</label>
-    <input type="time" id="now">
+<div class="panel">
+  <div class="grab"></div>
+  <p class="hint">📍 ピンをドラッグ、または地図をタップで目的地を移動。「現在地」で出発地を取得。</p>
 
-    <label>終電の発車時刻</label>
-    <input type="time" id="last" value="23:47">
+  <div class="modes">
+    <button data-m="foot" class="on">🚶 徒歩</button>
+    <button data-m="run">🏃 全力</button>
+    <button data-m="driving">🚕 タクシー</button>
+  </div>
 
-    <div class="row">
-      <div>
-        <label>駅までの距離 (m)</label>
-        <input type="number" id="dist" value="650" min="0" step="50">
-      </div>
-      <div>
-        <label>改札〜ホーム (分)</label>
-        <input type="number" id="margin" value="2" min="0" step="0.5">
-      </div>
+  <div class="row" style="margin-top:12px">
+    <div>
+      <label>現在時刻</label>
+      <input type="time" id="now">
     </div>
-
-    <label>走力</label>
-    <select id="fit">
-      <option value="1.15">のんびり (歩 4.5km/h)</option>
-      <option value="1.0" selected>標準 (歩 5.0km/h・走 13km/h)</option>
-      <option value="0.85">健脚 (歩 5.5km/h・走 16km/h)</option>
-    </select>
-
-    <button id="go">間に合うか判定する</button>
+    <div>
+      <label>終電・目標時刻</label>
+      <input type="time" id="last" value="23:47">
+    </div>
+    <div style="flex:0 0 auto">
+      <label>&nbsp;</label>
+      <button id="loc" style="background:#0d1117;border:1px solid var(--line);color:#fff;border-radius:9px;padding:9px 12px;cursor:pointer">現在地</button>
+    </div>
   </div>
 
   <div class="verdict" id="verdict">
-    <div class="sub" id="vlabel"></div>
-    <div class="big" id="vmain"></div>
-    <div class="sub" id="vprob"></div>
-    <div class="meter"><i id="bar"></i></div>
+    <div class="sub" id="vsub"></div>
+    <div class="big" id="vbig"></div>
   </div>
 
-  <div class="card" id="detail" style="display:none">
-    <h3>内訳</h3>
-    <div class="lines" id="lines"></div>
+  <div class="stat" id="stat" style="display:none">
+    <div><div class="k">経路距離</div><div class="val" id="sDist">–</div></div>
+    <div><div class="k">所要 (選択中)</div><div class="val" id="sTime">–</div></div>
+    <div><div class="k">到着予定</div><div class="val" id="sEta">–</div></div>
   </div>
-
-  <div class="card" id="alts" style="display:none">
-    <h3>代替案</h3>
-    <div id="altbody"></div>
-    <p class="disc">※ 自己責任での利用を前提とした概算です。安全を保証するものではありません。</p>
-  </div>
+  <div class="err" id="err"></div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const $ = id => document.getElementById(id);
+const $=id=>document.getElementById(id);
+(function(){const d=new Date();$('now').value=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');})();
 
-// 現在時刻を初期値に
-(function(){
-  const d = new Date();
-  $('now').value = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-})();
+// 初期位置: 新宿駅周辺
+let start=[35.6938,139.7034];   // 出発地（現在地想定）
+let goal =[35.6896,139.7006];   // 目的地（駅想定）
+let mode='foot';
 
-const toMin = t => { const [h,m]=t.split(':').map(Number); return h*60+m; };
-const fmtClock = m => { m=((m%1440)+1440)%1440; return String(Math.floor(m/60)).padStart(2,'0')+':'+String(Math.floor(m%60)).padStart(2,'0'); };
-const fmtDur = sec => { const m=Math.floor(sec/60), s=Math.round(sec%60); return m>0? `${m}分${String(s).padStart(2,'0')}秒` : `${s}秒`; };
+const map=L.map('map',{zoomControl:false}).setView([35.6916,139.702],15);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  {maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+L.control.zoom({position:'topright'}).addTo(map);
 
-function judge(){
-  const now = toMin($('now').value);
-  let last = toMin($('last').value);
-  if(last < now) last += 1440;            // 終電が日付をまたぐ場合
-  const dist = Math.max(0, +$('dist').value);
-  const platMargin = Math.max(0, +$('margin').value);
-  const fit = +$('fit').value;            // 速度係数 (小さいほど速い)
+function dot(color){return L.divIcon({className:'',iconSize:[18,18],iconAnchor:[9,9],
+  html:`<div style="width:18px;height:18px;border-radius:50%;background:${color};border:3px solid #0d1117;box-shadow:0 0 0 2px ${color}"></div>`});}
 
-  // 速度 (m/分)
-  const walk = (5.0/fit)*1000/60;         // 標準歩行 5km/h
-  const run  = (13.0/fit)*1000/60;        // 全力 13km/h
+const mStart=L.marker(start,{draggable:true,icon:dot('#3fb950')}).addTo(map)
+  .bindTooltip('出発',{permanent:true,direction:'top',className:'marklbl'});
+const mGoal =L.marker(goal,{draggable:true,icon:dot('#f85149')}).addTo(map)
+  .bindTooltip('目的地',{permanent:true,direction:'top',className:'marklbl'});
 
-  // ホーム到着リミット (発車のplatMargin前)
-  const limit = last - platMargin;
-  const remainSec = (limit - now)*60;     // ホームに着くまでの猶予(秒)
+let routeLayer=null;
 
-  const walkSec = dist/walk*60;
-  const runSec  = dist/run*60;
+mStart.on('dragend',e=>{start=[e.target.getLatLng().lat,e.target.getLatLng().lng];route();});
+mGoal.on('dragend', e=>{goal =[e.target.getLatLng().lat,e.target.getLatLng().lng];route();});
+map.on('click',e=>{goal=[e.latlng.lat,e.latlng.lng];mGoal.setLatLng(goal);route();});
 
-  // 間に合う確率: 全力所要 vs 猶予 のマージン比から概算
-  // ratio = 猶予 / 全力所要。1.0でちょうど、>1.2で安全、<1で不可。
-  const ratio = remainSec / runSec;
-  let prob;
-  if(remainSec <= 0) prob = 0;
-  else prob = 1/(1+Math.exp(-6*(ratio-1.0)));   // ロジスティック
-  prob = Math.max(0, Math.min(1, prob));
-  const pct = Math.round(prob*100);
+document.querySelectorAll('.modes button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.modes button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); mode=b.dataset.m; route();
+}));
+$('loc').addEventListener('click',()=>{
+  if(!navigator.geolocation){return;}
+  navigator.geolocation.getCurrentPosition(p=>{
+    start=[p.coords.latitude,p.coords.longitude];
+    mStart.setLatLng(start); map.setView(start,15); route();
+  });
+});
+$('now').addEventListener('change',render);
+$('last').addEventListener('change',render);
 
-  // 判定ランク
-  let cls, label, main;
-  if(walkSec <= remainSec){
-    cls='v-go'; label='歩いて間に合います'; main='余裕あり 🚶';
-  } else if(prob >= 0.5){
-    cls='v-warn'; label='走れば間に合う'; main='ダッシュ！🏃';
-  } else if(prob > 0){
-    cls='v-ng'; label='かなり厳しい'; main='全力でも際どい';
-  } else {
-    cls='v-ng'; label='間に合いません'; main='終電に乗れません';
-  }
+const toMin=t=>{const[h,m]=t.split(':').map(Number);return h*60+m;};
+const fmtClock=m=>{m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(Math.floor(m%60)).padStart(2,'0');};
+const fmtDur=s=>{const m=Math.floor(s/60),x=Math.round(s%60);return m>0?`${m}分${String(x).padStart(2,'0')}秒`:`${x}秒`;};
 
-  const v=$('verdict');
-  v.className='verdict show '+cls;
-  $('vlabel').textContent = `${fmtClock(last)} 発の終電`;
-  $('vmain').textContent = main;
-  $('vprob').textContent = remainSec>0
-    ? `全力で間に合う確率 ${pct}% ／ あと ${fmtDur(remainSec)} でホームへ`
-    : `必要到着時刻を ${fmtDur(-remainSec)} 過ぎています`;
-  const bar=$('bar');
-  bar.style.width = pct+'%';
-  bar.style.background = cls==='v-go'?'#2ea043':cls==='v-warn'?'#d29922':'#da3633';
+let lastRoute=null; // {distance, geometry}
 
-  // 内訳
-  $('detail').style.display='block';
-  $('lines').innerHTML = [
-    ['終電 発車', fmtClock(last)],
-    ['ホーム到着リミット', fmtClock(limit)+`（改札〜ホーム ${platMargin}分前）`],
-    ['現在からの猶予', remainSec>0?fmtDur(remainSec):'—'],
-    ['普通に歩くと', fmtDur(walkSec)+`（${fmtClock(now+walkSec/60)} 着）`],
-    ['全力で走ると', fmtDur(runSec)+`（${fmtClock(now+runSec/60)} 着）`],
-  ].map(([k,val])=>`<div class="l"><span>${k}</span><b>${val}</b></div>`).join('');
-
-  // 代替案
-  const taxiSec = dist/ (24*1000/60) *60 + 90;          // 24km/h + 乗車待ち90秒
-  const taxiFare = Math.round((420 + dist/237*80)/10)*10; // 初乗り420 + 距離加算の概算
-  const alts = [
-    {n:'タクシー', s:'ドアtoドア・現金級の安心', t:`${fmtClock(now+taxiSec/60)} 乗車`, v:`¥${taxiFare.toLocaleString()}`},
-    {n:'1駅 先回り', s:'隣駅まで走り終電を確実に捕まえる', t:'始発側で乗車', v:'¥0'},
-    {n:'歩いて帰る', s:'最終手段', t:`徒歩 約${Math.round(dist/walk/60* (3000/dist||1))}分〜`, v:'¥0'},
-  ];
-  $('alts').style.display='block';
-  $('altbody').innerHTML = alts.map(a=>
-    `<div class="alt"><div class="n">${a.n}<small>${a.s}</small></div>
-     <div class="v">${a.v}<small>${a.t}</small></div></div>`).join('');
+// OSRMの公開デモは driving プロファイルのみ確実。徒歩/全力は距離から時間換算する。
+async function route(){
+  $('err').textContent='';
+  const url=`https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${goal[1]},${goal[0]}?overview=full&geometries=geojson`;
+  try{
+    const r=await fetch(url); const j=await r.json();
+    if(!j.routes||!j.routes.length){throw new Error('経路が見つかりません');}
+    lastRoute=j.routes[0];
+    drawRoute(lastRoute.geometry);
+    render();
+  }catch(e){ $('err').textContent='経路取得に失敗: '+e.message; }
 }
 
-$('go').addEventListener('click', judge);
+function drawRoute(geo){
+  if(routeLayer) map.removeLayer(routeLayer);
+  const color = mode==='driving'?'#388bfd':mode==='run'?'#e3b341':'#3fb950';
+  routeLayer=L.geoJSON(geo,{style:{color,weight:6,opacity:.9}}).addTo(map);
+  map.fitBounds(routeLayer.getBounds(),{padding:[50,50],maxZoom:16});
+}
+
+function render(){
+  if(!lastRoute) return;
+  const dist=lastRoute.distance; // m
+  // 速度(m/分): 徒歩5km/h, 全力13km/h, タクシー: OSRM duration(信号込みでないので係数)
+  let sec;
+  if(mode==='foot') sec=dist/(5000/60);
+  else if(mode==='run') sec=dist/(13000/60);
+  else sec=lastRoute.duration*1.25 + 90; // 信号・乗車待ち補正
+  if(routeLayer){ const c=mode==='driving'?'#388bfd':mode==='run'?'#e3b341':'#3fb950';
+    routeLayer.setStyle({color:c}); }
+
+  const now=toMin($('now').value); let last=toMin($('last').value);
+  if(last<now) last+=1440;
+  const etaMin=now+sec/60;
+  const slackSec=(last-etaMin)*60;
+
+  $('stat').style.display='flex';
+  $('sDist').textContent=(dist>=1000?(dist/1000).toFixed(2)+'km':Math.round(dist)+'m');
+  $('sTime').textContent=fmtDur(sec);
+  $('sEta').textContent=fmtClock(etaMin);
+
+  const v=$('verdict');
+  let cls,sub,big;
+  if(slackSec>=120){cls='v-go';sub=`${fmtClock(last)} の終電`;big=`間に合う（余裕 ${fmtDur(slackSec)}）✅`;}
+  else if(slackSec>=0){cls='v-warn';sub=`${fmtClock(last)} の終電`;big=`ギリギリ間に合う（残り ${fmtDur(slackSec)}）⚠️`;}
+  else {cls='v-ng';sub=`${fmtClock(last)} の終電`;big=`${fmtDur(-slackSec)} 足りない ❌`;}
+  v.className='verdict show '+cls;
+  $('vsub').textContent=sub; $('vbig').textContent=big;
+}
+
+route();
 </script>
 </body>
 </html>
