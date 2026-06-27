@@ -6,214 +6,301 @@
 <title>終電ダッシュ！</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-  :root{ --txt:#202124; --sub:#5f6368; --line:#e3e5e8; --teal:#00897b; --g-blue:#1a73e8;
-    --ng:#d93025; --neon-bg:#fff3cd; }
+  :root{ --txt:#202124; --sub:#5f6368; --line:#e3e5e8; --teal:#00897b; --g-blue:#1a73e8; --ng:#d93025; }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;height:100%;background:#fff;color:var(--txt);
     font-family:Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;-webkit-text-size-adjust:100%}
   body{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+  .screen{position:absolute;inset:0;display:none;flex-direction:column}
+  .screen.on{display:flex}
+  button{font-family:inherit;cursor:pointer}
 
-  /* ===== 上部: 経路チップ要約 ===== */
+  /* ===== 検索画面 ===== */
+  #search{background:#f5f6f8}
+  .hero{background:#fff;padding:18px 18px 16px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .hero h1{font-size:22px;font-weight:900;margin:0}
+  .hero h1 b{color:var(--ng)}
+  .hero .tg{font-size:12px;color:var(--sub);margin-top:2px}
+  .form{padding:18px;flex:1;overflow:auto}
+  .fcard{background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.1);padding:6px 14px}
+  .frow{display:flex;align-items:center;gap:12px;padding:12px 2px}
+  .frow+.frow{border-top:1px solid #eee}
+  .frow .ic{width:14px;height:14px;border-radius:50%;flex:0 0 auto}
+  .ic.a{background:#fff;border:3px solid #5f6368}
+  .ic.b{background:var(--ng);border-radius:50% 50% 50% 0;transform:rotate(-45deg)}
+  .frow label{position:absolute;font-size:11px;color:var(--sub);transform:translateY(-16px)}
+  .frow select,.tinput{flex:1;border:0;outline:0;font-size:16px;background:transparent;color:var(--txt);
+    appearance:none;-webkit-appearance:none;padding:2px 0}
+  .swap{position:absolute;right:24px;background:#f1f3f4;border:0;width:36px;height:36px;border-radius:50%;
+    font-size:16px;color:#5f6368;margin-top:18px;z-index:2}
+  .timecard{margin-top:14px;background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.1);padding:14px;
+    display:flex;align-items:center;gap:12px}
+  .timecard label{font-size:12px;color:var(--sub)}
+  .timecard input[type=time]{font-size:18px;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-weight:700}
+  .nowbtn{margin-left:auto;background:#e8f0fe;color:#1967d2;border:0;border-radius:18px;padding:9px 14px;font-weight:500}
+  .searchbtn{margin-top:18px;width:100%;background:var(--ng);color:#fff;border:0;border-radius:26px;padding:15px;
+    font-size:17px;font-weight:900;letter-spacing:.04em;box-shadow:0 3px 10px rgba(217,48,37,.35)}
+  .note{font-size:12px;color:var(--sub);text-align:center;margin-top:14px;line-height:1.6}
+
+  /* ===== 結果画面（既存のタイムライン）===== */
   .topbar{flex:0 0 auto;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);z-index:5}
-  .brand{font-weight:900;font-size:14px;padding:9px 16px 0}
-  .brand b{color:var(--ng)}
-  .chips{display:flex;align-items:center;gap:2px;overflow-x:auto;padding:10px 12px 12px;scrollbar-width:none}
+  .tbhead{display:flex;align-items:center;gap:6px;padding:8px 10px 0}
+  .back{width:34px;height:34px;border-radius:50%;background:#f1f3f4;border:0;font-size:18px;color:#5f6368}
+  .tbtitle{font-weight:900;font-size:15px}.tbtitle b{color:var(--ng)}
+  .chips{display:flex;align-items:center;gap:2px;overflow-x:auto;padding:8px 12px 12px;scrollbar-width:none}
   .chips::-webkit-scrollbar{display:none}
-  .chip{display:inline-flex;align-items:center;gap:3px;flex:0 0 auto;font-size:14px;font-weight:500}
-  .chip .seg{display:inline-flex;align-items:center;gap:4px;padding:3px 6px;border-radius:6px}
-  .walkc{color:var(--sub)}
-  .badge{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:3px 8px;color:#fff;font-weight:700;font-size:13px}
-  .sq{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:5px;
-    color:#fff;font-weight:700;font-size:10px;line-height:1.05;flex:0 0 auto;flex-direction:column}
-  .arrow{color:#bdc1c6;font-size:13px;margin:0 1px}
-  .close{margin-left:auto;flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:#f1f3f4;
-    border:0;color:#5f6368;font-size:16px}
-
-  /* ===== 終電ステータス帯 ===== */
+  .badge{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:3px 8px;color:#fff;font-weight:700;font-size:13px;flex:0 0 auto}
+  .badge .mini{font-size:10px;border:1px solid rgba(255,255,255,.7);border-radius:3px;padding:0 3px}
+  .walkc{color:var(--sub);font-size:14px;font-weight:500;flex:0 0 auto}
+  .arrow{color:#bdc1c6;font-size:13px;flex:0 0 auto}
+  .sq{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:28px;height:28px;
+    border-radius:6px;background:#fff;font-size:9px;font-weight:700;line-height:1}
   .status{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;font-weight:700}
-  .status.ok{background:#e6f4ea;color:#188038}
-  .status.warn{background:#fef7e0;color:#b06000}
-
-  /* ===== タイムライン本体 ===== */
+  .status.ok{background:#e6f4ea;color:#188038}.status.warn{background:#fef7e0;color:#b06000}.status.ng{background:#fce8e6;color:var(--ng)}
   .timeline{flex:1 1 auto;overflow-y:auto;padding:6px 0 4px}
   .node{position:relative;padding:0 16px 0 64px;min-height:30px}
-  /* 左の縦ライン */
   .rail{position:absolute;left:34px;top:0;bottom:0;width:6px;border-radius:3px}
-  .dots{position:absolute;left:33px;top:0;bottom:0;width:8px;display:flex;flex-direction:column;
-    justify-content:space-evenly;align-items:center;padding:6px 0}
-  .dots i{width:7px;height:7px;border-radius:50%;background:#dadce0;display:block}
-  .stnicon{position:absolute;left:24px;width:28px;height:28px;border-radius:6px;background:#fff;
-    border:2px solid var(--teal);display:flex;flex-direction:column;align-items:center;justify-content:center;
-    font-size:9px;font-weight:700;color:var(--teal);line-height:1}
-  .pin{position:absolute;left:26px;width:26px;height:34px}
-
+  .stnicon{position:absolute;left:24px}
+  .pin{position:absolute;left:26px}
   .row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
   .stn{font-size:18px;font-weight:700;padding-top:1px}
   .time{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;padding-top:1px}
-  .time.sm{font-size:15px;font-weight:500}
   .meta{font-size:13px;color:var(--sub);margin-top:3px;line-height:1.5}
-  .linerow{display:flex;align-items:center;gap:8px;margin:8px 0 2px}
+  .linerow{display:flex;align-items:center;gap:8px;margin:8px 0 2px;flex-wrap:wrap}
   .sub2{color:var(--sub);font-size:13px}
-
-  /* 徒歩レッグ */
-  .walk{padding:14px 16px 14px 64px;position:relative;min-height:64px}
+  .walk{padding:14px 16px 14px 64px;position:relative;min-height:60px}
+  .walk .dots{position:absolute;left:33px;top:8px;bottom:8px;width:8px;display:flex;flex-direction:column;justify-content:space-evenly;align-items:center}
+  .walk .dots i{width:7px;height:7px;border-radius:50%;background:#dadce0}
   .walk .wicon{position:absolute;left:24px;top:14px;width:26px;text-align:center;font-size:20px}
-  .walk .wtxt{font-size:15px}
-  .walk .wsub{font-size:12px;color:var(--sub);margin-top:2px}
+  .walk .wtxt{font-size:15px}.walk .wsub{font-size:12px;color:var(--sub);margin-top:2px}
   .chev{color:#bdc1c6;font-size:18px;align-self:center}
-
-  /* ダッシュ判定バッジ（このアプリの核） */
   .dash{margin:8px 0 2px;display:inline-flex;align-items:center;gap:8px;background:#fce8e6;color:var(--ng);
     border-radius:9px;padding:7px 11px;font-size:13px;font-weight:700}
-  .dash.ok{background:#e6f4ea;color:#188038}
-  .dash .p{font-variant-numeric:tabular-nums}
   .ridebar{display:flex;align-items:center;gap:8px;color:var(--sub);font-size:14px;padding:10px 0}
-  .ridebar .cv{font-size:16px;color:#9aa7b4}
-
   .fare{display:flex;align-items:center;gap:10px;padding:16px;border-top:1px solid var(--line);font-size:15px}
   .fare .ic{background:#f1f3f4;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;color:#5f6368;border:1px solid #dadce0}
-  .fare b{font-weight:700}
-  .cal{display:flex;align-items:center;gap:10px;padding:14px 16px;color:var(--g-blue);font-weight:500;font-size:15px;border-top:1px solid var(--line)}
-
-  /* ===== 下部アクションバー ===== */
+  .taxi{padding:30px 20px;text-align:center}
+  .taxi .em{font-size:54px}.taxi h2{font-size:22px;margin:10px 0 4px}
+  .taxi p{color:var(--sub);font-size:14px;margin:0 0 20px}
+  .taxicard{background:#fff7e6;border:1px solid #ffe0a3;border-radius:14px;padding:18px;text-align:left;max-width:340px;margin:0 auto}
+  .taxicard .r{display:flex;justify-content:space-between;padding:6px 0;font-size:15px}
   .actions{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:10px 14px calc(12px + env(safe-area-inset-bottom));
     border-top:1px solid var(--line);background:#fff;box-shadow:0 -1px 4px rgba(0,0,0,.08)}
-  .nav{display:flex;align-items:center;gap:7px;background:var(--ng);color:#fff;border:0;border-radius:24px;
-    padding:13px 20px;font-size:16px;font-weight:700;flex:0 0 auto;box-shadow:0 2px 6px rgba(217,48,37,.35)}
-  .act2{display:flex;align-items:center;gap:6px;background:#e8f0fe;color:#1967d2;border:0;border-radius:24px;
-    padding:13px 14px;font-size:14px;font-weight:500;flex:0 0 auto}
+  .nav{display:flex;align-items:center;gap:7px;background:var(--ng);color:#fff;border:0;border-radius:24px;padding:13px 20px;font-size:16px;font-weight:700;box-shadow:0 2px 6px rgba(217,48,37,.35)}
+  .act2{background:#e8f0fe;color:#1967d2;border:0;border-radius:24px;padding:13px 14px;font-size:14px;font-weight:500}
   .total{margin-left:auto;text-align:right;line-height:1.15}
-  .total .big{font-size:20px;font-weight:900}
-  .total .arr{font-size:13px;color:var(--sub)}
-  button{font-family:inherit;cursor:pointer}
+  .total .big{font-size:20px;font-weight:900}.total .arr{font-size:13px;color:var(--sub)}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand">終電<b>ダッシュ！</b></div>
-  <div class="chips" id="chips"></div>
+<!-- ===== 検索画面 ===== -->
+<div class="screen on" id="search">
+  <div class="hero"><h1>終電<b>ダッシュ！</b></h1><div class="tg">走る前提の“理論限界”最速ルート案内</div></div>
+  <div class="form">
+    <div class="fcard" style="position:relative">
+      <div class="frow"><span class="ic a"></span><select id="from"></select></div>
+      <div class="frow"><span class="ic b"></span><select id="to"></select></div>
+      <button class="swap" id="swap">⇅</button>
+    </div>
+    <div class="timecard">
+      <div><label>出発時刻</label><br><input type="time" id="time"></div>
+      <button class="nowbtn" id="nowbtn">今すぐ</button>
+    </div>
+    <button class="searchbtn" id="go">🔎 最速ルートを検索</button>
+    <p class="note">乗換は<b>走る前提</b>で計算します。タイトな乗換は<br>🏃 ダッシュ区間として間に合う確率を表示。<br>深夜（0〜3時台）の指定は翌日終電帯として扱います。</p>
+  </div>
 </div>
 
-<div class="status ok" id="status"></div>
-
-<div class="timeline" id="timeline"></div>
-
-<div class="actions">
-  <button class="nav">🧭 ナビ開始</button>
-  <button class="act2">🔖 保存</button>
-  <div class="total"><div class="big" id="totDur"></div><div class="arr" id="totArr"></div></div>
+<!-- ===== 結果画面 ===== -->
+<div class="screen" id="result">
+  <div class="topbar">
+    <div class="tbhead"><button class="back" id="back">←</button><div class="tbtitle">終電<b>ダッシュ！</b></div></div>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="status" id="status"></div>
+  <div class="timeline" id="timeline"></div>
+  <div class="actions">
+    <button class="nav">🧭 ナビ開始</button>
+    <button class="act2">🔖 保存</button>
+    <div class="total"><div class="big" id="totDur"></div><div class="arr" id="totArr"></div></div>
+  </div>
 </div>
 
 <script>
-/* ===== 路線カラー ===== */
+/* ============ データ ============ */
+const STN={
+  '新宿':[35.690,139.700],'中野':[35.706,139.666],'吉祥寺':[35.703,139.580],'三鷹':[35.702,139.560],
+  '武蔵境':[35.702,139.544],'国分寺':[35.700,139.480],'立川':[35.698,139.414],'立川北':[35.700,139.413],
+  '立川南':[35.696,139.414],'柴崎体育館':[35.686,139.417],'甲州街道':[35.676,139.418],'万願寺':[35.668,139.412],
+  '高幡不動':[35.661,139.412],'程久保':[35.650,139.405],'中央大学・明星大学':[35.640,139.410],'大塚・帝京大学':[35.633,139.415],
+  '松が谷':[35.628,139.420],'多摩センター':[35.625,139.423],'明大前':[35.668,139.650],'調布':[35.652,139.544],
+  '京王永山':[35.631,139.443],'京王多摩センター':[35.624,139.421],
+};
 const LINES={
-  chuo:{code:'JC',name:'中央線',color:'#f15a22'},
-  mono:{code:'TT',name:'多摩モノレール',color:'#00863c'},
+  chuo:{code:'JC',name:'中央線',color:'#f15a22',headway:4,first:300,last:1490,fare:230,base:13,
+    st:['新宿','中野','吉祥寺','三鷹','武蔵境','国分寺','立川'],hop:[0,4,5,3,2,4,6]},
+  mono:{code:'TT',name:'多摩モノレール',color:'#00863c',headway:6,first:300,last:1460,fare:350,
+    st:['立川北','立川南','柴崎体育館','甲州街道','万願寺','高幡不動','程久保','中央大学・明星大学','大塚・帝京大学','松が谷','多摩センター'],
+    hop:[0,2,2,2,3,3,2,2,2,2,3]},
+  keio:{code:'KO',name:'京王線',color:'#ec4899',headway:5,first:300,last:1475,fare:370,base:1,
+    st:['新宿','明大前','調布','京王永山','京王多摩センター'],hop:[0,6,9,7,3]},
 };
-
-/* ===== 経路データ（サンプル: 立川方面 → サンリオピューロランド）=====
-   終電ダッシュ用に各「徒歩」レッグへ間に合う判定(prob/dash)を付与 */
-const ITIN={
-  totalDur:'1時間5分', arrive:'17:33', fare:'563',
-  legs:[
-    {type:'walk', dur:15, dist:'1.1km', from:'現在地', run:false, prob:100},
-    {type:'board', line:'chuo', stn:'国分寺駅', code:'JC16', time:'16:38',
-      dir:'東京方面・立川行', detail:'定刻出発予定 · 1番線 · 快速'},
-    {type:'ride', stops:'3駅乗車', dur:7, color:'#f15a22'},
-    {type:'alight', line:'chuo', stn:'立川駅', code:'JC19', time:'16:45', exit:'南口'},
-    {type:'walk', dur:6, dist:'400m', from:'立川', to:'立川南', run:true, prob:78,
-      note:'立川→立川南 乗換', limit:'16:59発に乗るには 16:55 までに到着'},
-    {type:'board', line:'mono', stn:'立川南駅', code:'TT11', time:'16:59',
-      dir:'多摩センター行', detail:'定刻出発予定 · 2番線 · 普通'},
-    {type:'ride', stops:'10駅乗車', dur:22, color:'#00863c'},
-    {type:'alight', line:'mono', stn:'多摩センター駅', code:'TT01', time:'17:21', exit:'出口4'},
-    {type:'walk', dur:13, dist:'700m', from:'多摩センター', run:false, prob:100},
-    {type:'dest', name:'サンリオピューロランド', addr:'〒206-8588 東京都多摩市落合1丁目31', time:'17:33'},
-  ]
+const WALK=[['立川','立川北',4],['立川','立川南',6],['多摩センター','京王多摩センター',3]];
+const PLACES={
+  genchi:{label:'現在地（国分寺付近）',st:'国分寺',w:15,d:'1.1km',addr:''},
+  shinjuku:{label:'新宿駅',st:'新宿',w:0,d:''},
+  kichijoji:{label:'吉祥寺駅',st:'吉祥寺',w:0,d:''},
+  tachikawa:{label:'立川駅',st:'立川',w:0,d:''},
+  tamacenter:{label:'多摩センター駅',st:'多摩センター',w:0,d:''},
+  puroland:{label:'サンリオピューロランド',st:'多摩センター',w:13,d:'700m',addr:'〒206-8588 東京都多摩市落合1丁目31'},
 };
+const EXITS={'多摩センター':'4','立川':'南口','京王多摩センター':'西口'};
 
-/* ===== 上部チップ ===== */
-function renderChips(){
-  const el=document.getElementById('chips');let h='';
-  ITIN.legs.forEach((lg,i)=>{
-    if(i)h+='<span class="arrow">›</span>';
-    if(lg.type==='walk') h+=`<span class="chip walkc">🚶${lg.dur}${lg.run?'<span style="color:#d93025">🏃</span>':''}</span>`;
-    else if(lg.type==='board'){const L=LINES[lg.line];
-      h+=`<span class="badge" style="background:${L.color}"><span style="font-size:10px;border:1px solid rgba(255,255,255,.7);border-radius:3px;padding:0 3px">${L.code}</span>${L.name}</span>`;}
-  });
-  h+='<button class="close">✕</button>';
-  el.innerHTML=h;
+const stLines={};for(const k in LINES)for(const s of LINES[k].st)(stLines[s]=stLines[s]||[]).push(k);
+const walkAdj={};for(const[a,b,m]of WALK){(walkAdj[a]=walkAdj[a]||[]).push([b,m]);(walkAdj[b]=walkAdj[b]||[]).push([a,m]);}
+
+/* ============ 経路探索 ============ */
+function nextDep(L,ready){const d=Math.ceil(ready/L.headway)*L.headway;const x=Math.max(d,L.first);return x>L.last?null:x;}
+function plan(fromKey,toKey,departMin){
+  const P=PLACES[fromKey],Q=PLACES[toKey];if(P.st===Q.st)return{ok:false,samePlace:true,P,Q};
+  const src=P.st,dst=Q.st,start=departMin+P.w;
+  const dist={[src]:start},prev={},pq=[[start,src]];
+  while(pq.length){
+    pq.sort((a,b)=>a[0]-b[0]);const[t,u]=pq.shift();if(t>dist[u])continue;
+    for(const lk of (stLines[u]||[])){const L=LINES[lk],idx=L.st.indexOf(u);
+      for(const dir of [1,-1]){const dep=nextDep(L,t+1);if(dep===null)continue;let cum=0;
+        for(let j=idx+dir;j>=0&&j<L.st.length;j+=dir){cum+= dir>0?L.hop[j]:L.hop[j+1];const arr=dep+cum,v=L.st[j];
+          if(arr<(dist[v]??Infinity)){dist[v]=arr;prev[v]={kind:'ride',line:lk,bIdx:idx,aIdx:j,board:u,alight:v,dep,arr,dir,stops:Math.abs(j-idx),boardT:t};pq.push([arr,v]);}}}}
+    for(const[v,m]of (walkAdj[u]||[])){const arr=t+m;
+      if(arr<(dist[v]??Infinity)){dist[v]=arr;prev[v]={kind:'walk',from:u,to:v,wmin:m,arr};pq.push([arr,v]);}}
+  }
+  if(dist[dst]===undefined)return{ok:false,P,Q,departMin};
+  const edges=[];let cur=dst;while(cur!==src){const e=prev[cur];edges.unshift(e);cur=e.kind==='ride'?e.board:e.from;}
+  return{ok:true,start,arrive:dist[dst]+Q.w,rideArrive:dist[dst],edges,P,Q,departMin};
 }
 
-/* ===== ステータス帯 ===== */
-function renderStatus(){
-  const el=document.getElementById('status');
-  const dash=ITIN.legs.find(l=>l.run);
-  if(dash){el.className='status warn';
-    el.innerHTML=`🏃 立川の乗換は徒歩${dash.dur}分・余裕4分。<span style="margin-left:4px">走れば間に合う（${dash.prob}%）</span>`;}
-  else{el.className='status ok';el.innerHTML='✅ 全区間 余裕を持って到着できます';}
+/* ============ 整形 ============ */
+const fmt=m=>{m=Math.round(((m%1440)+1440)%1440);return Math.floor(m/60)+':'+String(m%60).padStart(2,'0');};
+const fmtDur=m=>{m=Math.round(m);const h=Math.floor(m/60);return h>0?`${h}時間${m%60}分`:`${m}分`;};
+const pad2=n=>String(n).padStart(2,'0');
+function code(lk,idx){const L=LINES[lk];if(lk==='chuo')return'JC'+pad2(idx+13);if(lk==='mono')return'TT'+pad2(L.st.length-idx);return'KO'+pad2(idx+1);}
+function haversine(a,b){const R=6371,r=x=>x*Math.PI/180,dLa=r(b[0]-a[0]),dLo=r(b[1]-a[1]);
+  const s=Math.sin(dLa/2)**2+Math.cos(r(a[0]))*Math.cos(r(b[0]))*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(s));}
+
+function toLegs(r){
+  const legs=[],fareLines=new Set();
+  if(r.P.w>0)legs.push({type:'walk',dur:r.P.w,dist:r.P.d,run:false});
+  let prevWalk=null;
+  for(const e of r.edges){
+    if(e.kind==='walk'){prevWalk={arr:e.arr,wmin:e.wmin,from:e.from,to:e.to};
+      legs.push({type:'walk',dur:e.wmin,dist:'',note:`${e.from} → ${e.to} 乗換`,run:false,_ref:legs.length});}
+    else{const L=LINES[e.line];fareLines.add(e.line);
+      // ダッシュ判定: 直前が徒歩乗換で、発車までの余裕(slack)がタイトなら走る
+      if(prevWalk){const slack=e.dep-prevWalk.arr;
+        if(slack<5){const prob=Math.max(50,Math.min(96,Math.round(45+slack*12)));
+          const wl=legs[legs.length-1];wl.run=true;wl.prob=prob;
+          wl.limit=`${fmt(e.dep)}発に乗るには ${fmt(e.dep)} までにホーム到着（余裕${slack}分）`;}}
+      prevWalk=null;
+      legs.push({type:'board',line:e.line,stn:e.board,code:code(e.line,e.bIdx),time:fmt(e.dep),
+        dir:L.st[e.dir>0?L.st.length-1:0]+'行',detail:'定刻出発予定 · 普通'});
+      legs.push({type:'ride',stops:`${e.stops}駅乗車`,dur:e.arr-e.dep,color:L.color});
+      legs.push({type:'alight',line:e.line,stn:e.alight,code:code(e.line,e.aIdx),time:fmt(e.arr),exit:EXITS[e.alight]||''});
+    }
+  }
+  if(r.Q.w>0)legs.push({type:'walk',dur:r.Q.w,dist:r.Q.d,run:false});
+  legs.push({type:'dest',name:r.Q.label,addr:r.Q.addr||'',time:fmt(r.arrive)});
+  let fare=0;fareLines.forEach(l=>fare+=LINES[l].fare);
+  return {legs,fare};
 }
 
-/* ===== タイムライン ===== */
-function sq(code,color){const m=code.match(/^([A-Z]+)(\d+)$/);const a=m?m[1]:code,b=m?m[2]:'';
-  return `<div class="sq" style="border:2px solid ${color};color:${color};background:#fff"><span>${a}</span><span>${b}</span></div>`;}
+/* ============ 描画 ============ */
+function sq(c,color){const m=c.match(/^([A-Z]+)(.*)$/);return`<div class="sq" style="border:2px solid ${color};color:${color}"><span>${m[1]}</span><span>${m[2]}</span></div>`;}
+function pin(){return`<svg class="pin" width="26" height="34" viewBox="0 0 26 38"><path d="M13 0C5.8 0 0 5.8 0 13c0 9.6 13 25 13 25s13-15.4 13-25C26 5.8 20.2 0 13 0z" fill="#ea4335"/><circle cx="13" cy="13" r="5" fill="#fff"/></svg>`;}
 
-function renderTimeline(){
-  const el=document.getElementById('timeline');let h='';
-  ITIN.legs.forEach((lg,i)=>{
+function render(r){
+  show('result');
+  if(!r.ok){renderTaxi(r);return;}
+  const{legs,fare}=toLegs(r);
+  // チップ
+  let ch='';legs.forEach((lg,i)=>{
+    if(lg.type==='walk'){if(i)ch+='<span class="arrow">›</span>';ch+=`<span class="walkc">🚶${lg.dur}${lg.run?' <span style="color:#d93025">🏃</span>':''}</span>`;}
+    else if(lg.type==='board'){const L=LINES[lg.line];if(i)ch+='<span class="arrow">›</span>';
+      ch+=`<span class="badge" style="background:${L.color}"><span class="mini">${L.code}</span>${L.name}</span>`;}});
+  document.getElementById('chips').innerHTML=ch;
+  // ステータス
+  const dash=legs.find(l=>l.run);const st=document.getElementById('status');
+  if(dash){st.className='status warn';st.innerHTML=`🏃 タイトな乗換あり・走れば間に合う（成功確率 ${dash.prob}%）`;}
+  else{st.className='status ok';st.innerHTML='✅ 全区間 余裕を持って到着できます';}
+  // タイムライン
+  let h='';
+  for(const lg of legs){
     if(lg.type==='walk'){
-      h+=`<div class="walk">
-        <div class="dots" style="left:33px">${'<i></i>'.repeat(4)}</div>
-        <div class="wicon">🚶</div>
-        <div class="row"><div>
-          <div class="wtxt">徒歩で ${lg.dur}分 (${lg.dist})</div>
-          ${lg.note?`<div class="wsub">${lg.note}</div>`:''}
-          ${lg.run?`<div class="dash">🏃 ダッシュ区間！ <span class="p">間に合う確率 ${lg.prob}%</span></div>
-            <div class="wsub" style="margin-top:6px">${lg.limit}</div>`:''}
-        </div><span class="chev">›</span></div>
-      </div>`;
-    }
-    else if(lg.type==='board'){const L=LINES[lg.line];
-      h+=`<div class="node" style="padding-top:8px">
-        <div class="rail" style="background:${L.color}"></div>
-        ${sq(lg.code,L.color)}
+      h+=`<div class="walk"><div class="dots"><i></i><i></i><i></i><i></i></div><div class="wicon">🚶</div>
+        <div class="row"><div><div class="wtxt">徒歩で ${lg.dur}分${lg.dist?` (${lg.dist})`:''}</div>
+        ${lg.note?`<div class="wsub">${lg.note}</div>`:''}
+        ${lg.run?`<div class="dash">🏃 ダッシュ区間！ 間に合う確率 ${lg.prob}%</div><div class="wsub" style="margin-top:6px">${lg.limit}</div>`:''}
+        </div><span class="chev">›</span></div></div>`;
+    }else if(lg.type==='board'){const L=LINES[lg.line];
+      h+=`<div class="node" style="padding-top:8px"><div class="rail" style="background:${L.color}"></div>
+        <div class="stnicon">${sq(lg.code,L.color)}</div>
         <div class="row"><div class="stn">${lg.stn}</div><div class="time">${lg.time}</div></div>
-        <div class="linerow"><span class="badge" style="background:${L.color}">${L.code} ${L.name}</span><span class="sub2">${lg.dir}</span></div>
-        <div class="meta">${lg.detail}</div>
-      </div>`;
-    }
-    else if(lg.type==='ride'){
-      h+=`<div class="node" style="padding-top:2px;padding-bottom:2px">
-        <div class="rail" style="background:${lg.color}"></div>
-        <div class="ridebar"><span class="cv">▾</span> ${lg.stops}（${lg.dur}分）</div>
-      </div>`;
-    }
-    else if(lg.type==='alight'){const L=LINES[lg.line];
-      h+=`<div class="node" style="padding-bottom:6px">
-        <div class="rail" style="background:${L.color};bottom:auto;height:18px"></div>
-        ${sq(lg.code,L.color)}
+        <div class="linerow"><span class="badge" style="background:${L.color}"><span class="mini">${L.code}</span>${L.name}</span><span class="sub2">${lg.dir}</span></div>
+        <div class="meta">${lg.detail}</div></div>`;
+    }else if(lg.type==='ride'){
+      h+=`<div class="node" style="padding:2px 16px 2px 64px"><div class="rail" style="background:${lg.color}"></div>
+        <div class="ridebar">▾ ${lg.stops}（${lg.dur}分）</div></div>`;
+    }else if(lg.type==='alight'){const L=LINES[lg.line];
+      h+=`<div class="node" style="padding-bottom:6px"><div class="rail" style="background:${L.color};bottom:auto;height:20px"></div>
+        <div class="stnicon">${sq(lg.code,L.color)}</div>
         <div class="row"><div class="stn">${lg.stn}</div><div class="time">${lg.time}</div></div>
-        <div class="meta">出口: <span style="background:#fdd663;border-radius:3px;padding:0 6px;font-weight:700;color:#202124">${lg.exit.replace(/[^0-9]/g,'')||lg.exit}</span> ${/[^0-9]/.test(lg.exit)?lg.exit:''}</div>
-      </div>`;
-    }
-    else if(lg.type==='dest'){
-      h+=`<div class="node" style="padding-top:4px;padding-bottom:14px">
-        <svg class="pin" width="26" height="34" viewBox="0 0 26 38"><path d="M13 0C5.8 0 0 5.8 0 13c0 9.6 13 25 13 25s13-15.4 13-25C26 5.8 20.2 0 13 0z" fill="#ea4335"/><circle cx="13" cy="13" r="5" fill="#fff"/></svg>
+        ${lg.exit?`<div class="meta">出口: <span style="background:#fdd663;border-radius:3px;padding:0 6px;font-weight:700;color:#202124">${lg.exit}</span></div>`:''}</div>`;
+    }else if(lg.type==='dest'){
+      h+=`<div class="node" style="padding-top:4px;padding-bottom:14px">${pin()}
         <div class="row"><div class="stn">${lg.name}</div><div class="time">${lg.time}</div></div>
-        <div class="meta">${lg.addr}</div>
-      </div>`;
+        ${lg.addr?`<div class="meta">${lg.addr}</div>`:''}</div>`;
     }
-  });
-  // 料金 & カレンダー
-  h+=`<div class="fare"><span>料金:</span><span class="ic">IC</span><b>${ITIN.fare}円</b></div>`;
-  h+=`<div class="cal">📅 カレンダーに追加</div>`;
-  el.innerHTML=h;
+  }
+  h+=`<div class="fare"><span>料金:</span><span class="ic">IC</span><b>${fare}円</b></div>`;
+  document.getElementById('timeline').innerHTML=h;
+  document.getElementById('totDur').textContent=fmtDur(r.arrive-r.departMin);
+  document.getElementById('totArr').textContent=fmt(r.arrive)+'着';
 }
 
-document.getElementById('totDur').textContent=ITIN.totalDur;
-document.getElementById('totArr').textContent=ITIN.arrive;
-renderChips();renderStatus();renderTimeline();
+function renderTaxi(r){
+  document.getElementById('chips').innerHTML='<span class="walkc">経路なし</span>';
+  const st=document.getElementById('status');st.className='status ng';
+  st.innerHTML= r.samePlace?'⚠️ 出発地と目的地が同じです':'❌ 終電後 — 電車では到着できません';
+  let body='';
+  if(!r.samePlace){
+    const km=haversine(STN[r.P.st],STN[r.Q.st]);const fare=Math.round((500+400*km)/10)*10;const min=Math.round(km/0.4)+5;
+    body=`<div class="taxicard">
+      <div class="r"><span>🚕 タクシー</span><b>約 ${fare.toLocaleString()}円</b></div>
+      <div class="r"><span>所要</span><b>約 ${min}分</b></div>
+      <div class="r"><span>距離</span><b>約 ${km.toFixed(1)}km</b></div></div>`;
+  }
+  document.getElementById('timeline').innerHTML=`<div class="taxi"><div class="em">${r.samePlace?'🤔':'😱'}</div>
+    <h2>${r.samePlace?'別の目的地を選んでね':'乗り遅れた…'}</h2>
+    <p>${r.samePlace?'':'指定時刻には終電がありません。タクシーで帰ろう。'}</p>${body}</div>`;
+  document.getElementById('totDur').textContent='—';document.getElementById('totArr').textContent='';
+}
+
+/* ============ 画面制御 ============ */
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
+function fillSelect(el,sel){el.innerHTML=Object.entries(PLACES).map(([k,p])=>`<option value="${k}" ${k===sel?'selected':''}>${p.label}</option>`).join('');}
+fillSelect(document.getElementById('from'),'genchi');
+fillSelect(document.getElementById('to'),'puroland');
+function setNow(){const d=new Date();document.getElementById('time').value=pad2(d.getHours())+':'+pad2(d.getMinutes());}
+setNow();
+document.getElementById('nowbtn').onclick=setNow;
+document.getElementById('swap').onclick=()=>{const f=document.getElementById('from'),t=document.getElementById('to');const v=f.value;f.value=t.value;t.value=v;};
+document.getElementById('back').onclick=()=>show('search');
+document.getElementById('go').onclick=()=>{
+  const f=document.getElementById('from').value,t=document.getElementById('to').value;
+  const[h,m]=document.getElementById('time').value.split(':').map(Number);
+  let dep=h*60+m;if(h<4)dep+=1440;             // 深夜は翌日終電帯として扱う
+  render(plan(f,t,dep));
+};
 </script>
 </body>
 </html>
