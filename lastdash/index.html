@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>終電ダッシュ判定 — 理論限界経路案内 (MVP)</title>
+<style>
+  :root{
+    --bg:#0d1117; --card:#161b22; --line:#272e3a; --txt:#e6edf3; --sub:#9aa7b4;
+    --go:#2ea043; --warn:#d29922; --ng:#da3633; --accent:#388bfd;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;
+    line-height:1.6;-webkit-text-size-adjust:100%}
+  .wrap{max-width:480px;margin:0 auto;padding:20px 16px 56px}
+  header h1{font-size:20px;margin:0 0 2px}
+  header p{margin:0 0 18px;color:var(--sub);font-size:13px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  label{display:block;font-size:13px;color:var(--sub);margin:12px 0 5px}
+  label:first-child{margin-top:0}
+  input,select{width:100%;background:#0d1117;border:1px solid var(--line);color:var(--txt);
+    border-radius:9px;padding:11px 12px;font-size:16px}
+  .row{display:flex;gap:10px}
+  .row>div{flex:1}
+  button{width:100%;background:var(--accent);color:#fff;border:0;border-radius:11px;
+    padding:14px;font-size:16px;font-weight:700;margin-top:18px;cursor:pointer}
+  button:active{opacity:.85}
+  .verdict{border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;display:none}
+  .verdict.show{display:block}
+  .verdict .big{font-size:26px;font-weight:800;margin:2px 0}
+  .verdict .sub{font-size:13px;opacity:.92}
+  .v-go{background:rgba(46,160,67,.16);border:1px solid var(--go)}
+  .v-go .big{color:#3fb950}
+  .v-warn{background:rgba(210,153,34,.16);border:1px solid var(--warn)}
+  .v-warn .big{color:#e3b341}
+  .v-ng{background:rgba(218,54,51,.16);border:1px solid var(--ng)}
+  .v-ng .big{color:#f85149}
+  .meter{height:9px;border-radius:6px;background:#0d1117;margin:12px 0 4px;overflow:hidden}
+  .meter>i{display:block;height:100%;border-radius:6px}
+  .lines{font-size:14px}
+  .lines .l{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}
+  .lines .l:last-child{border-bottom:0}
+  .lines .l b{font-variant-numeric:tabular-nums}
+  h3{font-size:13px;color:var(--sub);margin:2px 0 10px;font-weight:600;letter-spacing:.04em}
+  .alt{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+  .alt:last-child{border-bottom:0}
+  .alt .n{font-size:14px}
+  .alt .n small{display:block;color:var(--sub);font-size:12px}
+  .alt .v{text-align:right;font-size:14px;font-variant-numeric:tabular-nums}
+  .alt .v small{display:block;color:var(--sub);font-size:12px}
+  .disc{color:var(--sub);font-size:11px;text-align:center;margin-top:8px}
+  .tag{display:inline-block;font-size:11px;color:var(--sub);border:1px solid var(--line);
+    border-radius:6px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>終電ダッシュ判定 <span class="tag">MVP</span></h1>
+    <p>走れば間に合うか、を確率で即断する。理論限界経路案内のプロトタイプ。</p>
+  </header>
+
+  <div class="card">
+    <label>現在時刻</label>
+    <input type="time" id="now">
+
+    <label>終電の発車時刻</label>
+    <input type="time" id="last" value="23:47">
+
+    <div class="row">
+      <div>
+        <label>駅までの距離 (m)</label>
+        <input type="number" id="dist" value="650" min="0" step="50">
+      </div>
+      <div>
+        <label>改札〜ホーム (分)</label>
+        <input type="number" id="margin" value="2" min="0" step="0.5">
+      </div>
+    </div>
+
+    <label>走力</label>
+    <select id="fit">
+      <option value="1.15">のんびり (歩 4.5km/h)</option>
+      <option value="1.0" selected>標準 (歩 5.0km/h・走 13km/h)</option>
+      <option value="0.85">健脚 (歩 5.5km/h・走 16km/h)</option>
+    </select>
+
+    <button id="go">間に合うか判定する</button>
+  </div>
+
+  <div class="verdict" id="verdict">
+    <div class="sub" id="vlabel"></div>
+    <div class="big" id="vmain"></div>
+    <div class="sub" id="vprob"></div>
+    <div class="meter"><i id="bar"></i></div>
+  </div>
+
+  <div class="card" id="detail" style="display:none">
+    <h3>内訳</h3>
+    <div class="lines" id="lines"></div>
+  </div>
+
+  <div class="card" id="alts" style="display:none">
+    <h3>代替案</h3>
+    <div id="altbody"></div>
+    <p class="disc">※ 自己責任での利用を前提とした概算です。安全を保証するものではありません。</p>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// 現在時刻を初期値に
+(function(){
+  const d = new Date();
+  $('now').value = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+})();
+
+const toMin = t => { const [h,m]=t.split(':').map(Number); return h*60+m; };
+const fmtClock = m => { m=((m%1440)+1440)%1440; return String(Math.floor(m/60)).padStart(2,'0')+':'+String(Math.floor(m%60)).padStart(2,'0'); };
+const fmtDur = sec => { const m=Math.floor(sec/60), s=Math.round(sec%60); return m>0? `${m}分${String(s).padStart(2,'0')}秒` : `${s}秒`; };
+
+function judge(){
+  const now = toMin($('now').value);
+  let last = toMin($('last').value);
+  if(last < now) last += 1440;            // 終電が日付をまたぐ場合
+  const dist = Math.max(0, +$('dist').value);
+  const platMargin = Math.max(0, +$('margin').value);
+  const fit = +$('fit').value;            // 速度係数 (小さいほど速い)
+
+  // 速度 (m/分)
+  const walk = (5.0/fit)*1000/60;         // 標準歩行 5km/h
+  const run  = (13.0/fit)*1000/60;        // 全力 13km/h
+
+  // ホーム到着リミット (発車のplatMargin前)
+  const limit = last - platMargin;
+  const remainSec = (limit - now)*60;     // ホームに着くまでの猶予(秒)
+
+  const walkSec = dist/walk*60;
+  const runSec  = dist/run*60;
+
+  // 間に合う確率: 全力所要 vs 猶予 のマージン比から概算
+  // ratio = 猶予 / 全力所要。1.0でちょうど、>1.2で安全、<1で不可。
+  const ratio = remainSec / runSec;
+  let prob;
+  if(remainSec <= 0) prob = 0;
+  else prob = 1/(1+Math.exp(-6*(ratio-1.0)));   // ロジスティック
+  prob = Math.max(0, Math.min(1, prob));
+  const pct = Math.round(prob*100);
+
+  // 判定ランク
+  let cls, label, main;
+  if(walkSec <= remainSec){
+    cls='v-go'; label='歩いて間に合います'; main='余裕あり 🚶';
+  } else if(prob >= 0.5){
+    cls='v-warn'; label='走れば間に合う'; main='ダッシュ！🏃';
+  } else if(prob > 0){
+    cls='v-ng'; label='かなり厳しい'; main='全力でも際どい';
+  } else {
+    cls='v-ng'; label='間に合いません'; main='終電に乗れません';
+  }
+
+  const v=$('verdict');
+  v.className='verdict show '+cls;
+  $('vlabel').textContent = `${fmtClock(last)} 発の終電`;
+  $('vmain').textContent = main;
+  $('vprob').textContent = remainSec>0
+    ? `全力で間に合う確率 ${pct}% ／ あと ${fmtDur(remainSec)} でホームへ`
+    : `必要到着時刻を ${fmtDur(-remainSec)} 過ぎています`;
+  const bar=$('bar');
+  bar.style.width = pct+'%';
+  bar.style.background = cls==='v-go'?'#2ea043':cls==='v-warn'?'#d29922':'#da3633';
+
+  // 内訳
+  $('detail').style.display='block';
+  $('lines').innerHTML = [
+    ['終電 発車', fmtClock(last)],
+    ['ホーム到着リミット', fmtClock(limit)+`（改札〜ホーム ${platMargin}分前）`],
+    ['現在からの猶予', remainSec>0?fmtDur(remainSec):'—'],
+    ['普通に歩くと', fmtDur(walkSec)+`（${fmtClock(now+walkSec/60)} 着）`],
+    ['全力で走ると', fmtDur(runSec)+`（${fmtClock(now+runSec/60)} 着）`],
+  ].map(([k,val])=>`<div class="l"><span>${k}</span><b>${val}</b></div>`).join('');
+
+  // 代替案
+  const taxiSec = dist/ (24*1000/60) *60 + 90;          // 24km/h + 乗車待ち90秒
+  const taxiFare = Math.round((420 + dist/237*80)/10)*10; // 初乗り420 + 距離加算の概算
+  const alts = [
+    {n:'タクシー', s:'ドアtoドア・現金級の安心', t:`${fmtClock(now+taxiSec/60)} 乗車`, v:`¥${taxiFare.toLocaleString()}`},
+    {n:'1駅 先回り', s:'隣駅まで走り終電を確実に捕まえる', t:'始発側で乗車', v:'¥0'},
+    {n:'歩いて帰る', s:'最終手段', t:`徒歩 約${Math.round(dist/walk/60* (3000/dist||1))}分〜`, v:'¥0'},
+  ];
+  $('alts').style.display='block';
+  $('altbody').innerHTML = alts.map(a=>
+    `<div class="alt"><div class="n">${a.n}<small>${a.s}</small></div>
+     <div class="v">${a.v}<small>${a.t}</small></div></div>`).join('');
+}
+
+$('go').addEventListener('click', judge);
+</script>
+</body>
+</html>
