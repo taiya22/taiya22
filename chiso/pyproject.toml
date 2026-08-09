@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chiso"
+version = "0.1.0"
+description = "地相（CHISO）— 地形が養える産業と、今そこで詰まっているものを、層を分けたまま並べて見せる分析基盤"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "pyarrow>=14.0",
+    "requests>=2.28",
+    "pyyaml>=6.0",
+    "click>=8.1",
+]
+
+# 注: CHISO.md §6 は geopandas/rasterio/richdem/duckdb を挙げるが、
+# インストール容易性・再現性・可搬性を優先し、コア機能は上記の軽量依存のみで実装している。
+# 地形演算は numpy、GeoJSON は自前で書き出す。geopandas 等は将来の任意拡張とする。
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+geo = [
+    "geopandas>=0.14",
+    "rasterio>=1.3",
+]
+
+[project.scripts]
+chiso = "chiso.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["chiso*"]

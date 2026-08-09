@@ -1,0 +1,61 @@
+industry: seafood_processing
+name_ja: 水産加工
+description: 海への近接と、加工用地となる沿岸の平坦・低地の両立を地形から演繹する。
+
+signals:
+  - id: coastal_proximity
+    layer: ESTIMATE
+    source: sea
+    description: 海域から一定圏内（原料・水揚げへの近接の素地）
+    check: {type: polygon_within_km, source: sea, km: 2.0}
+    weight_hint: high
+    limitations:
+      - 海域への距離のみで、漁港機能・航路・水揚げ量は判定できない。
+
+  - id: shore_flat
+    layer: ESTIMATE
+    source: dem10b
+    description: 傾斜8度未満のセル割合が高い（加工場・冷蔵用地の素地）
+    check: {type: metric, metric: flat_ratio_lt8, op: ">=", value: 0.30}
+    weight_hint: mid
+    limitations:
+      - 平坦割合のみで、地盤・液状化のしやすさは判定できない。
+
+  - id: low_elevation
+    layer: ESTIMATE
+    source: dem10b
+    description: 平均標高が低い沿岸低地
+    check: {type: metric, metric: elev_mean_m, op: "<=", value: 50}
+    weight_hint: mid
+    limitations:
+      - 低地であることは利点と災害脆弱性の両面を含み、地形だけでは切り分けられない。
+
+corroboration:
+  - id: seafood_exists
+    layer: ACTUAL
+    source: establishments
+    meaning: 当該市区町村に水産加工の事業所が実在する
+    check: {type: establishment_count, industry: seafood_processing, op: ">=", value: 1}
+    limitations:
+      - 市区町村単位で、取扱魚種・規模は示さない。
+
+  - id: port_nearby
+    layer: ACTUAL
+    source: ports
+    meaning: 港湾が近接して実在する（水揚げ・搬出動線の代理）
+    check: {type: point_within_km, source: ports, km: 5.0}
+    limitations:
+      - 点の近接で、岸壁規模・漁業権・物流は示さない。
+
+constraints:
+  - id: sediment_disaster
+    layer: LEGAL
+    source: sediment_disaster_area
+    meaning: 土砂災害警戒区域（相当）に該当する場合は制約が生じうる
+    check: {type: in_polygon, source: sediment_disaster_area}
+    limitations:
+      - 区域該当の有無のみを示す。
+
+limitations:
+  - 漁港の水揚げ量・魚種・冷蔵物流・漁業権は地形からは判定できない。
+  - 津波・高潮・浸水のリスク評価は本システムでは扱わない（別途ハザード情報を要する）。

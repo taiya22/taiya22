@@ -1,0 +1,70 @@
+industry: orchard
+name_ja: 果樹
+description: 南向き斜面・排水の良い傾斜・冷気湖を避ける地形を、地形から演繹する。
+
+signals:
+  - id: south_facing
+    layer: ESTIMATE
+    source: dem10b
+    description: 南向き斜面のセル割合が一定以上（日照の素地）
+    check: {type: metric, metric: south_face_ratio, op: ">=", value: 0.25}
+    weight_hint: high
+    limitations:
+      - 斜面方位の割合で、実際の日照時間・日射量そのものではない。
+
+  - id: drainage_slope
+    layer: ESTIMATE
+    source: dem10b
+    description: 平均傾斜が緩傾斜以上（停滞水を避ける排水の素地）
+    check: {type: metric, metric: slope_mean_deg, op: ">=", value: 3}
+    weight_hint: mid
+    limitations:
+      - 傾斜は排水の代理で、土壌の透水性・保水性は判定できない。
+
+  - id: avoid_cold_pool
+    layer: ESTIMATE
+    source: dem10b
+    description: 谷底型地形の割合が高すぎない（冷気湖・晩霜の回避）
+    check: {type: metric, metric: valley_ratio, op: "<=", value: 0.30}
+    weight_hint: low
+    limitations:
+      - 冷気湖の実態は微地形・気象条件に依存し、地形近似では不確実。
+
+  - id: elevation_band
+    layer: ESTIMATE
+    source: dem10b
+    description: 平均標高が概ね果樹の想定帯（過度な高冷地でない）
+    check: {type: metric, metric: elev_mean_m, op: "<=", value: 900}
+    weight_hint: low
+    limitations:
+      - 標高帯は品目により異なり、単一の閾値では品種適性を判定できない。
+
+corroboration:
+  - id: orchard_exists
+    layer: ACTUAL
+    source: establishments
+    meaning: 当該市区町村に果樹・農業関連の事業所が実在する
+    check: {type: establishment_count, industry: orchard, op: ">=", value: 1}
+    limitations:
+      - 市区町村単位で、品目・作付面積は示さない。
+
+constraints:
+  - id: agri_zone
+    layer: LEGAL
+    source: agri_zone
+    meaning: 農用地区域（相当）内は用途・転用に制約が及びうる
+    check: {type: in_polygon, source: agri_zone}
+    limitations:
+      - 区域該当のみで、営農以外への転用可否は本システムでは扱わない。
+
+  - id: sediment_disaster
+    layer: LEGAL
+    source: sediment_disaster_area
+    meaning: 土砂災害警戒区域（相当）に該当する場合は制約が生じうる
+    check: {type: in_polygon, source: sediment_disaster_area}
+    limitations:
+      - 区域該当の有無のみを示す。
+
+limitations:
+  - 品種適性・土壌pH・晩霜の頻度・鳥獣害は地形からは判定できない。
+  - 灌漑設備・農地の権利関係・担い手は本システムの対象外。

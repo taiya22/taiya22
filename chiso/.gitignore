@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+.pytest_cache/
+.venv/
+venv/
+
+# 生データ・中間生成物はコミットしない（CHISO.md §6）
+data/raw/
+data/derived/
+
+# 成果物（output/）は再現可能なため既定では追跡しない。
+output/*
+!output/.gitkeep
+
+# ビューアへ配置される生成物（chiso serve が作る）
+viewer/data/
+
+# node（MapLibre 取得等）
+node_modules/
+package-lock.json

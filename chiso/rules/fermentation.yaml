@@ -1,0 +1,70 @@
+industry: fermentation
+name_ja: 発酵（酒・味噌・醤油）
+description: 仕込み水の便と、寒暖・湿度をもたらす谷地形・平坦地の両立を地形から演繹する。
+
+signals:
+  - id: brewing_water
+    layer: ESTIMATE
+    source: rivers
+    description: 河川・沢から近く、仕込み水源の素地がある
+    check: {type: line_within_km, source: rivers, km: 1.0}
+    weight_hint: high
+    limitations:
+      - 河川近接は水質・伏流水の有無・水利権を意味しない。
+
+  - id: workable_flat
+    layer: ESTIMATE
+    source: dem10b
+    description: 傾斜8度未満のセル割合が一定以上（蔵・設備用地の素地）
+    check: {type: metric, metric: flat_ratio_lt8, op: ">=", value: 0.25}
+    weight_hint: mid
+    limitations:
+      - 面積割合のみで、地盤・既存建屋の再利用可否は判定できない。
+
+  - id: valley_microclimate
+    layer: ESTIMATE
+    source: dem10b
+    description: 谷型地形の割合が一定以上（冷気・湿度の想定）
+    check: {type: metric, metric: valley_ratio, op: ">=", value: 0.10}
+    weight_hint: mid
+    limitations:
+      - 地形近似であり、実際の気温・湿度の年変動は含まない。
+
+  - id: moderate_elevation
+    layer: ESTIMATE
+    source: dem10b
+    description: 平均標高が概ね低〜中位（極端な高冷地でない）
+    check: {type: metric, metric: elev_mean_m, op: "<=", value: 800}
+    weight_hint: low
+    limitations:
+      - 標高は微気候の代理で、実測気候値の代替ではない。
+
+corroboration:
+  - id: brewery_exists
+    layer: ACTUAL
+    source: establishments
+    meaning: 当該市区町村に発酵関連（酒造等）の事業所が実在する
+    check: {type: establishment_count, industry: fermentation, op: ">=", value: 1}
+    limitations:
+      - 市区町村単位の計数で、業態（酒/味噌/醤油）の別は区別していない。
+
+constraints:
+  - id: agri_zone
+    layer: LEGAL
+    source: agri_zone
+    meaning: 農用地区域（相当）内は転用・建築に制約が及びうる
+    check: {type: in_polygon, source: agri_zone}
+    limitations:
+      - 区域該当のみで、除外・転用手続の可否は本システムでは扱わない。
+
+  - id: sediment_disaster
+    layer: LEGAL
+    source: sediment_disaster_area
+    meaning: 土砂災害警戒区域（相当）に該当する場合は制約が生じうる
+    check: {type: in_polygon, source: sediment_disaster_area}
+    limitations:
+      - 区域該当の有無のみを示す。
+
+limitations:
+  - 水質・伏流水の有無、既存蔵の水利権や設備は地形からは判定できない。
+  - 麹菌・酵母などの技術的資産、販路は本システムの対象外。

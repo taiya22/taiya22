@@ -1,0 +1,70 @@
+industry: forestry_woodwork
+name_ja: 林業・木工
+description: 起伏のある山地・丘陵と、搬出の動線の両立を地形から演繹する。
+
+signals:
+  - id: relief_terrain
+    layer: ESTIMATE
+    source: dem10b
+    description: 起伏量が大きく、林地としての地形素地がある
+    check: {type: metric, metric: relief_m, op: ">=", value: 250}
+    weight_hint: high
+    limitations:
+      - 起伏は地形の指標で、樹種・林齢・蓄積量は判定できない。
+
+  - id: hill_ridge
+    layer: ESTIMATE
+    source: dem10b
+    description: 尾根型地形の割合が一定以上
+    check: {type: metric, metric: ridge_ratio, op: ">=", value: 0.10}
+    weight_hint: mid
+    limitations:
+      - TPIによる尾根近似で、実際の林相・地質は含まない。
+
+  - id: working_slope
+    layer: ESTIMATE
+    source: dem10b
+    description: 平均傾斜が一定以上（平地林ではない山地林の想定）
+    check: {type: metric, metric: slope_mean_deg, op: ">=", value: 10}
+    weight_hint: mid
+    limitations:
+      - 傾斜が過大な場合の作業性低下は本指標では区別していない。
+
+  - id: haul_access
+    layer: ESTIMATE
+    source: stations
+    description: 搬出動線の起点となりうる鉄道駅から一定圏内
+    check: {type: point_within_km, source: stations, km: 12}
+    weight_hint: low
+    limitations:
+      - 駅近接は動線の代理で、作業道・林道の有無は判定できない。
+
+corroboration:
+  - id: forestry_exists
+    layer: ACTUAL
+    source: establishments
+    meaning: 当該市区町村に林業・木工の事業所が実在する
+    check: {type: establishment_count, industry: forestry_woodwork, op: ">=", value: 1}
+    limitations:
+      - 市区町村単位で、事業所の規模・稼働は示さない。
+
+constraints:
+  - id: protected_forest
+    layer: LEGAL
+    source: protected_forest
+    meaning: 保安林（相当）に該当する場合は伐採・施業に制限が及びうる
+    check: {type: in_polygon, source: protected_forest}
+    limitations:
+      - 保安林種別・解除可否は本システムでは扱わない。
+
+  - id: natural_park
+    layer: LEGAL
+    source: natural_park
+    meaning: 自然公園地域（相当）内は改変に規制が及びうる
+    check: {type: in_polygon, source: natural_park}
+    limitations:
+      - 地種区分までは判定していない。
+
+limitations:
+  - 樹種・林齢・所有形態・作業道の有無は地形からは判定できない。
+  - 木材需給・加工技術・販路は本システムの対象外。

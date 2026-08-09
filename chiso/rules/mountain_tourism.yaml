@@ -1,0 +1,70 @@
+industry: mountain_tourism
+name_ja: 山岳観光・トレイル
+description: 大きな起伏・尾根・標高と、来訪の動線の両立を地形から演繹する。
+
+signals:
+  - id: high_relief
+    layer: ESTIMATE
+    source: dem10b
+    description: 起伏量が大きい（山岳景観の素地）
+    check: {type: metric, metric: relief_m, op: ">=", value: 300}
+    weight_hint: high
+    limitations:
+      - 起伏は地形の指標で、実際の眺望・植生・見どころは判定できない。
+
+  - id: ridge_terrain
+    layer: ESTIMATE
+    source: dem10b
+    description: 尾根型地形の割合が一定以上（縦走・稜線の素地）
+    check: {type: metric, metric: ridge_ratio, op: ">=", value: 0.12}
+    weight_hint: mid
+    limitations:
+      - TPIによる尾根近似で、登山道・アクセス路の有無は含まない。
+
+  - id: elevation
+    layer: ESTIMATE
+    source: dem10b
+    description: 平均標高が一定以上（高原・山岳帯の想定）
+    check: {type: metric, metric: elev_mean_m, op: ">=", value: 600}
+    weight_hint: mid
+    limitations:
+      - 標高は帯の代理で、気象・積雪・遭難リスクは含まない。
+
+  - id: gateway_access
+    layer: ESTIMATE
+    source: stations
+    description: 来訪の起点となりうる鉄道駅から一定圏内
+    check: {type: point_within_km, source: stations, km: 15}
+    weight_hint: low
+    limitations:
+      - 駅近接は動線の代理で、二次交通・登山口整備は判定できない。
+
+corroboration:
+  - id: tourism_exists
+    layer: ACTUAL
+    source: establishments
+    meaning: 当該市区町村に山岳観光関連の事業所が実在する
+    check: {type: establishment_count, industry: mountain_tourism, op: ">=", value: 1}
+    limitations:
+      - 市区町村単位で、来訪者数・季節性は示さない。
+
+constraints:
+  - id: natural_park
+    layer: LEGAL
+    source: natural_park
+    meaning: 自然公園地域（相当）内は資源であると同時に改変規制が及びうる
+    check: {type: in_polygon, source: natural_park}
+    limitations:
+      - 地種区分・行為許可の要否は本システムでは扱わない。
+
+  - id: sediment_disaster
+    layer: LEGAL
+    source: sediment_disaster_area
+    meaning: 土砂災害警戒区域（相当）に該当する場合は施設立地に制約が生じうる
+    check: {type: in_polygon, source: sediment_disaster_area}
+    limitations:
+      - 区域該当の有無のみを示す。
+
+limitations:
+  - 眺望・植生・登山道整備状況・気象遭難リスクは地形からは判定できない。
+  - 来訪需要・宿泊収容・二次交通は本システムの対象外。

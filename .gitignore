@@ -7,3 +7,6 @@ build/
 data/simulation_results.json
 data/*.pptx
 *.egg
+
+# Node deps (from CHISO viewer vendoring)
+node_modules/

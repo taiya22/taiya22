@@ -1,0 +1,92 @@
+industry: onsen_ryokan
+name_ja: 温泉宿
+description: 湧出の地質的素地と、滞在に必要な平坦地・眺望・水の便が両立する場所を、地形から演繹する。
+
+# ESTIMATE（推定層）: 地形からの演繹。証拠ではない。
+signals:
+  - id: volcanic_geology
+    layer: ESTIMATE
+    source: volcanic_geology
+    description: 第四紀火山岩類または温泉徴地に相当する地質域に位置する
+    check: {type: in_polygon, source: volcanic_geology}
+    weight_hint: high
+    limitations:
+      - 地質域の該当は湧出の素地を示すのみで、実際の湧出量・泉質・掘削可否は判定できない。
+
+  - id: valley_position
+    layer: ESTIMATE
+    source: dem10b
+    description: 谷底・扇状地に相当する谷型地形の割合が一定以上
+    check: {type: metric, metric: valley_ratio, op: ">=", value: 0.12}
+    weight_hint: mid
+    limitations:
+      - TPIによる谷地形の近似で、氾濫域・地下水位は含まない。
+
+  - id: relief_context
+    layer: ESTIMATE
+    source: dem10b
+    description: 周囲の起伏量が大きく、山あいの景観が想定される
+    check: {type: metric, metric: relief_m, op: ">=", value: 200}
+    weight_hint: mid
+    limitations:
+      - メッシュ内の標高差であり、実際の眺望・視軸は地形だけでは判定できない。
+
+  - id: buildable_flat
+    layer: ESTIMATE
+    source: dem10b
+    description: 傾斜15度未満のセル割合が一定以上（施設用地の素地）
+    check: {type: metric, metric: flat_ratio_lt15, op: ">=", value: 0.30}
+    weight_hint: mid
+    limitations:
+      - 面積割合であり連続したまとまり・地盤・地耐力は評価していない。
+
+  - id: water_access
+    layer: ESTIMATE
+    source: rivers
+    description: 河川・沢から近い（生活・景観用水の便）
+    check: {type: line_within_km, source: rivers, km: 0.6}
+    weight_hint: low
+    limitations:
+      - 河川近接は水利権・取水可否を意味しない。
+
+# ACTUAL（現況層）: 実在の裏づけ。ESTIMATE とは混ぜない。
+corroboration:
+  - id: onsen_registered
+    layer: ACTUAL
+    source: onsen_points
+    meaning: 温泉法上の登録源泉の代理点が近接して実在する
+    check: {type: point_within_km, source: onsen_points, km: 3.0}
+    limitations:
+      - 点の近接であり、当該地点での利用可否・引湯距離・権利関係は示さない。
+
+  - id: lodging_exists
+    layer: ACTUAL
+    source: establishments
+    meaning: 当該市区町村に宿泊業の事業所が実在する
+    check: {type: establishment_count, industry: onsen_ryokan, op: ">=", value: 1}
+    limitations:
+      - 事業所数は市区町村単位で、当該メッシュ内の立地・稼働状況は示さない。
+
+# LEGAL（法的層）: やってよいか。ESTIMATE・ACTUAL とは混ぜない。
+constraints:
+  - id: sediment_disaster
+    layer: LEGAL
+    source: sediment_disaster_area
+    meaning: 土砂災害警戒区域（相当）に該当する場合は開発制約が生じうる
+    check: {type: in_polygon, source: sediment_disaster_area}
+    limitations:
+      - 区域該当の有無のみで、具体の許可要件・対策工の要否は本システムでは扱わない。
+
+  - id: natural_park
+    layer: LEGAL
+    source: natural_park
+    meaning: 自然公園地域（相当）内は工作物・改変に規制が及びうる
+    check: {type: in_polygon, source: natural_park}
+    limitations:
+      - 地種区分（特別地域/普通地域 等）までは判定していない。
+
+# 業種全体の限界
+limitations:
+  - 湧出量・泉質・掘削可否は地形からは判定できない。
+  - 温泉権・慣行水利権の存在・帰属は本システムでは扱わない。
+  - ここで示すのは地形からの仮説であり、現地の湧出・許認可の確認に代わるものではない。

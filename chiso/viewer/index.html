@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>地相 CHISO ビューア</title>
+<!-- MapLibre GL JS はローカルに同梱（オフラインで動く / 外部依存なし） -->
+<link href="./vendor/maplibre-gl.css" rel="stylesheet" />
+<script src="./vendor/maplibre-gl.js"></script>
+<style>
+  :root{
+    --bg:#0f1419; --panel:#1b232c; --panel2:#232d38; --ink:#e7edf3; --muted:#9fb0c0;
+    --line:#33414f; --estimate:#39c0b0; --actual:#5aa0ff; --legal:#f0a24b;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font-family:system-ui,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;background:var(--bg);color:var(--ink)}
+  #map{position:absolute;inset:0}
+  .panel{position:absolute;background:rgba(27,35,44,.94);border:1px solid var(--line);border-radius:10px;backdrop-filter:blur(4px)}
+  #controls{top:12px;left:12px;width:322px;max-height:calc(100% - 150px);overflow:auto;padding:14px}
+  #detail{top:12px;right:12px;width:340px;max-height:calc(100% - 150px);overflow:auto;padding:14px;display:none}
+  #limitations{left:12px;right:12px;bottom:12px;padding:10px 14px;font-size:12px;color:var(--muted);max-height:120px;overflow:auto}
+  h1{font-size:16px;margin:0 0 2px}
+  h2{font-size:12px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin:16px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+  .sub{font-size:11px;color:var(--muted);margin:0 0 8px}
+  .synbadge{display:inline-block;background:#7a2f2f;color:#ffd7d7;border:1px solid #b25b5b;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;margin:6px 0}
+  select,button{width:100%;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:8px;font-size:13px}
+  .toggle{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;margin:4px 0;background:var(--panel2);border:1px solid var(--line);cursor:pointer;font-size:13px}
+  .toggle input{accent-color:var(--ink)}
+  .sw{width:14px;height:14px;border-radius:3px;flex:none}
+  .sw.est{background:var(--estimate)} .sw.act{background:var(--actual)} .sw.leg{background:var(--legal)}
+  .slider{margin:8px 0}
+  .slider label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+  .slider input{width:100%}
+  .legend{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:6px 0}
+  .legend i{flex:1}
+  .note{font-size:11px;color:var(--muted);line-height:1.5}
+  .lyrblock{border-left:3px solid var(--line);padding:6px 0 6px 10px;margin:8px 0}
+  .lyrblock.est{border-color:var(--estimate)} .lyrblock.act{border-color:var(--actual)} .lyrblock.leg{border-color:var(--legal)}
+  .item{font-size:12px;margin:5px 0}
+  .yes{color:#8fe0c9;font-weight:700} .no{color:#7c8a99}
+  .lim{font-size:11px;color:#c9a15b;margin:2px 0 0 14px}
+  .metric{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:1px 0}
+  code{color:#bcd3ea}
+  a{color:#8fbcff}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div id="controls" class="panel">
+  <h1>地相 <span style="color:var(--muted);font-weight:400">CHISO</span></h1>
+  <p class="sub" id="prefname">読み込み中…</p>
+  <div id="synbadge"></div>
+
+  <h2>業種を選ぶ</h2>
+  <select id="industry"></select>
+  <p class="note" id="inddesc"></p>
+
+  <h2>層の重ね合わせ</h2>
+  <label class="toggle"><input type="checkbox" id="tEst" checked><span class="sw est"></span>推定層 ESTIMATE（地形からの仮説）</label>
+  <label class="toggle"><input type="checkbox" id="tAct" checked><span class="sw act"></span>現況層 ACTUAL（実在の裏づけ）</label>
+  <label class="toggle"><input type="checkbox" id="tLeg" checked><span class="sw leg"></span>法的層 LEGAL（規制）</label>
+  <p class="note">3つの層は独立しています。掛け合わせた総合スコアはありません。</p>
+
+  <h2>推定層の重み（表示のみ・保存しない）</h2>
+  <div id="sliders"></div>
+  <div class="legend" id="estLegend"></div>
+  <p class="note">薄い→濃い＝ESTIMATE層で条件に合致した割合（重み付き）。<b>合成スコアではありません。</b>この重みは保存されず、データを書き換えません。</p>
+
+  <h2>使い方</h2>
+  <p class="note">メッシュをクリックすると、右側に推定／現況／法的が<b>層ごとに分かれて</b>表示されます。行きたい場所は自分で選んでください。このツールは推奨も断定もしません。</p>
+</div>
+
+<div id="detail" class="panel"></div>
+<div id="limitations" class="panel"><b>limitations（この地図で分からないこと）:</b> <span id="limtext">メッシュを選ぶと、その項目の限界が表示されます。</span></div>
+
+<script>
+const WEIGHT_HINT = {high:3, mid:2, low:1};
+let MAP, META, MESH, AUX, CUR, IND, WEIGHTS={};
+
+function estFrac(props){
+  const a = props.assess && props.assess[IND];
+  if(!a) return null;
+  const sigs = a.estimate.signals||[];
+  if(!sigs.length) return null;
+  let ws=0, wm=0;
+  for(const s of sigs){ const w = WEIGHTS[s.id] ?? WEIGHT_HINT[s.weight_hint] ?? 1; ws+=w; if(s.matched) wm+=w; }
+  return ws>0 ? wm/ws : null;
+}
+function decorate(){
+  for(const f of MESH.features){
+    const p=f.properties, a=p.assess&&p.assess[IND];
+    p._frac = estFrac(p);
+    p._acthit = a? (a.actual.matched>0?1:0):0;
+    p._leghit = a? (a.legal.hit_count>0?1:0):0;
+  }
+  MAP.getSource('mesh').setData(MESH);
+}
+
+function buildSliders(){
+  const ind = META.industries.find(x=>x.industry===IND);
+  document.getElementById('inddesc').textContent = ind.description||'';
+  const box=document.getElementById('sliders'); box.innerHTML='';
+  WEIGHTS={};
+  for(const s of ind.estimate_signals){
+    WEIGHTS[s.id]=WEIGHT_HINT[s.weight_hint]||1;
+    const d=document.createElement('div'); d.className='slider';
+    d.innerHTML=`<label><span>${s.description}</span><span id="w_${s.id}">${WEIGHTS[s.id]}</span></label>
+      <input type="range" min="0" max="5" step="1" value="${WEIGHTS[s.id]}" data-id="${s.id}">`;
+    box.appendChild(d);
+    d.querySelector('input').addEventListener('input',e=>{
+      WEIGHTS[e.target.dataset.id]=+e.target.value;
+      document.getElementById('w_'+e.target.dataset.id).textContent=e.target.value;
+      decorate();
+    });
+  }
+}
+
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+function showDetail(props){
+  const a=props.assess&&props.assess[IND];
+  const ind=META.industries.find(x=>x.industry===IND);
+  const box=document.getElementById('detail'); box.style.display='block';
+  const tm=k=>props[k]!=null?props[k]:'—';
+  let html=`<h1>${esc(props.mesh)}</h1><p class="sub">3次メッシュ（約1km）${props.synthetic?' ・ <b style="color:#f0a">合成データ</b>':''}</p>`;
+  html+=`<h2>地形（一次計測）</h2>`;
+  [['平均標高(m)','elev_mean_m'],['起伏量(m)','relief_m'],['平均傾斜(°)','slope_mean_deg'],
+   ['傾斜&lt;15割合','flat_ratio_lt15'],['谷型割合','valley_ratio'],['尾根割合','ridge_ratio'],
+   ['南向き割合','south_face_ratio'],['海(標高&lt;0)割合','sea_ratio']].forEach(([l,k])=>{
+    html+=`<div class="metric"><span>${l}</span><code>${tm(k)}</code></div>`;});
+
+  if(a){
+    html+=`<h2>${esc(a.name_ja)} の見立て（層別・非合成）</h2>`;
+    // ESTIMATE
+    html+=`<div class="lyrblock est"><b>推定層 ESTIMATE</b> — 地形からの仮説（証拠ではない）<br>`;
+    html+=`合致 ${a.estimate.matched}/${a.estimate.total}（等重み計数・合成点ではない）`;
+    for(const s of (a.estimate.signals||[])){
+      const meta=ind.estimate_signals.find(x=>x.id===s.id)||{};
+      html+=`<div class="item"><span class="${s.matched?'yes':'no'}">${s.matched?'✓':'−'}</span> ${esc(meta.description||s.id)} ${s.value!=null?'<code>'+s.value+'</code>':''}`;
+      (meta.limitations||[]).forEach(L=>html+=`<div class="lim">▹ ${esc(L)}</div>`);
+      html+=`</div>`;
+    }
+    html+=`</div>`;
+    // ACTUAL
+    html+=`<div class="lyrblock act"><b>現況層 ACTUAL</b> — 実在の裏づけ<br>裏づけ ${a.actual.matched}/${a.actual.total}`;
+    for(const s of (a.actual.items||[])){
+      const meta=ind.actual_items.find(x=>x.id===s.id)||{};
+      html+=`<div class="item"><span class="${s.matched?'yes':'no'}">${s.matched?'✓':'−'}</span> ${esc(meta.description||s.id)} ${s.value!=null?'<code>'+s.value+'</code>':''}`;
+      (meta.limitations||[]).forEach(L=>html+=`<div class="lim">▹ ${esc(L)}</div>`);
+      html+=`</div>`;
+    }
+    html+=`</div>`;
+    // LEGAL
+    html+=`<div class="lyrblock leg"><b>法的層 LEGAL</b> — やってよいか（規制）<br>該当 ${a.legal.hit_count} 件`;
+    for(const s of (a.legal.items||[])){
+      const meta=ind.legal_items.find(x=>x.id===s.id)||{};
+      html+=`<div class="item"><span class="${s.matched?'yes':'no'}">${s.matched?'⚑ 該当':'− 非該当'}</span> ${esc(meta.description||s.id)}`;
+      (meta.limitations||[]).forEach(L=>html+=`<div class="lim">▹ ${esc(L)}</div>`);
+      html+=`</div>`;
+    }
+    html+=`</div>`;
+  }
+  html+=`<button onclick="document.getElementById('detail').style.display='none'">閉じる</button>`;
+  box.innerHTML=html;
+
+  // limitations bar
+  const lims=[...(ind.limitations||[])];
+  document.getElementById('limtext').innerHTML = lims.map(esc).join(' ／ ');
+}
+
+function addLayers(){
+  MAP.addSource('mesh',{type:'geojson',data:MESH,promoteId:'mesh'});
+  MAP.addSource('aux',{type:'geojson',data:AUX});
+
+  // sea (ACTUAL context)
+  MAP.addLayer({id:'sea',type:'fill',source:'aux',
+    filter:['all',['==',['get','name'],'sea']],
+    paint:{'fill-color':'#16344d','fill-opacity':0.6}});
+
+  // ESTIMATE mesh fill
+  MAP.addLayer({id:'mesh-est',type:'fill',source:'mesh',
+    paint:{'fill-color':['interpolate',['linear'],['coalesce',['get','_frac'],-1],
+      -1,'rgba(0,0,0,0)', 0,'#16352f', 0.25,'#1d5f54', 0.5,'#279e8c', 0.75,'#39c0b0', 1,'#7ff0df'],
+      'fill-opacity':0.72}});
+  MAP.addLayer({id:'mesh-est-line',type:'line',source:'mesh',
+    paint:{'line-color':'#0c1116','line-width':0.3,'line-opacity':0.5}});
+
+  // ACTUAL: municipalities outline, rivers, points, and mesh actual coverage
+  MAP.addLayer({id:'muni-line',type:'line',source:'aux',
+    filter:['==',['get','label'],'市区町村（合成）'],
+    paint:{'line-color':'#5aa0ff','line-width':1.2,'line-dasharray':[3,2],'line-opacity':0.7}});
+  MAP.addLayer({id:'act-mesh',type:'line',source:'mesh',
+    filter:['==',['get','_acthit'],1],
+    paint:{'line-color':'#5aa0ff','line-width':1.1,'line-opacity':0.55}});
+  MAP.addLayer({id:'rivers',type:'line',source:'aux',
+    filter:['==',['get','name'],'rivers'],
+    paint:{'line-color':'#7cc0ff','line-width':2}});
+  MAP.addLayer({id:'act-pts',type:'circle',source:'aux',
+    filter:['all',['==',['geometry-type'],'Point'],['==',['get','chiso_layer'],'ACTUAL']],
+    paint:{'circle-radius':5,'circle-color':'#eaf3ff','circle-stroke-color':'#5aa0ff','circle-stroke-width':2}});
+  // 点名はグリフ(フォント)サーバ不要にするため、ホバーのポップアップで表示する
+  const pop=new maplibregl.Popup({closeButton:false,closeOnClick:false});
+  MAP.on('mouseenter','act-pts',e=>{const f=e.features[0];MAP.getCanvas().style.cursor='pointer';
+    pop.setLngLat(f.geometry.coordinates).setHTML('<b>'+esc(f.properties.name)+'</b><br><span style="font-size:11px;color:#456">'+esc(f.properties.label||'')+'</span>').addTo(MAP);});
+  MAP.on('mouseleave','act-pts',()=>{MAP.getCanvas().style.cursor='';pop.remove();});
+
+  // LEGAL polygons + mesh legal coverage
+  MAP.addLayer({id:'legal-fill',type:'fill',source:'aux',
+    filter:['all',['==',['geometry-type'],'Polygon'],['==',['get','chiso_layer'],'LEGAL']],
+    paint:{'fill-color':'#f0a24b','fill-opacity':0.14}});
+  MAP.addLayer({id:'legal-line',type:'line',source:'aux',
+    filter:['all',['==',['geometry-type'],'Polygon'],['==',['get','chiso_layer'],'LEGAL']],
+    paint:{'line-color':'#f0a24b','line-width':1.4,'line-dasharray':[2,1.5]}});
+  MAP.addLayer({id:'leg-mesh',type:'line',source:'mesh',
+    filter:['==',['get','_leghit'],1],
+    paint:{'line-color':'#f0a24b','line-width':0.9,'line-opacity':0.6}});
+
+  // 注: MapLibre はクリックイベントの properties で入れ子オブジェクトを文字列化する。
+  // 元の GeoJSON（MESH）から実オブジェクトを引き直して詳細を描く。
+  MAP.on('click','mesh-est',e=>{
+    if(!e.features||!e.features[0]) return;
+    const code=e.features[0].properties.mesh;
+    const f=MESH.features.find(x=>x.properties.mesh===code);
+    if(f) showDetail(f.properties);
+  });
+  MAP.on('mouseenter','mesh-est',()=>MAP.getCanvas().style.cursor='pointer');
+  MAP.on('mouseleave','mesh-est',()=>MAP.getCanvas().style.cursor='');
+
+  bindToggles();
+  decorate();
+}
+
+function setVis(ids,on){ ids.forEach(id=>{ if(MAP.getLayer(id)) MAP.setLayoutProperty(id,'visibility',on?'visible':'none'); }); }
+function bindToggles(){
+  const est=['mesh-est','mesh-est-line'];
+  const act=['muni-line','act-mesh','rivers','act-pts','sea'];
+  const leg=['legal-fill','legal-line','leg-mesh'];
+  const wire=(cb,ids)=>{ const f=()=>setVis(ids,cb.checked); cb.addEventListener('change',f); f(); };
+  wire(document.getElementById('tEst'),est);
+  wire(document.getElementById('tAct'),act);
+  wire(document.getElementById('tLeg'),leg);
+}
+
+function estLegendBar(){
+  const cols=['#16352f','#1d5f54','#279e8c','#39c0b0','#7ff0df'];
+  document.getElementById('estLegend').innerHTML=cols.map(c=>`<i style="background:${c}"></i>`).join('');
+}
+
+async function boot(){
+  const cur=await (await fetch('./data/current.json')).json(); CUR=cur;
+  META=await (await fetch(`./data/meta_${cur.pref}.json`)).json();
+  MESH=await (await fetch(`./data/mesh_${cur.pref}.geojson`)).json();
+  AUX=await (await fetch(`./data/layers_${cur.pref}.geojson`)).json();
+
+  document.getElementById('prefname').textContent = META.pref_name_ja;
+  if(META.synthetic){
+    document.getElementById('synbadge').innerHTML =
+      `<div class="synbadge">⚠ 合成データ（SYNTHETIC）</div>
+       <p class="note">${esc(META.synthetic_notice)}</p>`;
+  }
+  const sel=document.getElementById('industry');
+  META.industries.forEach(i=>{const o=document.createElement('option');o.value=i.industry;o.textContent=i.name_ja;sel.appendChild(o);});
+  IND=META.industries[0].industry; sel.value=IND;
+  sel.addEventListener('change',()=>{ IND=sel.value; buildSliders(); decorate(); document.getElementById('detail').style.display='none';
+     const ind=META.industries.find(x=>x.industry===IND);
+     document.getElementById('limtext').innerHTML=(ind.limitations||[]).map(esc).join(' ／ ');});
+
+  estLegendBar(); buildSliders();
+  const ind=META.industries.find(x=>x.industry===IND);
+  document.getElementById('limtext').innerHTML=(ind.limitations||[]).map(esc).join(' ／ ');
+
+  // bounds
+  let minx=999,miny=999,maxx=-999,maxy=-999;
+  for(const f of MESH.features){ for(const r of f.geometry.coordinates) for(const [x,y] of r){
+    minx=Math.min(minx,x);maxx=Math.max(maxx,x);miny=Math.min(miny,y);maxy=Math.max(maxy,y);} }
+
+  MAP=new maplibregl.Map({container:'map',
+    style:{version:8,sources:{},layers:[{id:'bg',type:'background',paint:{'background-color':'#0f1419'}}]},
+    bounds:[[minx,miny],[maxx,maxy]],fitBoundsOptions:{padding:40}});
+  MAP.addControl(new maplibregl.NavigationControl(),'bottom-right');
+  MAP.on('load',addLayers);
+}
+boot().catch(e=>{document.getElementById('prefname').textContent='読み込み失敗: '+e;console.error(e);});
+</script>
+</body>
+</html>
