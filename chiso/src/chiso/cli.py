@@ -55,16 +55,31 @@ def fetch(pref: str, force_demo: bool, force: bool) -> None:
         click.echo("[fetch] 注意: これは合成データです。実在の土地を表しません。")
     else:
         from .fetch.gsi_dem import fetch_dem
+        from .fetch.known import has_known, build_known_aux
         click.echo(f"[fetch] GSI DEM タイル取得を試行: {p.name_ja} ...")
-        dem = fetch_dem(p)
+        try:
+            dem = fetch_dem(p)
+        except Exception as e:  # noqa: BLE001 — 到達不能/ポリシー遮断を明示する
+            raise click.ClickException(
+                f"GSI 標高タイルに到達できませんでした: {e}\n"
+                "  この環境はネットワークポリシーで GSI を遮断していることがあります。\n"
+                "  GSI に到達できるローカル環境で実行してください。"
+                "（動作確認だけなら `chiso run --pref demo`）")
         dem.save(dem_path)
-        # 実県の補助レイヤー(河川/温泉/法規制/統計)取り込みは v0.2。空 aux を置く。
-        aux = {"synthetic": False, "pref": p.key, "pref_name_ja": p.name_ja,
-               "layers": {}, "municipalities": []}
+        # 既知の温泉地は、地質分類・温泉存在のみを引用付きで手動投入（known.py）。
+        if has_known(p.key):
+            aux = build_known_aux(p)
+            click.echo(f"[fetch] 既知事実を手動投入: 火山性地質={bool(aux['layers']['volcanic_geology']['polygons'])} / "
+                       f"温泉点={len(aux['layers']['onsen_points']['points'])}")
+            click.echo("[fetch] 注意: 法規制/河川/統計は未投入（空）。地形は DEM から算出。")
+        else:
+            # その他の実県の補助レイヤー取り込みは v0.2。空 aux を置く。
+            aux = {"synthetic": False, "pref": p.key, "pref_name_ja": p.name_ja,
+                   "layers": {}, "municipalities": []}
+            click.echo("[fetch] 注意: 補助レイヤー（河川/温泉/法規制/統計）取り込みは v0.2 未実装。"
+                       " 地形由来の ESTIMATE のみ評価されます。")
         (RAW_DIR / f"aux_{p.key}.json").write_text(
             json.dumps(aux, ensure_ascii=False, indent=2), encoding="utf-8")
-        click.echo("[fetch] 注意: 実県の補助レイヤー（河川/温泉/法規制/統計）取り込みは v0.2 未実装。"
-                   " 地形由来の ESTIMATE のみ評価されます。")
     click.echo(f"[fetch] 保存: {dem_path}")
 
 

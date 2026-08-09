@@ -48,6 +48,24 @@ PREFECTURES: dict[str, Prefecture] = {
         bbox_min_lat=37.73, bbox_min_lon=139.52,
         bbox_max_lat=39.22, bbox_max_lon=140.65,
     ),
+    # --- 温泉地スケールの実在地域（§10「既知の温泉地と規則を照合」用） ---
+    # 温泉街スケールの小さな bbox に絞ることで DEM タイル取得を軽量・高速にする。
+    # 実行には GSI（国土地理院）標高タイルへのネットワーク到達が必要。
+    "yudanaka": Prefecture(
+        key="yudanaka", name_ja="湯田中・渋温泉郷（長野県山ノ内町）", jis_code="20",
+        bbox_min_lat=36.70, bbox_min_lon=138.38,
+        bbox_max_lat=36.80, bbox_max_lon=138.49,
+    ),
+    "hakone": Prefecture(
+        key="hakone", name_ja="箱根温泉郷（神奈川県箱根町）", jis_code="14",
+        bbox_min_lat=35.17, bbox_min_lon=138.98,
+        bbox_max_lat=35.29, bbox_max_lon=139.14,
+    ),
+    "arima": Prefecture(
+        key="arima", name_ja="有馬温泉（兵庫県神戸市北区）", jis_code="28",
+        bbox_min_lat=34.76, bbox_min_lon=135.21,
+        bbox_max_lat=34.83, bbox_max_lon=135.29,
+    ),
     # 合成デモ県: ネットワーク不要で end-to-end に走らせるための架空の土地。
     # 地形・統計はすべて決定論的に生成した合成値であり、実在しない。
     "demo": Prefecture(
@@ -58,6 +76,10 @@ PREFECTURES: dict[str, Prefecture] = {
         synthetic=True,
     ),
 }
+
+# 「長野」の解釈: 箱根・有馬と並ぶ温泉地として、志賀高原ふもとの
+# 湯田中・渋温泉郷（山ノ内町）を採った。長野市や長野県全域を指す場合は
+# key を変えて bbox を差し替えればよい。
 
 
 def get_prefecture(key: str) -> Prefecture:
