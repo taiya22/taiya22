@@ -131,6 +131,69 @@ tailwind.config = {
   }
   .bottom-sheet-overlay.open .bottom-sheet { transform: translateX(-50%) translateY(0); }
   .bottom-sheet-handle { width: 36px; height: 4px; background: #4a4a6a; border-radius: 2px; margin: 0 auto 16px; }
+
+  /* 権限ダイアログ（iOS風） */
+  .perm-overlay {
+    position: fixed; inset: 0; background: rgba(4,4,14,0.72); backdrop-filter: blur(4px);
+    z-index: 80; display: flex; align-items: center; justify-content: center; padding: 24px;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .perm-overlay.open { opacity: 1; pointer-events: auto; }
+  .perm-dialog {
+    width: 100%; max-width: 300px; background: #1c1c33; border: 1px solid rgba(129,140,248,0.25);
+    border-radius: 20px; overflow: hidden; text-align: center;
+    transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .perm-overlay.open .perm-dialog { transform: scale(1); }
+  .perm-body { padding: 22px 20px 18px; }
+  .perm-desc { color: rgba(240,240,255,0.6); }
+  .perm-note { color: rgba(240,240,255,0.45); }
+  .perm-actions { display: flex; border-top: 1px solid rgba(240,240,255,0.1); }
+  .perm-actions button {
+    flex: 1; padding: 13px 4px; font-size: 14px; background: none; border: none;
+    color: #818cf8; cursor: pointer; transition: background 0.15s;
+  }
+  .perm-actions button:hover { background: rgba(99,102,241,0.1); }
+  .perm-actions button + button { border-left: 1px solid rgba(240,240,255,0.1); font-weight: 700; }
+
+  /* 連絡先リスト */
+  .contact-row {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+    background: rgba(255,255,255,0.03); cursor: pointer; transition: background 0.15s;
+  }
+  .contact-row:hover { background: rgba(99,102,241,0.1); }
+  .contact-row.disabled { opacity: 0.4; cursor: default; }
+  .contact-row.disabled:hover { background: rgba(255,255,255,0.03); }
+  .contact-check {
+    width: 18px; height: 18px; flex: 0 0 auto; border-radius: 50%;
+    border: 1.5px solid #4a4a6a; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: transparent; transition: all 0.15s;
+  }
+  .contact-row.checked .contact-check { background: #6366f1; border-color: #6366f1; color: #fff; }
+  .contact-avatar {
+    width: 32px; height: 32px; flex: 0 0 auto; border-radius: 50%; font-size: 13px; font-weight: 700;
+    background: rgba(99,102,241,0.18); color: #a5b4fc; display: flex; align-items: center; justify-content: center;
+  }
+  .contact-scroll { max-height: 46vh; overflow-y: auto; }
+  .source-btn {
+    display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+    padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(129,140,248,0.15); cursor: pointer; transition: all 0.2s;
+  }
+  .source-btn:hover { background: rgba(99,102,241,0.12); border-color: rgba(129,140,248,0.4); }
+
+  /* トースト */
+  #toast {
+    position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%) translateY(12px);
+    background: #1c1c33; border: 1px solid rgba(129,140,248,0.3); color: #f0f0ff;
+    font-size: 12px; padding: 10px 16px; border-radius: 999px; z-index: 90;
+    opacity: 0; pointer-events: none; transition: all 0.3s; max-width: 90vw; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  /* シートが開いている間は上部に逃がす */
+  body:has(.bottom-sheet-overlay.open) #toast { bottom: auto; top: 20px; transform: translateX(-50%) translateY(-12px); }
+  body:has(.bottom-sheet-overlay.open) #toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body class="max-w-[42rem] mx-auto relative pb-20">
@@ -178,6 +241,7 @@ tailwind.config = {
     <div class="absolute top-3 left-0 right-0 text-center pointer-events-none">
       <span class="text-xs font-medium glow opacity-40">スクロールして探索 · ダブルタップで中心に戻る</span>
     </div>
+    <button id="btn-settings" onclick="openSettingsSheet()" class="absolute top-4 right-4 bg-cosmos-surface/80 backdrop-blur-md border border-cosmos-dim/30 text-cosmos-glow text-sm w-9 h-9 rounded-full hover:bg-cosmos-accent/20 transition z-30" title="設定">⚙</button>
     <button id="btn-recenter" onclick="recenterSelf()" class="absolute bottom-4 right-4 bg-cosmos-surface/80 backdrop-blur-md border border-cosmos-dim/30 text-cosmos-glow text-xs px-3 py-2 rounded-full hover:bg-cosmos-accent/20 transition z-30">⊕ 中心に戻る</button>
   </div>
 </div>
@@ -190,9 +254,53 @@ tailwind.config = {
   </div>
 </div>
 
+<!-- ===== 連絡先アクセス許可ダイアログ ===== -->
+<div id="permission-overlay" class="perm-overlay">
+  <div class="perm-dialog">
+    <div class="perm-body">
+      <div class="text-3xl mb-3">📇</div>
+      <h3 class="text-sm font-bold text-cosmos-star leading-relaxed mb-2">
+        “Goen Universe”が<br>連絡先へのアクセスを求めています
+      </h3>
+      <p class="text-[11px] perm-desc leading-relaxed">
+        連絡先の名前を読み取り、まだ記録していないご縁を「これから輝く星」としてユニバースに配置します。
+      </p>
+      <div class="mt-3 text-[10px] perm-note bg-cosmos-bg/60 rounded-lg p-2.5 leading-relaxed text-left">
+        🔒 読み取った連絡先はこの端末の中だけに保存されます。外部サーバーへの送信・アップロードは一切行いません。
+      </div>
+    </div>
+    <div class="perm-actions">
+      <button onclick="denyContactsAccess()">許可しない</button>
+      <button onclick="grantContactsAccess()">許可</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 連絡先インポート ボトムシート ===== -->
+<div id="contacts-overlay" class="bottom-sheet-overlay" onclick="closeContactsSheet(event)">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="bottom-sheet-handle"></div>
+    <div id="contacts-sheet-content"></div>
+  </div>
+</div>
+
+<!-- ===== 設定 ボトムシート ===== -->
+<div id="settings-overlay" class="bottom-sheet-overlay" onclick="closeSettingsSheet(event)">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="bottom-sheet-handle"></div>
+    <div id="settings-sheet-content"></div>
+  </div>
+</div>
+
+<input type="file" id="contacts-file-input" accept=".vcf,.vcard,.csv,text/csv,text/vcard" class="hidden" onchange="handleContactsFile(event)">
+<div id="toast"></div>
+
 <!-- ===== ご縁一覧画面 ===== -->
 <div id="screen-people" class="screen px-4 pt-6">
   <h2 class="text-center text-lg font-medium glow mb-4">Goen一覧</h2>
+  <button onclick="openContactsSheetFromPeople()" class="w-full mb-4 py-3 rounded-xl bg-cosmos-surface border border-cosmos-accent/30 text-sm text-cosmos-glow hover:bg-cosmos-accent/15 transition">
+    📇 連絡先からご縁を追加
+  </button>
   <div id="people-list" class="space-y-3"></div>
   <div id="people-empty" class="text-center text-cosmos-dim text-sm mt-12 hidden">まだ誰も記録されていません</div>
 </div>
@@ -466,6 +574,7 @@ const COMMUNITY_COLORS = {
   'クリエイティブ': '#e879f9',
   '医療・教育': '#ef4444',
   '食・地方創生': '#a78bfa',
+  '連絡先': '#64748b',
 };
 
 // 人物IDベースの手動分類（所属・エピソード・センチメントから判定）
@@ -523,6 +632,8 @@ const PERSON_COMMUNITY = {
 function assignCommunity(tags, personId) {
   if (personId && PERSON_COMMUNITY[personId]) return PERSON_COMMUNITY[personId];
   const t = (tags || []).join(' ').toLowerCase();
+  // 連絡先から取り込んだだけ（まだ記録なし）の人はひとつの星団にまとめる
+  if (/連絡先/.test(t) && !/金融|起業|学び|商社|政策/.test(t)) return '連絡先';
   if (/金融|投資|vc|ファンド|fp|ヘッジ/.test(t)) return '金融マーケット';
   if (/起業|スタートアップ|ai|テク|エンジニア|govtech|データ/.test(t)) return '起業・テック';
   if (/政策|政治|法律|外交|防災|社会|ジェンダー|詐欺|人類学|社会学/.test(t)) return '社会・政策';
@@ -572,6 +683,7 @@ function renderUniverse() {
   // 距離感 → 星のサイズ・明るさに反映
   function closenessFromContext(ctx) {
     if (!ctx) return 0.3;
+    if (/連絡先から追加/.test(ctx)) return 0.15;
     if (/仲良い/.test(ctx)) return 1.0;
     if (/同期/.test(ctx)) return 0.85;
     if (/先輩/.test(ctx)) return 0.6;
@@ -947,6 +1059,7 @@ function renderPeople() {
       <div class="flex items-center gap-3 mb-2">
         <span class="brightness-dot ${brightnessClass(p.days)}"></span>
         <span class="font-medium text-sm">${p.name}</span>
+        ${p.source === 'contacts' ? '<span class="text-[10px] text-cosmos-dim border border-cosmos-dim/40 px-1.5 py-0.5 rounded">連絡先</span>' : ''}
         <span class="text-xs text-cosmos-dim ml-auto">${p.count}回 · ${p.days === 9999 ? '—' : p.days + '日前'}</span>
       </div>
       <div class="flex gap-1 flex-wrap mb-2">${p.tags.slice(0, 5).map(t => `<span class="text-[10px] bg-cosmos-accent/15 text-cosmos-glow px-2 py-0.5 rounded-full">#${t}</span>`).join('')}</div>
@@ -1345,6 +1458,11 @@ function generateDMText(d) {
 
   // 全文パターン（投げかけで終わる短い1〜2文、話の入り口）
   const templates = {
+    '連絡先': [
+      `${name}さん！ご無沙汰しています。最近どうされてますか？`,
+      `${name}さん、連絡先を整理していてお名前が目に入りました。近況聞かせてください！`,
+      `${name}さん！しばらくお話しできてないですね。近いうちにお茶でもどうですか？`,
+    ],
     '起業': [
       `${name}さん！前に話してたプロジェクトの件、あれからどうなりました？`,
       `${name}さん、この前ふと思い出してて。事業の調子どうですか？`,
@@ -1663,10 +1781,456 @@ function stopShootingStarCycle() {
   clearActiveComets();
 }
 
+// ===== 連絡先アクセス =====
+const STORAGE_KEY_CONTACTS_PERM = 'goen_contacts_permission';   // 'granted' | 'denied' | null(未決定)
+const STORAGE_KEY_CONTACTS_META = 'goen_contacts_meta';
+
+let contactCandidates = [];   // インポート候補（プレビュー中）
+
+function getContactsPermission() {
+  const v = localStorage.getItem(STORAGE_KEY_CONTACTS_PERM);
+  return (v === 'granted' || v === 'denied') ? v : null;
+}
+function setContactsPermission(state) {
+  if (state === null) localStorage.removeItem(STORAGE_KEY_CONTACTS_PERM);
+  else localStorage.setItem(STORAGE_KEY_CONTACTS_PERM, state);
+}
+function getContactsMeta() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY_CONTACTS_META)) || {}; } catch { return {}; }
+}
+function saveContactsMeta(meta) {
+  localStorage.setItem(STORAGE_KEY_CONTACTS_META, JSON.stringify({ ...getContactsMeta(), ...meta }));
+}
+function deviceContactsSupported() {
+  return typeof navigator !== 'undefined' && 'contacts' in navigator && 'ContactsManager' in window;
+}
+
+// ----- トースト -----
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ----- 許可ダイアログ -----
+function requestContactsPermission() {
+  document.getElementById('permission-overlay').classList.add('open');
+}
+function closePermissionDialog() {
+  document.getElementById('permission-overlay').classList.remove('open');
+}
+function grantContactsAccess() {
+  setContactsPermission('granted');
+  saveContactsMeta({ grantedAt: new Date().toISOString() });
+  closePermissionDialog();
+  setTimeout(openContactsSheet, 250);
+}
+function denyContactsAccess() {
+  setContactsPermission('denied');
+  saveContactsMeta({ deniedAt: new Date().toISOString() });
+  closePermissionDialog();
+  showToast('連絡先へのアクセスはオフのままです。⚙ 設定からいつでも変更できます');
+}
+// 初回起動時のみ自動で確認する
+function maybePromptContactsPermission() {
+  if (getContactsPermission() !== null) return;
+  setTimeout(requestContactsPermission, 1200);
+}
+
+// ----- インポート元の選択 -----
+function openContactsSheet() {
+  if (getContactsPermission() !== 'granted') { requestContactsPermission(); return; }
+  contactCandidates = [];
+  const content = document.getElementById('contacts-sheet-content');
+  content.innerHTML = `
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-10 h-10 rounded-full bg-cosmos-accent/20 flex items-center justify-center text-lg">📇</div>
+      <div>
+        <div class="text-base font-bold text-cosmos-star">連絡先を読み込む</div>
+        <div class="text-[11px] text-cosmos-dim">読み込み方法を選んでください</div>
+      </div>
+    </div>
+    <div class="space-y-2">
+      ${deviceContactsSupported() ? `
+      <button class="source-btn" onclick="pickDeviceContacts()">
+        <span class="text-xl">📱</span>
+        <span class="flex-1">
+          <span class="block text-sm text-cosmos-star font-medium">端末の連絡先から選ぶ</span>
+          <span class="block text-[10px] text-cosmos-dim mt-0.5">OSの連絡先ピッカーを開きます</span>
+        </span>
+        <span class="text-cosmos-dim">›</span>
+      </button>` : `
+      <div class="source-btn" style="cursor:default;opacity:0.45">
+        <span class="text-xl">📱</span>
+        <span class="flex-1">
+          <span class="block text-sm text-cosmos-star font-medium">端末の連絡先から選ぶ</span>
+          <span class="block text-[10px] text-cosmos-dim mt-0.5">このブラウザは非対応（Android版Chromeなどで利用可）</span>
+        </span>
+      </div>`}
+      <button class="source-btn" onclick="document.getElementById('contacts-file-input').click()">
+        <span class="text-xl">📄</span>
+        <span class="flex-1">
+          <span class="block text-sm text-cosmos-star font-medium">ファイルから読み込む</span>
+          <span class="block text-[10px] text-cosmos-dim mt-0.5">vCard（.vcf）または CSV に対応</span>
+        </span>
+        <span class="text-cosmos-dim">›</span>
+      </button>
+      <button class="source-btn" onclick="loadSampleContacts()">
+        <span class="text-xl">✨</span>
+        <span class="flex-1">
+          <span class="block text-sm text-cosmos-star font-medium">サンプルの連絡先で試す</span>
+          <span class="block text-[10px] text-cosmos-dim mt-0.5">動作を確認するためのダミーデータ</span>
+        </span>
+        <span class="text-cosmos-dim">›</span>
+      </button>
+    </div>
+    <p class="text-[10px] text-cosmos-dim/70 leading-relaxed mt-4">
+      🔒 読み取った内容はこの端末のブラウザ内（localStorage）にのみ保存されます。
+    </p>
+  `;
+  document.getElementById('contacts-overlay').classList.add('open');
+}
+function closeContactsSheet(event) {
+  if (event && event.target && event.target !== event.currentTarget) return;
+  document.getElementById('contacts-overlay').classList.remove('open');
+}
+
+// ----- 端末の連絡先ピッカー -----
+async function pickDeviceContacts() {
+  try {
+    const available = await navigator.contacts.getProperties();
+    const props = ['name', 'email', 'tel'].filter(x => available.includes(x));
+    if (!props.length) { showToast('この端末では連絡先を読み取れませんでした'); return; }
+    const selected = await navigator.contacts.select(props, { multiple: true });
+    if (!selected || !selected.length) { showToast('連絡先が選択されませんでした'); return; }
+    const list = selected.map(c => ({
+      name: (c.name && c.name[0]) ? String(c.name[0]).trim() : '',
+      email: (c.email && c.email[0]) ? String(c.email[0]) : '',
+      tel: (c.tel && c.tel[0]) ? String(c.tel[0]) : '',
+      org: '',
+    })).filter(c => c.name);
+    showContactCandidates(list, '端末の連絡先');
+  } catch (e) {
+    showToast('連絡先を読み取れませんでした: ' + (e && e.message ? e.message : e));
+  }
+}
+
+// ----- ファイル読み込み -----
+function handleContactsFile(event) {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const text = String(reader.result || '');
+    const isVcard = /\.vcf$|\.vcard$/i.test(file.name) || /BEGIN:VCARD/i.test(text);
+    const list = isVcard ? parseVCard(text) : parseContactsCSV(text);
+    if (!list.length) { showToast('連絡先を読み取れませんでした（形式をご確認ください）'); return; }
+    showContactCandidates(list, file.name);
+  };
+  reader.onerror = () => showToast('ファイルを読み込めませんでした');
+  reader.readAsText(file);
+}
+
+function parseVCard(text) {
+  const out = [];
+  const cards = text.split(/BEGIN:VCARD/i).slice(1);
+  for (const card of cards) {
+    // 折り返し行（先頭が空白）を連結
+    const lines = card.replace(/\r\n[ \t]/g, '').replace(/\n[ \t]/g, '').split(/\r?\n/);
+    const c = { name: '', email: '', tel: '', org: '' };
+    let structured = '';
+    for (const line of lines) {
+      const idx = line.indexOf(':');
+      if (idx < 0) continue;
+      const key = line.slice(0, idx).toUpperCase();
+      const val = line.slice(idx + 1).trim();
+      if (!val) continue;
+      if (/^FN(;|$)/.test(key)) c.name = val;
+      else if (/^N(;|$)/.test(key)) structured = val.split(';').filter(Boolean).join(' ').trim();
+      else if (/^EMAIL(;|$)/.test(key) && !c.email) c.email = val;
+      else if (/^TEL(;|$)/.test(key) && !c.tel) c.tel = val;
+      else if (/^ORG(;|$)/.test(key) && !c.org) c.org = val.split(';').filter(Boolean).join(' ').trim();
+    }
+    if (!c.name) c.name = structured;
+    if (c.name) out.push(c);
+  }
+  return out;
+}
+
+function splitCsvLine(line) {
+  const cells = [];
+  let cur = '', inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"') { if (line[i+1] === '"') { cur += '"'; i++; } else inQuotes = false; }
+      else cur += ch;
+    } else if (ch === '"') inQuotes = true;
+    else if (ch === ',') { cells.push(cur); cur = ''; }
+    else cur += ch;
+  }
+  cells.push(cur);
+  return cells.map(c => c.trim());
+}
+
+function parseContactsCSV(text) {
+  const rows = text.split(/\r?\n/).filter(l => l.trim()).map(splitCsvLine);
+  if (!rows.length) return [];
+  const header = rows[0].map(h => h.toLowerCase());
+  const find = (patterns) => header.findIndex(h => patterns.some(p => h.includes(p)));
+  let iName  = find(['name', '氏名', '名前', 'フルネーム']);
+  const iFirst = find(['first', '名']);
+  const iLast  = find(['last', '姓']);
+  const iMail  = find(['email', 'mail', 'メール']);
+  const iTel   = find(['phone', 'tel', '電話']);
+  const iOrg   = find(['company', 'organization', '会社', '所属', '組織']);
+  const hasHeader = iName >= 0 || iFirst >= 0 || iLast >= 0 || iMail >= 0;
+  const body = hasHeader ? rows.slice(1) : rows;
+  if (!hasHeader) iName = 0;
+  const out = [];
+  for (const r of body) {
+    let name = iName >= 0 ? (r[iName] || '') : '';
+    if (!name && (iLast >= 0 || iFirst >= 0)) {
+      name = [iLast >= 0 ? r[iLast] : '', iFirst >= 0 ? r[iFirst] : ''].filter(Boolean).join(' ');
+    }
+    name = (name || '').trim();
+    if (!name) continue;
+    out.push({
+      name,
+      email: iMail >= 0 ? (r[iMail] || '') : '',
+      tel:   iTel  >= 0 ? (r[iTel]  || '') : '',
+      org:   iOrg  >= 0 ? (r[iOrg]  || '') : '',
+    });
+  }
+  return out;
+}
+
+function loadSampleContacts() {
+  showContactCandidates([
+    { name: '青木 悠真', org: '三井物産', email: 'aoki@example.com', tel: '' },
+    { name: '井上 詩織', org: 'freee', email: '', tel: '090-0000-0001' },
+    { name: '遠藤 涼太', org: '慶應義塾大学', email: 'endo@example.com', tel: '' },
+    { name: '加賀美 結衣', org: 'リクルート', email: '', tel: '' },
+    { name: '佐久間 蓮', org: 'ゴールドマン・サックス証券', email: '', tel: '090-0000-0002' },
+    { name: '高橋 志穂', org: '電通', email: 'takahashi@example.com', tel: '' },
+    { name: '林 直輝', org: 'ANRI', email: '', tel: '' },
+    { name: '南 みなみ', org: '厚生労働省', email: '', tel: '' },
+    { name: '浅尾洋佑', org: 'モルガンスタンレーMUFG証券', email: '', tel: '' },
+  ], 'サンプル連絡先');
+}
+
+// ----- 候補プレビュー -----
+function normalizeName(n) {
+  return String(n || '')
+    .replace(/[\s　]/g, '')
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0))
+    .toLowerCase();
+}
+
+function showContactCandidates(list, sourceLabel) {
+  // 同一ファイル内の重複を除去
+  const seen = new Set();
+  const existing = new Set(people.map(p => normalizeName(p.name)));
+  contactCandidates = [];
+  for (const c of list) {
+    const key = normalizeName(c.name);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    contactCandidates.push({ ...c, key, duplicate: existing.has(key), selected: !existing.has(key) });
+  }
+  renderContactCandidates(sourceLabel);
+  document.getElementById('contacts-overlay').classList.add('open');
+}
+
+function renderContactCandidates(sourceLabel) {
+  const content = document.getElementById('contacts-sheet-content');
+  const newOnes = contactCandidates.filter(c => !c.duplicate);
+  const dupCount = contactCandidates.length - newOnes.length;
+  const selectedCount = contactCandidates.filter(c => c.selected && !c.duplicate).length;
+  const allSelected = newOnes.length > 0 && selectedCount === newOnes.length;
+
+  if (!contactCandidates.length) {
+    content.innerHTML = `<p class="text-sm text-cosmos-dim text-center py-8">読み取れる連絡先がありませんでした</p>
+      <button onclick="openContactsSheet()" class="w-full mt-2 py-3 rounded-xl bg-cosmos-surface border border-cosmos-dim/30 text-sm text-cosmos-glow">戻る</button>`;
+    return;
+  }
+
+  content.innerHTML = `
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-10 h-10 rounded-full bg-cosmos-accent/20 flex items-center justify-center text-lg">📇</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-base font-bold text-cosmos-star">${contactCandidates.length}件の連絡先</div>
+        <div class="text-[11px] text-cosmos-dim truncate">${escapeHtml(sourceLabel || '')}${dupCount ? ` · ${dupCount}件は登録済み` : ''}</div>
+      </div>
+      <button onclick="toggleAllContacts(${allSelected ? 'false' : 'true'})" class="text-[11px] text-cosmos-glow border border-cosmos-accent/40 px-2.5 py-1.5 rounded-lg hover:bg-cosmos-accent/15 transition whitespace-nowrap">
+        ${allSelected ? 'すべて解除' : 'すべて選択'}
+      </button>
+    </div>
+    <div class="contact-scroll space-y-1.5 mb-4">
+      ${contactCandidates.map((c, i) => `
+        <div class="contact-row ${c.selected && !c.duplicate ? 'checked' : ''} ${c.duplicate ? 'disabled' : ''}" ${c.duplicate ? '' : `onclick="toggleContact(${i})"`}>
+          <div class="contact-check">✓</div>
+          <div class="contact-avatar">${escapeHtml(c.name.trim().charAt(0))}</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm text-cosmos-star truncate">${escapeHtml(c.name)}</div>
+            <div class="text-[10px] text-cosmos-dim truncate">${escapeHtml(c.org || c.email || c.tel || '')}</div>
+          </div>
+          ${c.duplicate ? '<span class="text-[10px] text-cosmos-dim whitespace-nowrap">登録済み</span>' : ''}
+        </div>
+      `).join('')}
+    </div>
+    <div class="flex gap-2">
+      <button onclick="openContactsSheet()" class="px-4 py-3 rounded-xl bg-cosmos-surface border border-cosmos-dim/30 text-sm text-cosmos-dim">戻る</button>
+      <button onclick="importSelectedContacts()" ${selectedCount ? '' : 'disabled'}
+        class="flex-1 py-3 rounded-xl text-sm font-medium transition ${selectedCount ? 'bg-cosmos-accent hover:bg-indigo-500 text-white' : 'bg-cosmos-surface text-cosmos-dim cursor-not-allowed'}">
+        ${selectedCount ? `${selectedCount}件をGoenに追加` : '追加する連絡先を選択'}
+      </button>
+    </div>
+  `;
+  contactSourceLabel = sourceLabel;
+}
+
+let contactSourceLabel = '';
+function toggleContact(index) {
+  const c = contactCandidates[index];
+  if (!c || c.duplicate) return;
+  c.selected = !c.selected;
+  renderContactCandidates(contactSourceLabel);
+}
+function toggleAllContacts(select) {
+  for (const c of contactCandidates) { if (!c.duplicate) c.selected = select; }
+  renderContactCandidates(contactSourceLabel);
+}
+
+// ----- インポート実行 -----
+function importSelectedContacts() {
+  const targets = contactCandidates.filter(c => c.selected && !c.duplicate);
+  if (!targets.length) return;
+  const now = new Date().toISOString();
+  for (const c of targets) {
+    const tags = ['連絡先'];
+    const orgTag = orgToTag(c.org);
+    if (orgTag && !tags.includes(orgTag)) tags.push(orgTag);
+    people.push({
+      id: uuid(),
+      name: c.name,
+      createdAt: now,
+      tags,
+      context: c.org ? `連絡先から追加。所属:${c.org}` : '連絡先から追加。まだ記録なし',
+      source: 'contacts',
+      contact: { email: c.email || '', tel: c.tel || '', org: c.org || '' },
+    });
+  }
+  saveData(STORAGE_KEY_PEOPLE, people);
+  const meta = getContactsMeta();
+  saveContactsMeta({
+    lastImportAt: now,
+    importedCount: (meta.importedCount || 0) + targets.length,
+    lastSource: contactSourceLabel || '',
+  });
+  document.getElementById('contacts-overlay').classList.remove('open');
+  contactCandidates = [];
+  showToast(`${targets.length}件のご縁をユニバースに追加しました`);
+  refreshAllScreens();
+}
+
+function orgToTag(org) {
+  if (!org) return '';
+  const t = String(org);
+  if (/証券|證券|銀行|信託|アセット|キャピタル|ファンド|投資|保険/.test(t)) return '金融';
+  if (/大学|大学院|研究/.test(t)) return '学び';
+  if (/商事|物産|商社/.test(t)) return '商社';
+  if (/省|庁|自治体|役所/.test(t)) return '政策';
+  return '';
+}
+
+function refreshAllScreens() {
+  const active = document.querySelector('.screen.active');
+  const name = active ? active.id.replace('screen-', '') : 'universe';
+  if (name === 'universe') { renderUniverse(); startShootingStarCycle(); }
+  if (name === 'people') renderPeople();
+  if (name === 'home') renderHome();
+}
+
+function openContactsSheetFromPeople() {
+  if (getContactsPermission() === 'granted') openContactsSheet();
+  else requestContactsPermission();
+}
+
+// ----- 設定シート -----
+function openSettingsSheet() {
+  const perm = getContactsPermission();
+  const meta = getContactsMeta();
+  const importedNow = people.filter(p => p.source === 'contacts').length;
+  const statusLabel = perm === 'granted' ? '許可済み' : perm === 'denied' ? '許可しない' : '未設定';
+  const statusColor = perm === 'granted' ? 'text-emerald-400' : perm === 'denied' ? 'text-cosmos-dim' : 'text-cosmos-warm';
+
+  document.getElementById('settings-sheet-content').innerHTML = `
+    <div class="text-base font-bold text-cosmos-star mb-4">設定</div>
+    <div class="bg-cosmos-bg/60 rounded-xl p-4 mb-3">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="text-lg">📇</span>
+        <span class="text-sm text-cosmos-star font-medium flex-1">連絡先へのアクセス</span>
+        <span class="text-xs font-medium ${statusColor}">${statusLabel}</span>
+      </div>
+      <p class="text-[11px] text-cosmos-dim leading-relaxed">
+        ${perm === 'granted'
+          ? `連絡先から${importedNow}名を取り込み済み${meta.lastImportAt ? `（最終: ${formatDate(meta.lastImportAt)}）` : ''}`
+          : '連絡先を読み込むと、まだ記録していないご縁もユニバースに配置されます。'}
+      </p>
+      <div class="flex gap-2 mt-3">
+        ${perm === 'granted' ? `
+          <button onclick="closeSettingsSheet(); setTimeout(openContactsSheet, 250);" class="flex-1 py-2.5 rounded-lg bg-cosmos-accent hover:bg-indigo-500 text-white text-xs font-medium transition">連絡先を読み込む</button>
+          <button onclick="revokeContactsAccess()" class="px-3 py-2.5 rounded-lg bg-cosmos-surface border border-cosmos-dim/30 text-cosmos-dim text-xs">許可を取り消す</button>
+        ` : `
+          <button onclick="closeSettingsSheet(); setTimeout(requestContactsPermission, 250);" class="flex-1 py-2.5 rounded-lg bg-cosmos-accent hover:bg-indigo-500 text-white text-xs font-medium transition">連絡先へのアクセスを許可</button>
+        `}
+      </div>
+    </div>
+    ${importedNow ? `
+    <button onclick="removeImportedContacts()" class="w-full text-left px-4 py-3 rounded-xl bg-cosmos-bg/60 text-xs text-red-400/90 hover:bg-red-500/10 transition">
+      連絡先から取り込んだ${importedNow}名を削除
+    </button>` : ''}
+    <p class="text-[10px] text-cosmos-dim/70 leading-relaxed mt-4">
+      🔒 Goen Universeのデータはすべてこの端末のブラウザ内に保存されます。外部への送信は行いません。
+    </p>
+  `;
+  document.getElementById('settings-overlay').classList.add('open');
+}
+function closeSettingsSheet(event) {
+  if (event && event.target && event.target !== event.currentTarget) return;
+  document.getElementById('settings-overlay').classList.remove('open');
+}
+function revokeContactsAccess() {
+  setContactsPermission('denied');
+  saveContactsMeta({ revokedAt: new Date().toISOString() });
+  openSettingsSheet();
+  showToast('連絡先へのアクセスをオフにしました');
+}
+function removeImportedContacts() {
+  const targets = people.filter(p => p.source === 'contacts');
+  if (!targets.length) return;
+  if (!confirm(`連絡先から取り込んだ${targets.length}名を削除します。よろしいですか？`)) return;
+  const ids = new Set(targets.map(p => p.id));
+  people = people.filter(p => !ids.has(p.id));
+  encounters = encounters.map(e => ({ ...e, personIds: e.personIds.filter(id => !ids.has(id)) }));
+  saveData(STORAGE_KEY_PEOPLE, people);
+  saveData(STORAGE_KEY_ENCOUNTERS, encounters);
+  saveContactsMeta({ importedCount: 0 });
+  openSettingsSheet();
+  showToast(`${targets.length}名を削除しました`);
+  refreshAllScreens();
+}
+
 // ===== 初期化 =====
 seedDemoData();
 renderUniverse();
 startShootingStarCycle();
+maybePromptContactsPermission();
 </script>
 </body>
 </html>
