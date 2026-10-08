@@ -124,16 +124,18 @@ tailwind.config = {
   .bottom-sheet-overlay.open { opacity: 1; pointer-events: auto; }
   .bottom-sheet {
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
-    width: 100%; max-width: 42rem; z-index: 61;
+    width: 100%; max-width: 64rem; z-index: 61;
     background: #12122a; border-top: 1px solid #6366f1;
     border-radius: 16px 16px 0 0; padding: 20px 20px 32px;
     transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   }
   .bottom-sheet-overlay.open .bottom-sheet { transform: translateX(-50%) translateY(0); }
   .bottom-sheet-handle { width: 36px; height: 4px; background: #4a4a6a; border-radius: 2px; margin: 0 auto 16px; }
+  .filter-chip { color: #4a4a6a; background: transparent; cursor: pointer; }
+  .filter-chip.active { color: #f0f0ff; background: #6366f1; border-color: #6366f1; }
 </style>
 </head>
-<body class="max-w-[42rem] mx-auto relative pb-20">
+<body class="max-w-[64rem] mx-auto relative pb-20">
 
 <!-- ===== ホーム画面 ===== -->
 <div id="screen-home" class="screen px-4 pt-6">
@@ -190,11 +192,41 @@ tailwind.config = {
   </div>
 </div>
 
-<!-- ===== ご縁一覧画面 ===== -->
-<div id="screen-people" class="screen px-4 pt-6">
-  <h2 class="text-center text-lg font-medium glow mb-4">Goen一覧</h2>
-  <div id="people-list" class="space-y-3"></div>
-  <div id="people-empty" class="text-center text-cosmos-dim text-sm mt-12 hidden">まだ誰も記録されていません</div>
+<!-- ===== Goen一覧画面 ===== -->
+<div id="screen-people" class="screen px-4 pt-6 pb-24">
+  <h2 class="text-center text-lg font-medium glow mb-3">Goen一覧</h2>
+  <div class="mb-3">
+    <input type="text" id="people-search" placeholder="名前で検索..." oninput="renderPeople()"
+      class="w-full bg-cosmos-surface text-cosmos-star placeholder-cosmos-dim text-sm rounded-lg px-3 py-2 outline-none border border-cosmos-dim/20 focus:border-cosmos-accent/50">
+  </div>
+  <div class="flex gap-1.5 mb-2 overflow-x-auto pb-1" style="scrollbar-width:none" id="people-filter-group">
+    <button onclick="setPeopleFilter('group','')" data-v="" class="filter-chip active text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">全員</button>
+    <button onclick="setPeopleFilter('group','保田研究会')" data-v="保田研究会" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">保田研究会</button>
+    <button onclick="setPeopleFilter('group','Hive Japan')" data-v="Hive Japan" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">Hive Japan</button>
+  </div>
+  <div class="flex gap-1.5 mb-3 overflow-x-auto pb-1" style="scrollbar-width:none" id="people-filter-theme">
+    <button onclick="setPeopleFilter('theme','')" data-v="" class="filter-chip active text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">全テーマ</button>
+    <button onclick="setPeopleFilter('theme','金融')" data-v="金融" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">金融</button>
+    <button onclick="setPeopleFilter('theme','起業')" data-v="起業" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">起業</button>
+    <button onclick="setPeopleFilter('theme','テク')" data-v="テク" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">テック</button>
+    <button onclick="setPeopleFilter('theme','政策')" data-v="政策" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">政策</button>
+    <button onclick="setPeopleFilter('theme','クリエイティブ')" data-v="クリエイティブ" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">クリエイティブ</button>
+    <button onclick="setPeopleFilter('theme','海外')" data-v="海外" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">海外</button>
+    <button onclick="setPeopleFilter('theme','医療')" data-v="医療" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">医療・教育</button>
+    <button onclick="setPeopleFilter('theme','食')" data-v="食" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">食・地方</button>
+    <button onclick="setPeopleFilter('theme','コンサル')" data-v="コンサル" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">コンサル</button>
+  </div>
+  <div class="flex items-center gap-2 mb-3">
+    <select id="people-sort" onchange="renderPeople()" class="bg-cosmos-surface text-cosmos-star text-[11px] rounded px-2 py-1 border border-cosmos-dim/20 outline-none">
+      <option value="name">名前順</option>
+      <option value="group">所属順</option>
+      <option value="recent">最近の記録順</option>
+      <option value="count">記録回数順</option>
+    </select>
+    <span class="text-[10px] text-cosmos-dim ml-auto" id="people-count"></span>
+  </div>
+  <div id="people-list" class="space-y-2"></div>
+  <div id="people-empty" class="text-center text-cosmos-dim text-sm mt-12 hidden">該当する人がいません</div>
 </div>
 
 <!-- ===== リコネクト履歴画面 ===== -->
@@ -214,7 +246,7 @@ tailwind.config = {
 </div>
 
 <!-- ===== 底部ナビゲーション ===== -->
-<nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[42rem] bg-cosmos-surface/80 backdrop-blur-md border-t border-cosmos-dim/30 z-40">
+<nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[64rem] bg-cosmos-surface/80 backdrop-blur-md border-t border-cosmos-dim/30 z-40">
   <div class="flex justify-around py-3">
     <button onclick="switchScreen('universe')" data-nav="universe" class="nav-btn flex flex-col items-center text-xs text-cosmos-accent">
       <span class="text-lg mb-0.5">✨</span>ユニバース
@@ -913,27 +945,69 @@ function renderUniverse() {
   });
 }
 
-// ===== ご縁一覧画面 =====
+// ===== Goen一覧画面 =====
+let peopleFilterGroup = '';
+let peopleFilterTheme = '';
+
+function setPeopleFilter(type, value) {
+  if (type === 'group') {
+    peopleFilterGroup = value;
+    document.querySelectorAll('#people-filter-group .filter-chip').forEach(b => {
+      b.classList.toggle('active', b.dataset.v === value);
+    });
+  } else {
+    peopleFilterTheme = value;
+    document.querySelectorAll('#people-filter-theme .filter-chip').forEach(b => {
+      b.classList.toggle('active', b.dataset.v === value);
+    });
+  }
+  renderPeople();
+}
+
 function renderPeople() {
   const container = document.getElementById('people-list');
   const emptyEl = document.getElementById('people-empty');
+  const countEl = document.getElementById('people-count');
+  const searchVal = (document.getElementById('people-search')?.value || '').toLowerCase();
+  const sortVal = document.getElementById('people-sort')?.value || 'name';
 
   if (!people.length) {
     container.innerHTML = '';
     emptyEl.classList.remove('hidden');
+    if (countEl) countEl.textContent = '';
     return;
   }
-  emptyEl.classList.add('hidden');
 
-  const enriched = people.map(p => {
+  let enriched = people.map(p => {
     const encs = encounters.filter(e => e.personIds.includes(p.id));
     const count = encs.length;
     const sorted = [...encs].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
     const lastEnc = sorted[0];
     const days = lastEnc ? daysBetween(lastEnc.createdAt) : 9999;
     const lastText = lastEnc ? lastEnc.text : '';
-    return { ...p, count, days, lastText };
-  }).sort((a,b) => a.days - b.days);
+    const group = (p.tags || []).find(t => t === '保田研究会' || t === 'Hive Japan') || '';
+    return { ...p, count, days, lastText, group };
+  });
+
+  // フィルター
+  if (searchVal) enriched = enriched.filter(p => p.name.toLowerCase().includes(searchVal));
+  if (peopleFilterGroup) enriched = enriched.filter(p => p.group === peopleFilterGroup);
+  if (peopleFilterTheme) enriched = enriched.filter(p => (p.tags || []).some(t => t.toLowerCase().includes(peopleFilterTheme.toLowerCase())) || (p.context || '').toLowerCase().includes(peopleFilterTheme.toLowerCase()));
+
+  // ソート
+  if (sortVal === 'name') enriched.sort((a,b) => a.name.localeCompare(b.name, 'ja'));
+  else if (sortVal === 'group') enriched.sort((a,b) => (a.group || 'zzz').localeCompare(b.group || 'zzz') || a.name.localeCompare(b.name, 'ja'));
+  else if (sortVal === 'recent') enriched.sort((a,b) => a.days - b.days);
+  else if (sortVal === 'count') enriched.sort((a,b) => b.count - a.count);
+
+  if (countEl) countEl.textContent = `${enriched.length}人`;
+
+  if (!enriched.length) {
+    container.innerHTML = '';
+    emptyEl.classList.remove('hidden');
+    return;
+  }
+  emptyEl.classList.add('hidden');
 
   function brightnessClass(days) {
     if (days <= 7) return 'brightness-white';
@@ -943,14 +1017,14 @@ function renderPeople() {
   }
 
   container.innerHTML = enriched.map(p => `
-    <div class="bg-cosmos-surface rounded-xl p-4 card-hover">
-      <div class="flex items-center gap-3 mb-2">
+    <div class="bg-cosmos-surface rounded-xl p-3 card-hover">
+      <div class="flex items-center gap-2 mb-1.5">
         <span class="brightness-dot ${brightnessClass(p.days)}"></span>
-        <span class="font-medium text-sm">${p.name}</span>
-        <span class="text-xs text-cosmos-dim ml-auto">${p.count}回 · ${p.days === 9999 ? '—' : p.days + '日前'}</span>
+        <span class="font-medium text-sm">${escapeHtml(p.name)}</span>
+        <span class="text-[10px] text-cosmos-dim ml-auto">${p.count ? p.count + '回' : ''}</span>
       </div>
-      <div class="flex gap-1 flex-wrap mb-2">${p.tags.slice(0, 5).map(t => `<span class="text-[10px] bg-cosmos-accent/15 text-cosmos-glow px-2 py-0.5 rounded-full">#${t}</span>`).join('')}</div>
-      ${p.lastText ? `<p class="text-xs text-cosmos-dim truncate">${escapeHtml(p.lastText)}</p>` : ''}
+      ${p.context ? `<p class="text-[11px] text-cosmos-star/60 mb-1.5 leading-relaxed">${escapeHtml(p.context)}</p>` : ''}
+      <div class="flex gap-1 flex-wrap">${(p.tags || []).slice(0, 5).map(t => `<span class="text-[9px] bg-cosmos-accent/15 text-cosmos-glow px-1.5 py-0.5 rounded-full">#${escapeHtml(t)}</span>`).join('')}</div>
     </div>
   `).join('');
 }
