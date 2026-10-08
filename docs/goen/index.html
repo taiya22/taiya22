@@ -180,6 +180,12 @@ tailwind.config = {
     <div class="absolute top-3 left-0 right-0 text-center pointer-events-none">
       <span class="text-xs font-medium glow opacity-40">スクロールして探索 · ダブルタップで中心に戻る</span>
     </div>
+    <!-- 右上: 所属団体スクリーニング -->
+    <div class="absolute top-4 right-4 z-30 flex gap-1.5" id="universe-group-filter">
+      <button onclick="filterUniverse('')" class="univ-filter active text-[10px] px-2.5 py-1.5 rounded-full bg-cosmos-surface/80 backdrop-blur-md border border-cosmos-dim/30 text-cosmos-star transition" data-g="">全員</button>
+      <button onclick="filterUniverse('保田研究会')" class="univ-filter text-[10px] px-2.5 py-1.5 rounded-full bg-cosmos-surface/80 backdrop-blur-md border border-cosmos-dim/30 text-cosmos-dim transition" data-g="保田研究会">保田研究会</button>
+      <button onclick="filterUniverse('Hive Japan')" class="univ-filter text-[10px] px-2.5 py-1.5 rounded-full bg-cosmos-surface/80 backdrop-blur-md border border-cosmos-dim/30 text-cosmos-dim transition" data-g="Hive Japan">Hive Japan</button>
+    </div>
     <button id="btn-recenter" onclick="recenterSelf()" class="absolute bottom-4 right-4 bg-cosmos-surface/80 backdrop-blur-md border border-cosmos-dim/30 text-cosmos-glow text-xs px-3 py-2 rounded-full hover:bg-cosmos-accent/20 transition z-30">⊕ 中心に戻る</button>
   </div>
 </div>
@@ -196,30 +202,16 @@ tailwind.config = {
 <div id="screen-people" class="screen px-4 pt-6 pb-24">
   <h2 class="text-center text-lg font-medium glow mb-3">Goen一覧</h2>
   <div class="mb-3">
-    <input type="text" id="people-search" placeholder="名前で検索..." oninput="renderPeople()"
+    <input type="text" id="people-search" placeholder="名前・タグ・キーワードで検索..." oninput="renderPeople()"
       class="w-full bg-cosmos-surface text-cosmos-star placeholder-cosmos-dim text-sm rounded-lg px-3 py-2 outline-none border border-cosmos-dim/20 focus:border-cosmos-accent/50">
   </div>
-  <div class="flex gap-1.5 mb-2 overflow-x-auto pb-1" style="scrollbar-width:none" id="people-filter-group">
-    <button onclick="setPeopleFilter('group','')" data-v="" class="filter-chip active text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">全員</button>
-    <button onclick="setPeopleFilter('group','保田研究会')" data-v="保田研究会" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">保田研究会</button>
-    <button onclick="setPeopleFilter('group','Hive Japan')" data-v="Hive Japan" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">Hive Japan</button>
-  </div>
-  <div class="flex gap-1.5 mb-3 overflow-x-auto pb-1" style="scrollbar-width:none" id="people-filter-theme">
-    <button onclick="setPeopleFilter('theme','')" data-v="" class="filter-chip active text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">全テーマ</button>
-    <button onclick="setPeopleFilter('theme','金融')" data-v="金融" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">金融</button>
-    <button onclick="setPeopleFilter('theme','起業')" data-v="起業" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">起業</button>
-    <button onclick="setPeopleFilter('theme','テク')" data-v="テク" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">テック</button>
-    <button onclick="setPeopleFilter('theme','政策')" data-v="政策" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">政策</button>
-    <button onclick="setPeopleFilter('theme','クリエイティブ')" data-v="クリエイティブ" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">クリエイティブ</button>
-    <button onclick="setPeopleFilter('theme','海外')" data-v="海外" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">海外</button>
-    <button onclick="setPeopleFilter('theme','医療')" data-v="医療" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">医療・教育</button>
-    <button onclick="setPeopleFilter('theme','食')" data-v="食" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">食・地方</button>
-    <button onclick="setPeopleFilter('theme','コンサル')" data-v="コンサル" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">コンサル</button>
-  </div>
+  <!-- タグフィルター（データから動的生成） -->
+  <div class="flex gap-1.5 mb-3 overflow-x-auto pb-1" style="scrollbar-width:none" id="people-tag-chips"></div>
   <div class="flex items-center gap-2 mb-3">
     <select id="people-sort" onchange="renderPeople()" class="bg-cosmos-surface text-cosmos-star text-[11px] rounded px-2 py-1 border border-cosmos-dim/20 outline-none">
       <option value="name">名前順</option>
       <option value="group">所属順</option>
+      <option value="tag">タグ順</option>
       <option value="recent">最近の記録順</option>
       <option value="count">記録回数順</option>
     </select>
@@ -572,6 +564,20 @@ function assignCommunity(tags, personId) {
   return '起業・テック';
 }
 
+let universeGroupFilter = '';
+function filterUniverse(group) {
+  universeGroupFilter = group;
+  document.querySelectorAll('#universe-group-filter .univ-filter').forEach(b => {
+    const isActive = b.dataset.g === group;
+    b.classList.toggle('active', isActive);
+    b.classList.toggle('text-cosmos-star', isActive);
+    b.classList.toggle('text-cosmos-dim', !isActive);
+    b.classList.toggle('border-cosmos-accent', isActive);
+  });
+  renderUniverse();
+  startShootingStarCycle();
+}
+
 function recenterSelf() {
   if (!currentZoom) return;
   const container = document.getElementById('universe-container');
@@ -613,7 +619,12 @@ function renderUniverse() {
     return 0.4;
   }
 
-  for (const p of people) {
+  // フィルターされたpeopleのみ表示
+  const filteredPeople = universeGroupFilter
+    ? people.filter(p => (p.tags || []).includes(universeGroupFilter))
+    : people;
+
+  for (const p of filteredPeople) {
     const encs = encounters.filter(e => e.personIds.includes(p.id));
     const count = encs.length;
     const lastEnc = count ? [...encs].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0] : null;
@@ -946,22 +957,30 @@ function renderUniverse() {
 }
 
 // ===== Goen一覧画面 =====
-let peopleFilterGroup = '';
-let peopleFilterTheme = '';
+let activeTagFilter = '';
 
-function setPeopleFilter(type, value) {
-  if (type === 'group') {
-    peopleFilterGroup = value;
-    document.querySelectorAll('#people-filter-group .filter-chip').forEach(b => {
-      b.classList.toggle('active', b.dataset.v === value);
-    });
-  } else {
-    peopleFilterTheme = value;
-    document.querySelectorAll('#people-filter-theme .filter-chip').forEach(b => {
-      b.classList.toggle('active', b.dataset.v === value);
-    });
-  }
+function setTagFilter(tag) {
+  activeTagFilter = (activeTagFilter === tag) ? '' : tag;
+  document.querySelectorAll('#people-tag-chips .filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.v === activeTagFilter);
+  });
   renderPeople();
+}
+
+function buildTagChips() {
+  const tagCount = {};
+  for (const p of people) {
+    for (const t of (p.tags || [])) {
+      tagCount[t] = (tagCount[t] || 0) + 1;
+    }
+  }
+  // 人数が多い順にソート
+  const sorted = Object.entries(tagCount).sort((a,b) => b[1] - a[1]);
+  const container = document.getElementById('people-tag-chips');
+  if (!container) return;
+  container.innerHTML = sorted.map(([tag, count]) =>
+    `<button onclick="setTagFilter('${escapeHtml(tag)}')" data-v="${escapeHtml(tag)}" class="filter-chip text-[11px] px-2.5 py-1 rounded-full whitespace-nowrap border border-cosmos-dim/30 transition">#${escapeHtml(tag)} <span class="text-cosmos-dim">${count}</span></button>`
+  ).join('');
 }
 
 function renderPeople() {
@@ -978,6 +997,9 @@ function renderPeople() {
     return;
   }
 
+  // タグチップを初回だけ生成
+  if (!document.querySelector('#people-tag-chips .filter-chip')) buildTagChips();
+
   let enriched = people.map(p => {
     const encs = encounters.filter(e => e.personIds.includes(p.id));
     const count = encs.length;
@@ -989,14 +1011,18 @@ function renderPeople() {
     return { ...p, count, days, lastText, group };
   });
 
-  // フィルター
-  if (searchVal) enriched = enriched.filter(p => p.name.toLowerCase().includes(searchVal));
-  if (peopleFilterGroup) enriched = enriched.filter(p => p.group === peopleFilterGroup);
-  if (peopleFilterTheme) enriched = enriched.filter(p => (p.tags || []).some(t => t.toLowerCase().includes(peopleFilterTheme.toLowerCase())) || (p.context || '').toLowerCase().includes(peopleFilterTheme.toLowerCase()));
+  // フィルター: 検索（名前+タグ+context全部を対象）
+  if (searchVal) enriched = enriched.filter(p => {
+    const hay = [p.name, ...(p.tags||[]), p.context||'', p.lastText||''].join(' ').toLowerCase();
+    return hay.includes(searchVal);
+  });
+  // フィルター: タグ
+  if (activeTagFilter) enriched = enriched.filter(p => (p.tags || []).includes(activeTagFilter));
 
   // ソート
   if (sortVal === 'name') enriched.sort((a,b) => a.name.localeCompare(b.name, 'ja'));
   else if (sortVal === 'group') enriched.sort((a,b) => (a.group || 'zzz').localeCompare(b.group || 'zzz') || a.name.localeCompare(b.name, 'ja'));
+  else if (sortVal === 'tag') enriched.sort((a,b) => ((a.tags||[])[0]||'zzz').localeCompare((b.tags||[])[0]||'zzz') || a.name.localeCompare(b.name, 'ja'));
   else if (sortVal === 'recent') enriched.sort((a,b) => a.days - b.days);
   else if (sortVal === 'count') enriched.sort((a,b) => b.count - a.count);
 
@@ -1024,7 +1050,7 @@ function renderPeople() {
         <span class="text-[10px] text-cosmos-dim ml-auto">${p.count ? p.count + '回' : ''}</span>
       </div>
       ${p.context ? `<p class="text-[11px] text-cosmos-star/60 mb-1.5 leading-relaxed">${escapeHtml(p.context)}</p>` : ''}
-      <div class="flex gap-1 flex-wrap">${(p.tags || []).slice(0, 5).map(t => `<span class="text-[9px] bg-cosmos-accent/15 text-cosmos-glow px-1.5 py-0.5 rounded-full">#${escapeHtml(t)}</span>`).join('')}</div>
+      <div class="flex gap-1 flex-wrap">${(p.tags || []).slice(0, 5).map(t => `<span class="text-[9px] bg-cosmos-accent/15 text-cosmos-glow px-1.5 py-0.5 rounded-full cursor-pointer" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)}</span>`).join('')}</div>
     </div>
   `).join('');
 }
