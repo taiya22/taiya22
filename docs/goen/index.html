@@ -1764,6 +1764,42 @@ function stopShootingStarCycle() {
   clearActiveComets();
 }
 
+// ===== キーボード操作 =====
+document.addEventListener('keydown', (e) => {
+  // ユニバース画面がアクティブな時のみ
+  if (!document.getElementById('screen-universe').classList.contains('active')) return;
+  // テキスト入力中は無視
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
+  const svgEl = document.getElementById('universe-svg');
+  if (!svgEl || !currentZoom) return;
+  const svg = d3.select(svgEl);
+  const t = d3.zoomTransform(svgEl);
+  const step = 50;
+
+  switch (e.key) {
+    // 移動: WASD or 矢印キー
+    case 'ArrowUp': case 'w': case 'W':
+      svg.call(currentZoom.translateBy, 0, step); e.preventDefault(); break;
+    case 'ArrowDown': case 's': case 'S':
+      svg.call(currentZoom.translateBy, 0, -step); e.preventDefault(); break;
+    case 'ArrowLeft': case 'a': case 'A':
+      svg.call(currentZoom.translateBy, step, 0); e.preventDefault(); break;
+    case 'ArrowRight': case 'd': case 'D':
+      svg.call(currentZoom.translateBy, -step, 0); e.preventDefault(); break;
+
+    // ズーム: +/- or Q/E
+    case '+': case '=': case 'e': case 'E':
+      svg.call(currentZoom.scaleBy, 1.2); e.preventDefault(); break;
+    case '-': case '_': case 'q': case 'Q':
+      svg.call(currentZoom.scaleBy, 0.8); e.preventDefault(); break;
+
+    // 中心に戻る: Space or Home
+    case ' ': case 'Home':
+      recenterSelf(); e.preventDefault(); break;
+  }
+});
+
 // ===== 初期化 =====
 seedDemoData();
 renderUniverse();
