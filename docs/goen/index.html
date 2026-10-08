@@ -208,14 +208,15 @@ tailwind.config = {
   <!-- タグフィルター（データから動的生成） -->
   <div class="flex gap-1.5 mb-3 overflow-x-auto pb-1" style="scrollbar-width:none" id="people-tag-chips"></div>
   <div class="flex items-center gap-2 mb-3">
-    <select id="people-sort" onchange="renderPeople()" class="bg-cosmos-surface text-cosmos-star text-[11px] rounded px-2 py-1 border border-cosmos-dim/20 outline-none">
+    <span class="text-[10px] text-cosmos-dim">並び替え</span>
+    <select id="people-sort" onchange="renderPeople()" class="bg-cosmos-surface text-cosmos-star text-[12px] rounded-lg px-3 py-2 border border-cosmos-dim/30 outline-none appearance-none cursor-pointer" style="background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236366f1%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>');background-repeat:no-repeat;background-position:right 8px center;padding-right:28px;">
       <option value="name">名前順</option>
       <option value="group">所属順</option>
       <option value="tag">タグ順</option>
       <option value="recent">最近の記録順</option>
       <option value="count">記録回数順</option>
     </select>
-    <span class="text-[10px] text-cosmos-dim ml-auto" id="people-count"></span>
+    <span class="text-[11px] text-cosmos-glow ml-auto font-medium" id="people-count"></span>
   </div>
   <div id="people-list" class="space-y-2"></div>
   <div id="people-empty" class="text-center text-cosmos-dim text-sm mt-12 hidden">該当する人がいません</div>
